@@ -16,6 +16,16 @@
             <li><a href="#footer">Community</a></li>
             <li><a href="#" aria-disabled="true">Passport &amp; Rewards</a></li>
             <li><a href="#" aria-disabled="true">Profile</a></li>
+            <li class="nav-auth">
+                @auth
+                    <form method="POST" action="{{ route('logout') }}" class="logout-form">
+                        @csrf
+                        <button type="submit" class="nav-logout-btn">Log Out</button>
+                    </form>
+                @else
+                    <a @class(['nav-login-btn', 'active' => request()->routeIs('login')]) href="{{ route('login') }}">Log In</a>
+                @endauth
+            </li>
         </ul>
     </nav>
 </header>
