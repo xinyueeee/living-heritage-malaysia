@@ -110,19 +110,7 @@
                         Secure, simple and fast<br>We never store your Google password.
                     </p>
                 </div>
-
-                <div class="auth-card-footer">
-                    <p>New to Living Heritage Malaysia?<br>
-                        <button type="button" class="link-button" data-google-login>Continue with Google to get started</button>
-                    </p>
-                </div>
             </div>
-
-            @if (app()->environment('local'))
-                <p style="margin-top: 24px; font-size: .85rem;">
-                    <a href="{{ route('dev.login') }}" style="color: var(--muted); text-decoration: underline;">Dev only: skip Google and pick a test user →</a>
-                </p>
-            @endif
         </div>
     </section>
 

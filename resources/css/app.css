@@ -113,10 +113,6 @@ a { color: inherit; text-decoration: none; }
 .auth-error { margin: 14px 0 0; padding: 10px 14px; border: 1px solid #d88e82; border-radius: 6px; background: #fff0ed; color: #762a20; font-size: .88rem; }
 .auth-secure { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 22px 0 0; color: var(--muted); font-size: .85rem; text-align: center; line-height: 1.5; }
 .auth-secure svg { width: 16px; height: 16px; flex-shrink: 0; }
-.auth-card-footer { padding: 22px 40px; border-top: 1px solid var(--border); background: #fdf8f1; text-align: center; }
-.auth-card-footer p { margin: 0; color: var(--muted); font-size: .92rem; }
-.auth-card-footer .link-button { color: var(--primary); font-weight: 700; background: none; border: 0; padding: 0; font-size: inherit; cursor: pointer; }
-.auth-card-footer .link-button:hover { color: var(--primary-dark); text-decoration: underline; }
 
 .auth-status-card { position: relative; z-index: 1; max-width: 420px; margin: 100px auto; padding: 48px 32px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); box-shadow: var(--shadow); text-align: center; }
 .auth-spinner { width: 40px; height: 40px; margin: 0 auto 20px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: auth-spin .8s linear infinite; }
@@ -125,7 +121,7 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 760px) {
     .auth-page { padding: 44px 0 72px; }
-    .auth-card-body, .auth-card-footer { padding-left: 24px; padding-right: 24px; }
+    .auth-card-body { padding-left: 24px; padding-right: 24px; }
     .auth-illustration { padding: 28px 20px 4px; }
 }
 
