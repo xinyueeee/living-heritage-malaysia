@@ -6,20 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('alert', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('alert_id');
+            $table->uuid('user_id');
+            $table->foreignId('category_id')->constrained('category', 'category_id');
+            $table->timestamp('created_date')->useCurrent();
+
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('alert');
