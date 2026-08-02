@@ -1,14 +1,14 @@
 @import './discovery.css';
 
 :root {
-    --primary: #9d3d2d;
-    --primary-dark: #762a20;
-    --gold: #d89a3d;
-    --cream: #fffaf2;
-    --ink: #2e2722;
-    --muted: #6f665d;
+    --primary: #A52A1A;
+    --primary-dark: #7B1E14;
+    --gold: #D99A2B;
+    --cream: #FAF7F2;
+    --ink: #2C1E16;
+    --muted: #5A4A42;
     --surface: #ffffff;
-    --border: #eaded0;
+    --border: #ECE4DA;
     --shadow: 0 12px 30px rgba(80, 47, 25, 0.12);
 }
 
@@ -232,7 +232,7 @@ a { color: inherit; text-decoration: none; }
 .newsletter-form input { min-width: 0; flex: 1; padding: 11px 14px; border: 0; outline: 0; font-size: .9rem; }
 .newsletter-form button { display: grid; place-items: center; width: 44px; border: 0; background: var(--primary); color: #fff; cursor: pointer; }
 .newsletter-form button svg { width: 18px; height: 18px; }
-.footer-bottom { margin-top: 40px; padding-top: 22px; border-top: 1px solid rgba(247, 234, 220, .15); }
+.footer-bottom { margin-top: 22px; padding-top: 14px; border-top: 1px solid rgba(247, 234, 220, .15); }
 .copyright { margin: 0; text-align: center; }
 
 @media (max-width: 760px) {
