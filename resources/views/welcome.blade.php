@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="home-page">
-        <section class="hero home-hero">
+    <section class="hero home-hero" style="background-image: url('{{ asset('images/home/homepage.png') }}');">
             <div class="hero-overlay"></div>
             <div class="container hero-content">
                 <h1>Celebrate Malaysia's Living Heritage</h1>
@@ -22,35 +22,35 @@
         <section class="home-shortcuts" aria-label="Explore Living Heritage Malaysia">
             <div class="container shortcut-grid">
                 <a class="shortcut-item" href="{{ route('experiences.index') }}">
-                    <span class="shortcut-icon" aria-hidden="true">&#9670;</span>
+                    <span class="shortcut-icon"><x-home-icon name="discover" /></span>
                     <strong>Discover</strong>
                     <span>Explore cultural experiences</span>
                 </a>
                 <span class="shortcut-item shortcut-disabled">
-                    <span class="shortcut-icon" aria-hidden="true">&#128101;</span>
+                    <span class="shortcut-icon"><x-home-icon name="community" /></span>
                     <strong>Community</strong>
                     <span>Join communities and discussions</span>
                 </span>
                 @if ($festivalType)
                     <a class="shortcut-item" href="{{ route('experiences.index', ['type' => $festivalType->type_id]) }}">
-                        <span class="shortcut-icon" aria-hidden="true">&#128276;</span>
+                        <span class="shortcut-icon"><x-home-icon name="bell" /></span>
                         <strong>Festival Alert</strong>
                         <span>Browse upcoming festivals</span>
                     </a>
                 @else
                     <span class="shortcut-item shortcut-disabled">
-                        <span class="shortcut-icon" aria-hidden="true">&#128276;</span>
+                        <span class="shortcut-icon"><x-home-icon name="bell" /></span>
                         <strong>Festival Alert</strong>
                         <span>Festival integration pending</span>
                     </span>
                 @endif
                 <span class="shortcut-item shortcut-disabled">
-                    <span class="shortcut-icon" aria-hidden="true">&#127873;</span>
+                    <span class="shortcut-icon"><x-home-icon name="gift" /></span>
                     <strong>Engagement &amp; Rewards</strong>
                     <span>Earn points and unlock rewards</span>
                 </span>
                 <span class="shortcut-item shortcut-disabled">
-                    <span class="shortcut-icon" aria-hidden="true">&#9829;</span>
+                    <span class="shortcut-icon"><x-home-icon name="heart" /></span>
                     <strong>My Activities</strong>
                     <span>See your cultural journey</span>
                 </span>
@@ -102,34 +102,34 @@
                 <div class="section-heading">
                     <div class="heading-with-note">
                         <h2 id="community-highlights-heading">Community Highlights</h2>
-                        <span class="preview-label">Presentation preview</span>
+                        <span class="sr-only">Presentation-only preview.</span>
                     </div>
                     <span class="section-link section-link-disabled" aria-disabled="true">View All Communities <span aria-hidden="true">&rarr;</span></span>
                 </div>
 
                 <div class="community-preview-grid">
                     <article class="community-preview-card">
-                        <div class="community-preview-media community-preview-food" aria-hidden="true"><span>&#127858;</span></div>
+                        <div class="community-preview-media community-preview-food"><x-home-icon name="food" /></div>
                         <div class="community-preview-content">
-                            <span class="community-avatar" aria-hidden="true">&#128101;</span>
+                            <span class="community-avatar"><x-home-icon name="community" /></span>
                             <h3>Heritage Food Enthusiasts</h3>
                             <p>Exploring and preserving Malaysia's traditional culinary heritage.</p>
                             <span class="outline-button" aria-disabled="true">Join Community</span>
                         </div>
                     </article>
                     <article class="community-preview-card">
-                        <div class="community-preview-media community-preview-arts" aria-hidden="true"><span>&#127917;</span></div>
+                        <div class="community-preview-media community-preview-arts"><x-home-icon name="arts" /></div>
                         <div class="community-preview-content">
-                            <span class="community-avatar" aria-hidden="true">&#128101;</span>
+                            <span class="community-avatar"><x-home-icon name="community" /></span>
                             <h3>Wayang Kulit Fans</h3>
                             <p>Appreciating the art of traditional Malaysian shadow puppetry.</p>
                             <span class="outline-button" aria-disabled="true">Join Community</span>
                         </div>
                     </article>
                     <article class="community-preview-card">
-                        <div class="community-preview-media community-preview-crafts" aria-hidden="true"><span>&#129525;</span></div>
+                        <div class="community-preview-media community-preview-crafts"><x-home-icon name="craft" /></div>
                         <div class="community-preview-content">
-                            <span class="community-avatar" aria-hidden="true">&#128101;</span>
+                            <span class="community-avatar"><x-home-icon name="community" /></span>
                             <h3>Traditional Craft Lovers</h3>
                             <p>Preserving Malaysian traditional crafts, techniques, and skills.</p>
                             <span class="outline-button" aria-disabled="true">Join Community</span>
@@ -142,7 +142,7 @@
         <section class="home-section home-membership-section" aria-label="Passport and community benefits preview">
             <div class="container membership-grid">
                 <article class="passport-preview">
-                    <span class="preview-label preview-label-light">Presentation preview</span>
+                    <span class="sr-only">Presentation-only rewards preview.</span>
                     <div class="passport-book" aria-hidden="true">
                         <span>Living Heritage<br>Malaysia</span>
                         <strong>&#10047;</strong>
@@ -157,19 +157,19 @@
                     <div class="badges-preview">
                         <span>Recent Badges</span>
                         <div class="badge-preview-grid" aria-hidden="true">
-                            <i>&#128247;</i><i>&#127963;</i><i>&#10047;</i><i>&#127917;</i>
+                            <i>&#9673;</i><i>&#9651;</i><i>&#10022;</i><i>&#9670;</i>
                         </div>
                     </div>
                 </article>
 
                 <aside class="why-join-preview">
-                    <span class="preview-label">Presentation preview</span>
+                    <span class="sr-only">Presentation-only community benefits preview.</span>
                     <h2>Why Join Our Community?</h2>
                     <ul>
-                        <li><span aria-hidden="true">&#127760;</span><div><strong>Discover Authentic Heritage</strong><small>Explore unique cultural experiences across Malaysia.</small></div></li>
-                        <li><span aria-hidden="true">&#128101;</span><div><strong>Connect with Enthusiasts</strong><small>Meet people who share the same passion.</small></div></li>
-                        <li><span aria-hidden="true">&#127873;</span><div><strong>Earn Badges &amp; Rewards</strong><small>Participate, contribute, and unlock rewards.</small></div></li>
-                        <li><span aria-hidden="true">&#128276;</span><div><strong>Stay Updated with Festivals</strong><small>Never miss important cultural events.</small></div></li>
+                        <li><span><x-home-icon name="globe" /></span><div><strong>Discover Authentic Heritage</strong><small>Explore unique cultural experiences across Malaysia.</small></div></li>
+                        <li><span><x-home-icon name="community" /></span><div><strong>Connect with Enthusiasts</strong><small>Meet people who share the same passion.</small></div></li>
+                        <li><span><x-home-icon name="gift" /></span><div><strong>Earn Badges &amp; Rewards</strong><small>Participate, contribute, and unlock rewards.</small></div></li>
+                        <li><span><x-home-icon name="bell" /></span><div><strong>Stay Updated with Festivals</strong><small>Never miss important cultural events.</small></div></li>
                     </ul>
                 </aside>
             </div>
@@ -177,7 +177,7 @@
 
         <section class="home-community-callout">
             <div class="container callout-inner">
-                <span class="callout-icon" aria-hidden="true">&#128101;</span>
+                <span class="callout-icon"><x-home-icon name="community" /></span>
                 <div>
                     <h2>Be Part of Malaysia's Living Heritage Movement</h2>
                     <p>Share your stories, explore cultural experiences, and help preserve our shared heritage for future generations.</p>
