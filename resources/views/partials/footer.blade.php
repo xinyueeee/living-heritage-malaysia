@@ -1,13 +1,17 @@
 <footer class="site-footer" id="footer">
     <div class="container footer-grid">
         <div class="footer-about">
-    <div class="container footer-grid">
-        <div class="footer-about">
             <a class="brand footer-brand" href="{{ route('home') }}">
                 <span class="brand-mark" aria-hidden="true">LH</span>
                 <span>Living Heritage<br><strong>Malaysia</strong></span>
             </a>
             <p>A community-driven platform celebrating and preserving Malaysia's living heritage.</p>
+            <div class="footer-socials" aria-label="Social media links">
+                <a href="#" aria-label="Facebook" aria-disabled="true">f</a>
+                <a href="#" aria-label="Instagram" aria-disabled="true">◎</a>
+                <a href="#" aria-label="YouTube" aria-disabled="true">▶</a>
+                <a href="#" aria-label="TikTok" aria-disabled="true">♪</a>
+            </div>
         </div>
 
         <div class="footer-column">
@@ -37,16 +41,12 @@
             <p>Subscribe to get updates on festivals and cultural experiences.</p>
             <form class="newsletter-form" onsubmit="return false">
                 <label class="sr-only" for="newsletter-email">Email address</label>
-                <input id="newsletter-email" type="email" placeholder="Enter your email" autocomplete="off">
+                <input id="newsletter-email" type="email" placeholder="Enter your email" autocomplete="email">
                 <button type="submit" aria-label="Subscribe">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
                 </button>
             </form>
         </div>
-    </div>
-
-    <div class="container footer-bottom">
-        <p class="copyright">&copy; {{ now()->year }} Living Heritage Malaysia. All rights reserved.</p>
     </div>
 
     <div class="container footer-bottom">
