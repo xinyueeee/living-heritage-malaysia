@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\EngagementController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ExperienceController::class, 'home'])->name('home');
@@ -14,3 +15,5 @@ Route::post('/auth/sync', [AuthController::class, 'sync'])->name('auth.sync');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+
+Route::get('/engagement', [EngagementController::class, 'index'])->name('engagement.index');

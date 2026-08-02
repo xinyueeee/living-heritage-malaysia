@@ -14,7 +14,7 @@
             <li><a @class(['active' => request()->routeIs('experiences.*')]) href="{{ route('experiences.index') }}">Discover</a></li>
             <li><a href="#" aria-disabled="true">Community</a></li>
             <li><a href="#" aria-disabled="true">Festival Alert</a></li>
-            <li><a href="#" aria-disabled="true">Engagement &amp; Rewards</a></li>
+            <li><a @class(['active' => request()->routeIs('engagement.*')])href="{{ route('engagement.index') }}">Engagement &amp; Rewards</a></li>
             <li><a @class(['active' => request()->routeIs('profile')]) href="{{ route('profile') }}">Profile</a></li>
 
             <li class="nav-auth">
