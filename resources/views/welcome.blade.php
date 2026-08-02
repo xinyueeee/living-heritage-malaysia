@@ -3,47 +3,187 @@
 @section('title', 'Living Heritage Malaysia')
 
 @section('content')
-    <section class="hero">
-        <div class="hero-overlay"></div>
-        <div class="container hero-content">
-            <p class="eyebrow">Discover Malaysia, authentically</p>
-            <h1>Experience the stories that make Malaysia come alive.</h1>
-            <p class="hero-text">Find cultural workshops, local flavours, heritage places and traditions waiting to be shared.</p>
+    <div class="home-page">
+        <section class="hero home-hero">
+            <div class="hero-overlay"></div>
+            <div class="container hero-content">
+                <h1>Celebrate Malaysia's Living Heritage</h1>
+                <p class="hero-text">Discover cultural experiences, join vibrant communities, and stay connected to the traditions that make Malaysia unique.</p>
 
-            <form class="search-bar" action="{{ route('experiences.index') }}" method="get">
-                <label class="sr-only" for="experience-search">Search experiences</label>
-                <input id="experience-search" name="search" type="search" placeholder="What would you like to experience?" autocomplete="off">
-                <button type="submit">Search</button>
-            </form>
+                <form class="search-bar" action="{{ route('experiences.index') }}" method="get">
+                    <label class="sr-only" for="home-experience-search">Search cultural experiences</label>
+                    <span class="search-icon" aria-hidden="true">&#128269;</span>
+                    <input id="home-experience-search" name="search" type="search" placeholder="Search cultural experiences, locations, festivals..." autocomplete="off">
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+        </section>
 
-            <a class="button button-light" href="{{ route('experiences.index') }}">Explore experiences</a>
-        </div>
-    </section>
+        <section class="home-shortcuts" aria-label="Explore Living Heritage Malaysia">
+            <div class="container shortcut-grid">
+                <a class="shortcut-item" href="{{ route('experiences.index') }}">
+                    <span class="shortcut-icon" aria-hidden="true">&#9670;</span>
+                    <strong>Discover</strong>
+                    <span>Explore cultural experiences</span>
+                </a>
+                <span class="shortcut-item shortcut-disabled">
+                    <span class="shortcut-icon" aria-hidden="true">&#128101;</span>
+                    <strong>Community</strong>
+                    <span>Join communities and discussions</span>
+                </span>
+                @if ($festivalType)
+                    <a class="shortcut-item" href="{{ route('experiences.index', ['type' => $festivalType->type_id]) }}">
+                        <span class="shortcut-icon" aria-hidden="true">&#128276;</span>
+                        <strong>Festival Alert</strong>
+                        <span>Browse upcoming festivals</span>
+                    </a>
+                @else
+                    <span class="shortcut-item shortcut-disabled">
+                        <span class="shortcut-icon" aria-hidden="true">&#128276;</span>
+                        <strong>Festival Alert</strong>
+                        <span>Festival integration pending</span>
+                    </span>
+                @endif
+                <span class="shortcut-item shortcut-disabled">
+                    <span class="shortcut-icon" aria-hidden="true">&#127873;</span>
+                    <strong>Engagement &amp; Rewards</strong>
+                    <span>Earn points and unlock rewards</span>
+                </span>
+                <span class="shortcut-item shortcut-disabled">
+                    <span class="shortcut-icon" aria-hidden="true">&#9829;</span>
+                    <strong>My Activities</strong>
+                    <span>See your cultural journey</span>
+                </span>
+            </div>
+        </section>
 
-    <section class="featured-section section" id="experiences">
-        <div class="container">
-            <div class="section-heading">
-                <div>
-                    <p class="eyebrow">Start exploring</p>
-                    <h2>Featured cultural experiences</h2>
+        <section class="featured-section section" id="experiences">
+            <div class="container">
+                <div class="section-heading">
+                    <h2>Featured Experiences</h2>
+                    <a class="section-link" href="{{ route('experiences.index') }}">View All <span aria-hidden="true">&rarr;</span></a>
+                </div>
+
+                @if ($experiences->isEmpty())
+                    <div class="no-data"><p>No cultural experiences are available at the moment.</p></div>
+                @else
+                    <div class="experience-grid home-experience-grid">
+                        @foreach ($experiences as $experience)
+                            @include('components.experience-card', ['experience' => $experience, 'variant' => 'home'])
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </section>
+
+        <section class="home-section home-festivals-section">
+            <div class="container">
+                <div class="section-heading">
+                    <h2>Upcoming Festivals</h2>
+                    @if ($festivalType)
+                        <a class="section-link" href="{{ route('experiences.index', ['type' => $festivalType->type_id]) }}">View All <span aria-hidden="true">&rarr;</span></a>
+                    @endif
+                </div>
+
+                @if ($festivals->isEmpty())
+                    <div class="no-data"><p>No upcoming festivals are available at the moment.</p></div>
+                @else
+                    <div class="festival-grid">
+                        @foreach ($festivals as $festival)
+                            @include('components.experience-card', ['experience' => $festival, 'variant' => 'festival'])
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </section>
+
+        <section class="home-section home-community-section" aria-labelledby="community-highlights-heading">
+            <div class="container">
+                <div class="section-heading">
+                    <div class="heading-with-note">
+                        <h2 id="community-highlights-heading">Community Highlights</h2>
+                        <span class="preview-label">Presentation preview</span>
+                    </div>
+                    <span class="section-link section-link-disabled" aria-disabled="true">View All Communities <span aria-hidden="true">&rarr;</span></span>
+                </div>
+
+                <div class="community-preview-grid">
+                    <article class="community-preview-card">
+                        <div class="community-preview-media community-preview-food" aria-hidden="true"><span>&#127858;</span></div>
+                        <div class="community-preview-content">
+                            <span class="community-avatar" aria-hidden="true">&#128101;</span>
+                            <h3>Heritage Food Enthusiasts</h3>
+                            <p>Exploring and preserving Malaysia's traditional culinary heritage.</p>
+                            <span class="outline-button" aria-disabled="true">Join Community</span>
+                        </div>
+                    </article>
+                    <article class="community-preview-card">
+                        <div class="community-preview-media community-preview-arts" aria-hidden="true"><span>&#127917;</span></div>
+                        <div class="community-preview-content">
+                            <span class="community-avatar" aria-hidden="true">&#128101;</span>
+                            <h3>Wayang Kulit Fans</h3>
+                            <p>Appreciating the art of traditional Malaysian shadow puppetry.</p>
+                            <span class="outline-button" aria-disabled="true">Join Community</span>
+                        </div>
+                    </article>
+                    <article class="community-preview-card">
+                        <div class="community-preview-media community-preview-crafts" aria-hidden="true"><span>&#129525;</span></div>
+                        <div class="community-preview-content">
+                            <span class="community-avatar" aria-hidden="true">&#128101;</span>
+                            <h3>Traditional Craft Lovers</h3>
+                            <p>Preserving Malaysian traditional crafts, techniques, and skills.</p>
+                            <span class="outline-button" aria-disabled="true">Join Community</span>
+                        </div>
+                    </article>
                 </div>
             </div>
+        </section>
 
-            @if ($experiences->isEmpty())
-                <div class="no-data">
-                    <p>No cultural experiences are available at the moment.</p>
-                </div>
-            @else
-                <div class="experience-grid">
-                    @foreach ($experiences as $experience)
-                        @include('components.experience-card', ['experience' => $experience])
-                    @endforeach
-                </div>
+        <section class="home-section home-membership-section" aria-label="Passport and community benefits preview">
+            <div class="container membership-grid">
+                <article class="passport-preview">
+                    <span class="preview-label preview-label-light">Presentation preview</span>
+                    <div class="passport-book" aria-hidden="true">
+                        <span>Living Heritage<br>Malaysia</span>
+                        <strong>&#10047;</strong>
+                    </div>
+                    <div class="explorer-preview">
+                        <span>Explorer Level</span>
+                        <h2>&mdash; Points</h2>
+                        <p>Rewards integration pending</p>
+                        <div class="progress-placeholder" aria-hidden="true"><span></span></div>
+                        <span class="button button-light-static" aria-disabled="true">View My Passport</span>
+                    </div>
+                    <div class="badges-preview">
+                        <span>Recent Badges</span>
+                        <div class="badge-preview-grid" aria-hidden="true">
+                            <i>&#128247;</i><i>&#127963;</i><i>&#10047;</i><i>&#127917;</i>
+                        </div>
+                    </div>
+                </article>
 
-                <div class="section-action">
-                    <a class="button button-primary" href="{{ route('experiences.index') }}">View All Experiences</a>
+                <aside class="why-join-preview">
+                    <span class="preview-label">Presentation preview</span>
+                    <h2>Why Join Our Community?</h2>
+                    <ul>
+                        <li><span aria-hidden="true">&#127760;</span><div><strong>Discover Authentic Heritage</strong><small>Explore unique cultural experiences across Malaysia.</small></div></li>
+                        <li><span aria-hidden="true">&#128101;</span><div><strong>Connect with Enthusiasts</strong><small>Meet people who share the same passion.</small></div></li>
+                        <li><span aria-hidden="true">&#127873;</span><div><strong>Earn Badges &amp; Rewards</strong><small>Participate, contribute, and unlock rewards.</small></div></li>
+                        <li><span aria-hidden="true">&#128276;</span><div><strong>Stay Updated with Festivals</strong><small>Never miss important cultural events.</small></div></li>
+                    </ul>
+                </aside>
+            </div>
+        </section>
+
+        <section class="home-community-callout">
+            <div class="container callout-inner">
+                <span class="callout-icon" aria-hidden="true">&#128101;</span>
+                <div>
+                    <h2>Be Part of Malaysia's Living Heritage Movement</h2>
+                    <p>Share your stories, explore cultural experiences, and help preserve our shared heritage for future generations.</p>
                 </div>
-            @endif
-        </div>
-    </section>
+                <span class="button button-primary button-disabled" aria-disabled="true">Join the Community Now <span aria-hidden="true">&rarr;</span></span>
+            </div>
+        </section>
+    </div>
 @endsection

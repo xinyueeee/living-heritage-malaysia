@@ -1,3 +1,5 @@
+@import './discovery.css';
+
 :root {
     --primary: #9d3d2d;
     --primary-dark: #762a20;
@@ -19,11 +21,12 @@ a { color: inherit; text-decoration: none; }
 
 .site-header { position: sticky; top: 0; z-index: 10; background: var(--surface); box-shadow: 0 1px 0 rgba(46, 39, 34, 0.08); }
 .navbar { display: flex; align-items: center; justify-content: space-between; min-height: 76px; gap: 24px; }
+.navbar.container { width: min(1220px, calc(100% - 40px)); }
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); font-size: .86rem; line-height: 1.1; letter-spacing: .02em; }
 .brand strong { color: var(--primary); font-size: 1rem; }
 .brand-mark { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 50%; background: var(--primary); color: #fff; font-family: Georgia, serif; font-weight: bold; }
-.nav-menu { display: flex; align-items: center; gap: 28px; margin: 0; padding: 0; list-style: none; }
-.nav-menu a { color: var(--muted); font-size: .94rem; font-weight: 600; }
+.nav-menu { display: flex; align-items: center; gap: 20px; margin: 0; padding: 0; list-style: none; }
+.nav-menu a { color: var(--muted); font-size: .86rem; font-weight: 600; }
 .nav-menu a:hover, .nav-menu a.active { color: var(--primary); }
 .nav-menu li.nav-auth { display: flex; align-items: center; gap: 16px; margin-left: 6px; }
 .nav-menu .nav-login-btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 20px; border-radius: 6px; font-size: .88rem; font-weight: 700; line-height: 1; white-space: nowrap; background: var(--primary); color: #fff; }
@@ -242,6 +245,7 @@ a { color: inherit; text-decoration: none; }
     .hero-content { width: min(100% - 40px, 1120px); margin: 0 auto; }
     .section { padding: 60px 0; }
     .section-heading { flex-direction: column; align-items: flex-start; }
+    .section-heading { flex-direction: column; align-items: flex-start; }
     .experience-grid { grid-template-columns: 1fr; }
     .experience-filters { grid-template-columns: repeat(2, 1fr); }
     .footer-grid { grid-template-columns: repeat(2, 1fr); }
@@ -255,4 +259,5 @@ a { color: inherit; text-decoration: none; }
     .experience-filters { grid-template-columns: 1fr; }
     .filter-actions { justify-content: space-between; }
     .pagination-link { padding: 8px 12px; font-size: .8rem; }
+    .footer-grid { grid-template-columns: 1fr; }
 }

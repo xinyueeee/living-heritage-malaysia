@@ -1,6 +1,8 @@
 <footer class="site-footer" id="footer">
     <div class="container footer-grid">
         <div class="footer-about">
+    <div class="container footer-grid">
+        <div class="footer-about">
             <a class="brand footer-brand" href="{{ route('home') }}">
                 <span class="brand-mark" aria-hidden="true">LH</span>
                 <span>Living Heritage<br><strong>Malaysia</strong></span>
@@ -41,6 +43,10 @@
                 </button>
             </form>
         </div>
+    </div>
+
+    <div class="container footer-bottom">
+        <p class="copyright">&copy; {{ now()->year }} Living Heritage Malaysia. All rights reserved.</p>
     </div>
 
     <div class="container footer-bottom">
