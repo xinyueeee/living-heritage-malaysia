@@ -19,7 +19,8 @@ class ExperienceIndexRequest extends FormRequest
         return [
             'search' => ['nullable', 'string', 'max:200'],
             'location' => ['nullable', 'string', 'max:100'],
-            'category' => ['nullable', 'string', 'max:100'],
+            'category' => ['nullable', 'integer', 'exists:category,category_id'],
+            'type' => ['nullable', 'integer', 'exists:experience_type,type_id'],
             'sort' => ['nullable', 'in:newest,oldest'],
         ];
     }
