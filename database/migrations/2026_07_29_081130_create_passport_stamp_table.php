@@ -6,20 +6,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('passport_stamp', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('stamp_id');
+            $table->string('state', 50)->nullable();
+            $table->string('category', 50)->nullable();
+            $table->string('stamp_image', 255)->nullable();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('passport_stamp');

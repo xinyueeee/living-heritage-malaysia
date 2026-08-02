@@ -6,20 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('user_achievement', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('user_achievement_id');
+            $table->uuid('user_id');
+            $table->foreignId('badge_id')->constrained('achievement_badge', 'badge_id');
+            $table->timestamp('unlocked_date')->useCurrent();
+ 
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
         });
     }
-
-    /**
-     * Reverse the migrations.
-     */
+ 
     public function down(): void
     {
         Schema::dropIfExists('user_achievement');

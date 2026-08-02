@@ -6,20 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('user_interest', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->uuid('user_id');
+            $table->foreignId('interest_id')->constrained('interest', 'interest_id')->onDelete('cascade');
+            $table->timestamp('selected_date')->useCurrent();
+
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
+            $table->primary(['user_id', 'interest_id']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('user_interest');

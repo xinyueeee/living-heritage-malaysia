@@ -6,20 +6,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('achievement_badge', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('badge_id');
+            $table->string('badge_name', 100);
+            $table->text('description')->nullable();
+            $table->text('requirement')->nullable();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('achievement_badge');

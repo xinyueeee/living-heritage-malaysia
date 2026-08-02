@@ -1,27 +1,23 @@
 <footer class="site-footer" id="footer">
     <div class="container footer-grid">
         <div class="footer-about">
+    <div class="container footer-grid">
+        <div class="footer-about">
             <a class="brand footer-brand" href="{{ route('home') }}">
                 <span class="brand-mark" aria-hidden="true">LH</span>
                 <span>Living Heritage<br><strong>Malaysia</strong></span>
             </a>
             <p>A community-driven platform celebrating and preserving Malaysia's living heritage.</p>
-            <div class="footer-socials" aria-label="Social links preview">
-                <span aria-disabled="true" aria-label="Facebook">f</span>
-                <span aria-disabled="true" aria-label="Instagram">&#9678;</span>
-                <span aria-disabled="true" aria-label="YouTube">&#9654;</span>
-                <span aria-disabled="true" aria-label="TikTok">&#9835;</span>
-            </div>
         </div>
 
         <div class="footer-column">
             <h3>Quick Links</h3>
             <ul>
                 <li><a href="{{ route('home') }}">Home</a></li>
-                <li><a href="{{ route('experiences.index') }}">Cultural Experiences</a></li>
-                <li><a href="#" aria-disabled="true">For You</a></li>
+                <li><a href="{{ route('experiences.index') }}">Discover</a></li>
                 <li><a href="#" aria-disabled="true">Community</a></li>
-                <li><a href="#" aria-disabled="true">Passport &amp; Rewards</a></li>
+                <li><a href="#" aria-disabled="true">Festival Alert</a></li>
+                <li><a href="#" aria-disabled="true">Engagement &amp; Rewards</a></li>
             </ul>
         </div>
 
@@ -47,6 +43,10 @@
                 </button>
             </form>
         </div>
+    </div>
+
+    <div class="container footer-bottom">
+        <p class="copyright">&copy; {{ now()->year }} Living Heritage Malaysia. All rights reserved.</p>
     </div>
 
     <div class="container footer-bottom">
