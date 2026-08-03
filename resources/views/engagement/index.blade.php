@@ -94,56 +94,37 @@
         </div>
     </section>
 
-    <section class="achievement-section container">
-        <h2>Achievement Badges</h2>
-        <div class="achievement-title">
-            <h3>Unlocked</h3>
+    <section id="achievement" class="achievement-section container">
+        <div class="section-top">
+            <div>
+                <h2>Achievement Badges</h2>
+                <p>Track your progress and unlock rewards.</p>
+            </div>
+            <a href="{{ route('engagement.achievements') }}" class="outline-btn">
+                View All Badges
+            </a>
         </div>
 
         <div class="achievement-grid">
-            @foreach($achievements->where('is_unlocked', true) as $achievement)
-                <div class="achievement-card unlocked">
-                    <img src="{{ $achievement->badge->badge_image ?? asset('images/default-badge.png') }}" alt="Badge">
-
-                    <h3>{{ $achievement->badge->badge_name ?? 'Achievement' }}</h3>
-
-                    <p>{{ $achievement->badge->description ?? '-' }}</p>
-
-                    <p>Requirement: {{ $achievement->badge->requirement ?? '-' }}</p>
-
-                    <span class="badge-status">
-                        Unlocked
+            @forelse($achievements->take(3) as $achievement)
+                <div class="achievement-card {{ $achievement->is_unlocked ? 'unlocked' : 'locked' }}">
+                    <img src="{{ asset($achievement->badge_image ?? 'images/default-badge.png') }}"
+                        alt="{{ $achievement->badge_name }}">
+                    <h3>{{ $achievement->badge_name }}</h3>
+                    <p>{{ $achievement->requirement }}</p>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: {{ $achievement->progress_percentage }}%"></div>
+                    </div>
+                    <span class="progress-text">
+                        {{ $achievement->current_progress }} / {{ $achievement->target_count }}
                     </span>
-
                 </div>
-            @endforeach
-        </div>
-    
-        <div class="achievement-title locked-title">
-            <h3>Locked</h3>
-        </div>
-
-        <div class="achievement-grid">
-            @foreach($achievements->where('is_unlocked', false) as $achievement)
-                <div class="achievement-card locked">
-
-                    <img src="{{ $achievement->badge->badge_image ?? asset('images/default-badge.png') }}" alt="Badge">
-
-                    <h3>{{ $achievement->badge->badge_name ?? 'Achievement' }}</h3>
-
-                    <p>{{ $achievement->badge->description ?? '-' }}</p>
-
-                    <p>Requirement: {{ $achievement->badge->requirement ?? '-' }}</p>
-
-                    <span class="badge-status">
-                        🔒 Locked
-                    </span>
-
+            @empty
+                <div class="empty-state">
+                    <p>No achievement badges available.</p>
                 </div>
-            @endforeach
+            @endforelse
         </div>
-
-        
     </section>
 
     <section class="history-section container">

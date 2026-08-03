@@ -336,10 +336,13 @@
 }
 
 
-.achievement-card img {
-    width:90px;
-    height:90px;
+.achievement-card img{
+    width:135px;
+    height:135px;
     object-fit:contain;
+    margin:0 auto 18px;
+    display:block;
+    filter:drop-shadow(0 8px 10px rgba(72,37,22,.18));
 }
 
 
@@ -363,7 +366,307 @@
     background:var(--heritage-gold);
 }
 
+/* Achievement Page Header */
+.achievement-page-header {
+    padding: 55px 0 35px;
+    background: linear-gradient(135deg, #f7ead8, #fffaf3);
+    border-bottom: 1px solid var(--heritage-border);
+}
 
+.achievement-page-header .back-link {
+    display: inline-block;
+    margin-bottom: 18px;
+    color: var(--heritage-red);
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.achievement-page-header .back-link:hover {
+    color: var(--heritage-red-dark);
+}
+
+.achievement-page-header h1 {
+    margin: 0 0 10px;
+    font-size: clamp(2.2rem, 4vw, 3.3rem);
+    color: var(--heritage-ink);
+}
+
+.achievement-page-header p {
+    margin: 0;
+    max-width: 680px;
+    color: var(--heritage-muted);
+    line-height: 1.7;
+}
+
+/* Full Achievement Grid */
+.achievement-page-header + .achievement-section {
+    padding-top: 45px;
+    padding-bottom: 60px;
+}
+
+.achievement-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+}
+
+.achievement-card {
+    width: 100%;
+    appearance: none;
+    border: 1px solid var(--heritage-border);
+    border-radius: 16px;
+    padding: 26px 22px;
+    background: var(--heritage-paper);
+    color: var(--heritage-ink);
+    text-align: center;
+    font: inherit;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(72, 37, 22, .08);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+
+.achievement-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 30px rgba(72, 37, 22, .14);
+    border-color: rgba(217, 154, 43, .65);
+}
+
+.achievement-card:focus-visible {
+    outline: 3px solid rgba(217, 154, 43, .4);
+    outline-offset: 3px;
+}
+
+.achievement-card img {
+    width: 115px;
+    height: 115px;
+    object-fit: contain;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 7px 8px rgba(72, 37, 22, .14));
+}
+
+.achievement-card h3 {
+    margin: 0 0 10px;
+    font-size: 1.2rem;
+    color: var(--heritage-ink);
+}
+
+.achievement-card p {
+    min-height: 44px;
+    margin: 0;
+    color: var(--heritage-muted);
+    font-size: .9rem;
+    line-height: 1.5;
+}
+
+.achievement-card.locked {
+    opacity: .62;
+    filter: grayscale(.85);
+}
+
+.achievement-card.locked:hover {
+    opacity: .8;
+}
+
+.progress-bar {
+    height: 9px;
+    margin-top: 18px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e8dfd5;
+}
+
+.progress {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--heritage-gold), #efbd59);
+    transition: width .35s ease;
+}
+
+.progress-text {
+    display: block;
+    margin-top: 8px;
+    color: var(--heritage-muted);
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.badge-status {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(217, 154, 43, .16);
+    color: #8b5a08;
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+.achievement-card.locked .badge-status {
+    background: rgba(90, 74, 66, .12);
+    color: var(--heritage-muted);
+}
+
+/* Achievement Empty State */
+.achievement-section .empty-state {
+    grid-column: 1 / -1;
+    padding: 60px 24px;
+    border: 1px solid var(--heritage-border);
+    border-radius: 16px;
+    background: var(--heritage-paper);
+    text-align: center;
+    color: var(--heritage-muted);
+    box-shadow: 0 6px 18px rgba(72, 37, 22, .08);
+}
+
+.achievement-section .empty-state h3 {
+    margin: 0 0 8px;
+    color: var(--heritage-ink);
+}
+
+@media (max-width: 760px) {
+    .achievement-page-header {
+        padding: 40px 0 28px;
+    }
+
+    .achievement-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .achievement-card {
+        padding: 20px 15px;
+    }
+
+    .achievement-card img {
+        width: 90px;
+        height: 90px;
+    }
+}
+
+@media (max-width: 480px) {
+    .achievement-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.view-details {
+    display: block;
+    margin-top: 12px;
+    color: var(--heritage-red);
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.badge-modal[hidden] {
+    display: none;
+}
+
+.badge-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+}
+
+.badge-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(28,18,13,.68);
+    backdrop-filter: blur(4px);
+}
+
+.badge-modal-dialog {
+    position: relative;
+    z-index: 1;
+    width: min(92vw, 520px);
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 34px;
+    border: 1px solid var(--heritage-border);
+    border-radius: 20px;
+    background: var(--heritage-paper);
+    box-shadow: 0 24px 70px rgba(0,0,0,.28);
+    text-align: center;
+}
+
+.badge-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    border: 0;
+    background: transparent;
+    color: var(--heritage-muted);
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.badge-modal-image{
+    width:160px;
+    height:160px;
+    object-fit:contain;
+    margin:0 auto 15px;
+}
+
+.badge-modal-status {
+    display: block;
+    width: fit-content;
+    margin: 10px auto 16px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.badge-modal-status.unlocked {
+    background: rgba(217,154,43,.18);
+    color: #8a5b08;
+}
+
+.badge-modal-status.locked {
+    background: rgba(90,74,66,.12);
+    color: var(--heritage-muted);
+}
+
+.badge-modal-dialog h2 {
+    margin: 0 0 12px;
+}
+
+.badge-modal-dialog > p {
+    color: var(--heritage-muted);
+}
+
+.badge-modal-requirement,
+.badge-modal-progress {
+    margin-top: 22px;
+    padding: 18px;
+    border-radius: 12px;
+    background: #f8f1e7;
+    text-align: left;
+}
+
+.badge-modal-requirement p {
+    margin: 7px 0 0;
+    color: var(--heritage-muted);
+}
+
+.badge-modal-progress-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 10px;
+}
+
+.badge-modal-unlocked-date {
+    margin-top: 18px;
+    color: var(--heritage-red);
+    font-weight: 700;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
 
 /* ================= RECENT HISTORY ================= */
 
