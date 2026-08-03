@@ -5,6 +5,7 @@ use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\EngagementController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CommunityController;
 
 Route::get('/', [ExperienceController::class, 'home'])->name('home');
 Route::get('/experiences', [ExperienceController::class, 'index'])->name('experiences.index');
@@ -16,4 +17,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 
 Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
 
+
 Route::get('/engagement', [EngagementController::class, 'index'])->name('engagement.index');
+
+Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
+Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
+Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
+
