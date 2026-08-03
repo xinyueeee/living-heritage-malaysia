@@ -8,114 +8,168 @@
 
 @section('content')
 
-<section class="hero-banner">
-    <div class="container">
-        <h1>Engagement & Rewards</h1>
-        <p>Discover your cultural journey, collect passport stamps, unlock achievements, and track your experiences.</p>
-    </div>
-</section>
+<div class="engagement-page">
 
-<section class="passport-section container">
-    <h2>Digital Cultural Passport</h2>
-    <p>View your collected cultural experience stamps.</p>
+    <section class="hero-banner">
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <span class="hero-subtitle">ENGAGEMENT & REWARDS</span>
+                <h1>Collect stamps <br>across Malaysia</h1>
+                <p class="hero-text">Completed cultural experience earns you a beautiful digital passport stamp.</p>
+                <a href="#achievement" class="hero-btn">View Achievements</a>
+            </div>
+        </div>
+    </section>
 
-    <div class="passport-container">
-        @if($passportStamps->count() > 0)
-            @foreach($passportStamps as $stamp)
-                <div class="passport-stamp">
-                    <img src="{{ $stamp->stamp_image ?? asset('images/default-stamp.png') }}" alt="Passport Stamp">
+    <section class="progress-section container">
+        <div class="progress-header">
+            <h2>Your Cultural Journey</h2>
+            <p>Track your exploration progress across Malaysia.</p>
+        </div>
 
-                    <h3>
-                        {{ $stamp->experience->experience_name ?? 'Unknown Experience' }}
-                    </h3>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🗺️</div>
+                <div>
+                    <h3>0</h3>
+                    <p>States Visited</p>
+                </div>
+            </div>
 
-                    <p>
-                        {{ $stamp->experience->category->category_name ?? '-' }}
-                    </p>
+            <div class="stat-card">
+                <div class="stat-icon">🎨</div>
+                <div>
+                    <h3>{{ $experienceHistory->count() }}</h3>
+                    <p>Experiences Completed</p>
+                </div>
+            </div>
 
-                    <span>
-                        {{ $stamp->created_at->format('d M Y') }}
+            <div class="stat-card">
+                <div class="stat-icon">📖</div>
+                <div>
+                    <h3>{{ $passportStamps->count() }}</h3>
+                    <p>Stamps Collected</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">🏆</div>
+                <div>
+                    <h3>{{ $achievements->where('is_unlocked', true)->count() }}</h3>
+                    <p>Badges Earned</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="passport-section container">
+        <div class="section-top">
+            <div>
+                <h2>Digital Cultural Passport</h2>
+                <p>Collect stamps from every cultural experience.</p>
+            </div>
+
+            <a href="#" class="outline-btn">
+                View Full Passport
+            </a>
+        </div>
+
+
+        <div class="passport-book">
+            <img src="{{ asset('images/engagement/passport-book.png') }}"
+            class="passport-background"
+            alt="Digital Cultural Passport">
+
+            <div class="passport-stamps">
+                @foreach($passportStamps as $stamp)
+
+                    <div class="passport-stamp">
+                        <img src="{{ $stamp->stamp_image ?? asset('images/default-stamp.png') }}">
+                        <p>
+                            {{ $stamp->experience->experience_name ?? '-' }}
+                        </p>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    <section class="achievement-section container">
+        <h2>Achievement Badges</h2>
+        <div class="achievement-title">
+            <h3>Unlocked</h3>
+        </div>
+
+        <div class="achievement-grid">
+            @foreach($achievements->where('is_unlocked', true) as $achievement)
+                <div class="achievement-card unlocked">
+                    <img src="{{ $achievement->badge->badge_image ?? asset('images/default-badge.png') }}" alt="Badge">
+
+                    <h3>{{ $achievement->badge->badge_name ?? 'Achievement' }}</h3>
+
+                    <p>{{ $achievement->badge->description ?? '-' }}</p>
+
+                    <p>Requirement: {{ $achievement->badge->requirement ?? '-' }}</p>
+
+                    <span class="badge-status">
+                        Unlocked
                     </span>
+
                 </div>
             @endforeach
-        @else
-            <p>No passport stamps collected yet.</p>
-        @endif
-    </div>
-</section>
+        </div>
+    
+        <div class="achievement-title locked-title">
+            <h3>Locked</h3>
+        </div>
 
-<section class="achievement-section container">
-    <h2>Achievement Badges</h2>
-    <p>Complete cultural experiences to unlock achievements.</p>
-
-    <div class="achievement-grid">
-        @if($achievements->count() > 0)
-            @foreach($achievements as $achievement)
-                <div class="achievement-card {{ $achievement->is_unlocked ? 'unlocked' : 'locked' }}">
+        <div class="achievement-grid">
+            @foreach($achievements->where('is_unlocked', false) as $achievement)
+                <div class="achievement-card locked">
 
                     <img src="{{ $achievement->badge->badge_image ?? asset('images/default-badge.png') }}" alt="Badge">
 
-                    <h3>
-                        {{ $achievement->badge->badge_name ?? 'Achievement' }}
-                    </h3>
+                    <h3>{{ $achievement->badge->badge_name ?? 'Achievement' }}</h3>
 
-                    <p>
-                        {{ $achievement->badge->description ?? '-' }}
-                    </p>
+                    <p>{{ $achievement->badge->description ?? '-' }}</p>
 
-                    <p>
-                        Requirement: {{ $achievement->badge->requirement ?? '-' }}
-                    </p>
+                    <p>Requirement: {{ $achievement->badge->requirement ?? '-' }}</p>
 
-                    <div class="progress-bar">
-                        <div class="progress" style="width: {{ $achievement->progress ?? 0 }}%"></div>
-                    </div>
-
-                    <span>{{ $achievement->progress ?? 0 }}%</span>
+                    <span class="badge-status">
+                        🔒 Locked
+                    </span>
 
                 </div>
             @endforeach
-        @else
-            <p>No achievement data available.</p>
+        </div>
+
+        
+    </section>
+
+    <section class="history-section container">
+        <div class="section-top">
+            <div>
+                <h2>Recent Cultural Journey</h2>
+                <p>Your latest completed experiences.</p>
+            </div>
+            <a href="#" class="outline-btn">View History</a>
+        </div>
+
+        @if($experienceHistory->count()>0)
+        @foreach($experienceHistory->take(1) as $history)
+        <div class="recent-card">
+            <div>
+                <h3>{{ $history->experience->experience_name ?? 'Experience' }}</h3>
+                <p>📍 {{ $history->experience->location ?? '-' }}</p>
+                <p>🎨 {{ $history->experience->category->category_name ?? '-' }}</p>
+                <p>📅 {{ $history->completed_at?->format('d M Y') ?? '-' }}</p>
+            </div>
+        </div>
+
+        @endforeach
         @endif
-    </div>
-</section>
-
-<section class="history-section container">
-    <h2>Experience History</h2>
-    <p>Your completed cultural experiences.</p>
-
-    <div class="history-list">
-        @if($experienceHistory->count() > 0)
-            @foreach($experienceHistory as $history)
-                <div class="history-card">
-
-                    <h3>
-                        {{ $history->experience->experience_name ?? 'Experience' }}
-                    </h3>
-
-                    <p>
-                        Category:
-                        {{ $history->experience->category->category_name ?? '-' }}
-                    </p>
-
-                    <p>
-                        Location:
-                        {{ $history->experience->location ?? '-' }}
-                    </p>
-
-                    <p>
-                        Completed:
-                        {{ $history->completed_at?->format('d M Y') ?? '-' }}
-                    </p>
-
-                </div>
-            @endforeach
-        @else
-            <p>No completed cultural experiences found.</p>
-        @endif
-    </div>
-</section>
+    </section>
+</div>
 
 @endsection
 
