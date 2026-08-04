@@ -15,7 +15,7 @@
             <div class="hero-content">
                 <span class="hero-subtitle">ENGAGEMENT & REWARDS</span>
                 <h1>Collect stamps <br>across Malaysia</h1>
-                <p class="hero-text">Completed cultural experience earns you a beautiful digital passport stamp.</p>
+                <p class="hero-text">Every completed cultural experience earns you a beautiful digital passport stamp.</p>
                 <a href="#achievement" class="hero-btn">View Achievements</a>
             </div>
         </div>
@@ -69,27 +69,41 @@
                 <p>Collect stamps from every cultural experience.</p>
             </div>
 
-            <a href="#" class="outline-btn">
+            <a href="{{ route('engagement.passport') }}" class="outline-btn">
                 View Full Passport
             </a>
         </div>
 
-
         <div class="passport-book">
-            <img src="{{ asset('images/engagement/passport-book.png') }}"
-            class="passport-background"
-            alt="Digital Cultural Passport">
+            <img
+                src="{{ asset('images/engagement/passport-book.png') }}"
+                class="passport-background"
+                alt="Digital Cultural Passport"
+            >
 
             <div class="passport-stamps">
-                @foreach($passportStamps as $stamp)
-
+                @forelse($passportStamps as $userStamp)
                     <div class="passport-stamp">
-                        <img src="{{ $stamp->stamp_image ?? asset('images/default-stamp.png') }}">
+                        <img
+                            src="{{ $userStamp->stamp?->stamp_image
+                                ? asset($userStamp->stamp->stamp_image)
+                                : asset('images/default-stamp.png') }}"
+                            alt="{{ $userStamp->stamp?->category ?? 'Passport stamp' }}"
+                        >
+
                         <p>
-                            {{ $stamp->experience->experience_name ?? '-' }}
+                            {{ $userStamp->stamp?->category ?? '-' }}
                         </p>
+
+                        <span>
+                            {{ $userStamp->collected_date?->format('d M Y') ?? '-' }}
+                        </span>
                     </div>
-                @endforeach
+                @empty
+                    <div class="empty-state">
+                        <p>No passport stamps collected yet.</p>
+                    </div>
+                @endforelse
             </div>
         </div>
     </section>
@@ -133,22 +147,33 @@
                 <h2>Recent Cultural Journey</h2>
                 <p>Your latest completed experiences.</p>
             </div>
-            <a href="#" class="outline-btn">View History</a>
+
+            <a href="{{ route('engagement.history') }}" class="outline-btn">
+                View History
+            </a>
         </div>
 
-        @if($experienceHistory->count()>0)
-        @foreach($experienceHistory->take(1) as $history)
-        <div class="recent-card">
-            <div>
-                <h3>{{ $history->experience->experience_name ?? 'Experience' }}</h3>
-                <p>📍 {{ $history->experience->location ?? '-' }}</p>
-                <p>🎨 {{ $history->experience->category->category_name ?? '-' }}</p>
-                <p>📅 {{ $history->completed_at?->format('d M Y') ?? '-' }}</p>
+        @forelse($experienceHistory->take(1) as $history)
+            <div class="recent-card">
+                <div>
+                    <h3>
+                        {{ $history->experience?->experiences_name ?? 'Experience' }}
+                    </h3>
+
+                    <p>
+                        📍 {{ $history->experience?->location_name ?? '-' }}
+                    </p>
+
+                    <p>🎨 {{ $history->experience?->category?->category_name ?? '-' }}</p>
+
+                    <p>📅 {{ $history->completed_date?->format('d M Y') ?? '-' }}</p>
+                </div>
             </div>
-        </div>
-
-        @endforeach
-        @endif
+        @empty
+            <div class="empty-state">
+                <p>No completed cultural experiences yet.</p>
+            </div>
+        @endforelse
     </section>
 </div>
 
