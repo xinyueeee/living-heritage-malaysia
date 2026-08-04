@@ -2,6 +2,7 @@
 @import './community.css';
 @import './profile.css';
 @import './auth.css';
+@import './festival.css';
 
 :root {
     --primary: #A52A1A;
