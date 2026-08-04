@@ -35,3 +35,7 @@ Route::get('/community', [CommunityController::class, 'index'])->name('community
 Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
 Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
 
+Route::get('/festival/calendar', function () {
+    return view('festival.calendar');
+})->name('festival.calendar');
+
