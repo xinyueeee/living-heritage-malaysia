@@ -6,21 +6,35 @@
 
 <div class="community-page">
     <div class="container create-post-page">
+
         <!-- Back Button -->
         <a href="{{ route('community.index') }}" class="back-link">
             ← Back to Community
         </a>
-        <!-- Page Header -->
+
+        <!-- Header -->
         <div class="create-header">
             <h1>Create Post</h1>
             <p>
                 Share your cultural experience with the community.
             </p>
         </div>
+
+        <!-- Validation Errors -->
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul style="margin:0;padding-left:20px;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <!-- Create Post Card -->
         <div class="create-card">
-            <form 
-                id="createPostForm"
+
+            <form
                 action="{{ route('community.store') }}"
                 method="POST"
                 enctype="multipart/form-data">
@@ -32,44 +46,53 @@
                     <label for="content">
                         What's on your mind?
                     </label>
+
                     <textarea
                         id="content"
                         name="content"
                         rows="7"
                         maxlength="2000"
                         placeholder="Share your experience, stories, tips, or recommendations..."
-                        required
-                    ></textarea>
+                        required>{{ old('content') }}</textarea>
+
                     <div class="character-counter">
-                         <span id="charCount">0</span> / 2000
+                        <span id="charCount">{{ strlen(old('content')) }}</span> / 2000
                     </div>
                 </div>
 
                 <!-- Upload -->
                 <div class="form-group">
+
                     <label>
                         Upload Photos
                         <span class="optional">(Optional)</span>
                     </label>
+
                     <div class="upload-box">
+
                         <div class="upload-icon">
                             +
                         </div>
+
                         <h3>Add Photos</h3>
+
                         <p>
                             Click or drag files here
                         </p>
+
                         <small>
                             (Maximum 10 photos)
                         </small>
+
                         <input
                             type="file"
                             id="imageInput"
                             name="images[]"
                             multiple
-                            accept="image/*"
-                        >
+                            accept="image/*">
+
                     </div>
+
                     <div class="upload-note">
                         Supported formats:
                         JPG, PNG, WEBP • Maximum size:
@@ -77,6 +100,7 @@
                     </div>
 
                     <div id="imagePreview" class="image-preview"></div>
+
                     <div class="upload-limit">
                         Maximum 10 photos allowed.
                     </div>
@@ -85,38 +109,46 @@
 
                 <!-- Buttons -->
                 <div class="button-group">
-                    <a href="{{ route('community.index') }}"
+
+                    <a
+                        href="{{ route('community.index') }}"
                         class="cancel-btn">
                         Cancel
                     </a>
-                    <button type="submit"
+
+                    <button
+                        type="submit"
                         class="publish-btn">
                         Publish
                     </button>
+
                 </div>
+
             </form>
+
         </div>
     </div>
 </div>
 
 @endsection
+
 @push('scripts')
 
 <script>
 
-const textarea = document.getElementById("content");
-const counter = document.getElementById("charCount");
+const textarea = document.getElementById('content');
+const counter = document.getElementById('charCount');
 
-textarea.addEventListener("input", () => {
+textarea.addEventListener('input', () => {
     counter.textContent = textarea.value.length;
 });
 
-const imageInput = document.getElementById("imageInput");
-const preview = document.getElementById("imagePreview");
+const imageInput = document.getElementById('imageInput');
+const preview = document.getElementById('imagePreview');
 
 let selectedFiles = [];
 
-imageInput.addEventListener("change", function () {
+imageInput.addEventListener('change', function () {
 
     const newFiles = Array.from(this.files);
 
@@ -130,7 +162,8 @@ imageInput.addEventListener("change", function () {
 
     renderPreview();
 
-    this.value = "";
+    updateFileInput();
+
 });
 
 function renderPreview() {
@@ -149,16 +182,17 @@ function renderPreview() {
 
             div.innerHTML = `
                 <img src="${e.target.result}">
-                <button type="button"
-                        class="remove-image"
-                        data-index="${index}">
+                <button
+                    type="button"
+                    class="remove-image"
+                    data-index="${index}">
                     ×
                 </button>
             `;
 
             preview.appendChild(div);
 
-        }
+        };
 
         reader.readAsDataURL(file);
 
@@ -170,42 +204,27 @@ preview.addEventListener("click", function (e) {
 
     if (e.target.classList.contains("remove-image")) {
 
-        const index = e.target.dataset.index;
-
-        selectedFiles.splice(index,1);
+        selectedFiles.splice(e.target.dataset.index, 1);
 
         renderPreview();
+
+        updateFileInput();
 
     }
 
 });
 
-const form = document.getElementById("createPostForm");
+function updateFileInput() {
 
-form.addEventListener("submit", async function (e) {
-
-    e.preventDefault();
-
-    const formData = new FormData();
-
-    formData.append("content", textarea.value);
+    const dataTransfer = new DataTransfer();
 
     selectedFiles.forEach(file => {
-        formData.append("images[]", file);
+        dataTransfer.items.add(file);
     });
 
-    formData.append("_token", document.querySelector('meta[name="csrf-token"]').content);
+    imageInput.files = dataTransfer.files;
 
-    const response = await fetch(form.action, {
-        method: "POST",
-        body: formData
-    });
-
-    const result = await response.text();
-
-    document.body.innerHTML = result;
-
-});
+}
 
 </script>
 
