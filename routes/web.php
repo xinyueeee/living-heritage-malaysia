@@ -27,8 +27,15 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/engagement', [EngagementController::class, 'index'])->name('engagement.index');
+Route::get('/engagement/passport', [EngagementController::class, 'passport'])->name('engagement.passport');
+Route::get('/engagement/achievements', [EngagementController::class, 'achievements'])->name('engagement.achievements');
+Route::get('/engagement/history', [EngagementController::class, 'history'])->name('engagement.history');
 
 Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
 Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
 Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
+
+Route::get('/festival/calendar', function () {
+    return view('festival.calendar');
+})->name('festival.calendar');
 

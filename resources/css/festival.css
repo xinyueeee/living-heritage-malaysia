@@ -1,0 +1,93 @@
+.calendar-container{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:var(--shadow);
+}
+
+
+.calendar-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+
+.calendar-btn{
+    background:var(--primary);
+    color:white;
+    border:none;
+    padding:10px 18px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+
+.calendar-weekdays,
+.calendar-days{
+
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:10px;
+
+}
+
+
+.calendar-weekdays div{
+
+    font-weight:bold;
+    text-align:center;
+
+}
+
+
+.calendar-date{
+
+    min-height:60px;
+    padding:15px;
+    background:#faf7f2;
+    border-radius:8px;
+    text-align:center;
+    cursor:pointer;
+
+}
+
+
+.calendar-date:hover{
+
+    background:#f5dfc7;
+
+}
+
+
+.calendar-date.has-event{
+
+    background:#A52A1A;
+    color:white;
+    font-weight:bold;
+
+}
+
+
+.empty{
+
+    background:transparent;
+
+}
+
+
+.event-box{
+
+    margin-top:30px;
+
+}
+
+
+.festival-card{
+
+    background:#faf7f2;
+    padding:20px;
+    border-radius:10px;
+
+}
