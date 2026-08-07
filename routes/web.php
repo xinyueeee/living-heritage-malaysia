@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\EngagementController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommunityController;
+use App\Http\Controllers\CalendarController;
 
 Route::get('/', [ExperienceController::class, 'home'])->name('home');
 Route::get('/experiences', [ExperienceController::class, 'index'])->name('experiences.index');
@@ -33,7 +34,6 @@ Route::get('/community', [CommunityController::class, 'index'])->name('community
 Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
 Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
 
-Route::get('/festival/calendar', function () {
-    return view('festival.calendar');
-})->name('festival.calendar');
+Route::get('/calendar', [CalendarController::class, 'index'])->name('festival.calendar');
 
+Route::get('/calendar/events',[CalendarController::class, 'calendarEvents']);

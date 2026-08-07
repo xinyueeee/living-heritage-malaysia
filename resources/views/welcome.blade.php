@@ -32,7 +32,7 @@
                     <span>Join communities and discussions</span>
                 </span>
                 @if ($festivalType)
-                    <a class="shortcut-item" href="{{ route('experiences.index', ['type' => $festivalType->type_id]) }}">
+                    <a class="shortcut-item" href="{{ route('festival.calendar') }}">
                         <span class="shortcut-icon"><x-home-icon name="bell" /></span>
                         <strong>Festival Alert</strong>
                         <span>Browse upcoming festivals</span>

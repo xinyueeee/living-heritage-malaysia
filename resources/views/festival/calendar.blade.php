@@ -1,221 +1,203 @@
 @extends('layouts.app')
-
 @section('title', 'Festival Calendar')
-
 @section('content')
 
-<section class="section">
-    <div class="container">
-
-        <div class="section-heading">
-            <div>
-                <h1>Festival Calendar</h1>
-                <p class="section-description">
-                    Explore upcoming cultural festivals and events in Malaysia.
-                </p>
-            </div>
-        </div>
-
-
-        <div class="calendar-container">
-
-            <!-- Calendar Header -->
-            <div class="calendar-header">
-                <button onclick="changeMonth(-1)" class="calendar-btn">
-                    ←
-                </button>
-
-                <h2 id="monthYear"></h2>
-
-                <button onclick="changeMonth(1)" class="calendar-btn">
-                    →
-                </button>
-            </div>
-
-
-            <!-- Week Day -->
-            <div class="calendar-weekdays">
-                <div>Sun</div>
-                <div>Mon</div>
-                <div>Tue</div>
-                <div>Wed</div>
-                <div>Thu</div>
-                <div>Fri</div>
-                <div>Sat</div>
-            </div>
-
-
-            <!-- Calendar Dates -->
-            <div id="calendarDays" class="calendar-days"></div>
-
-
-            <!-- Event List -->
-            <div class="event-box">
-
-                <h3>Events This Month</h3>
-
-                <div id="eventList">
-                    Select a date to view events.
-                </div>
-
-            </div>
-
-        </div>
-
+<div class="calendar-container">
+    <!-- Calendar Header -->
+    <div class="calendar-header">
+        <button onclick="changeMonth(-1)" class="calendar-btn"> ← </button>
+        <h2 id="monthYear"></h2>
+        <button onclick="changeMonth(1)" class="calendar-btn"> →
+        </button>
     </div>
-</section>
 
+    <!-- Week Day -->
+    <div class="calendar-weekdays">
+        <div>Sun</div>
+        <div>Mon</div>
+        <div>Tue</div>
+        <div>Wed</div>
+        <div>Thu</div>
+        <div>Fri</div>
+        <div>Sat</div>
+    </div>
+    <!-- Calendar -->
+    <div id="calendarDays" class="calendar-days"></div>
+    <!-- Event Detail -->
+    <div class="event-box">
+        <h3>Festival Details</h3>
+        <div id="eventList"> Click an event to view details. </div>
+    </div>
+</div>
+@endsection
 
+@push('scripts')
 <script>
-
 let currentDate = new Date();
+let events = [];
+
+// Get database events
+
+async function loadEvents()
+{
+    const response =
+        await fetch('/calendar/events');
+    events =
+        await response.json();
+    console.log(
+        "Calendar Events:",
+        events
+    );
+
+    renderCalendar();
+}
 
 
-const festivals = {
+function renderCalendar()
+{
+    let year =
+        currentDate.getFullYear();
 
-    "2026-08-31": {
-        name: "Hari Merdeka Celebration",
-        location: "Kuala Lumpur",
-        description: "National Day cultural celebration."
-    },
+    let month =
+        currentDate.getMonth();
 
-    "2026-09-16": {
-        name: "Malaysia Day Festival",
-        location: "Putrajaya",
-        description: "Celebrate Malaysian heritage and unity."
-    },
-
-    "2026-10-20": {
-        name: "Deepavali Festival",
-        location: "Brickfields",
-        description: "Indian cultural celebration with lights."
-    },
-
-    "2026-12-25": {
-        name: "Christmas Celebration",
-        location: "Kuala Lumpur",
-        description: "Festive cultural event."
-    }
-
-};
-
-
-
-function loadCalendar(){
-
-    let year = currentDate.getFullYear();
-    let month = currentDate.getMonth();
-
-
-    let firstDay = new Date(year, month, 1);
-    let lastDay = new Date(year, month + 1, 0);
-
-
-    let daysContainer = document.getElementById("calendarDays");
-
-    daysContainer.innerHTML = "";
-
-
-    document.getElementById("monthYear").innerHTML =
-        firstDay.toLocaleString('default',
+    document.getElementById('monthYear')
+    .innerHTML =
+    currentDate.toLocaleString(
+        'default',
         {
             month:'long',
             year:'numeric'
-        });
+        }
+    );
+
+    let calendarDays =
+    document.getElementById(
+        'calendarDays'
+    );
+
+    calendarDays.innerHTML="";
+
+    let firstDay =
+    new Date(
+        year,
+        month,
+        1
+    ).getDay();
 
 
+    let totalDays =
+    new Date(
+        year,
+        month+1,
+        0
+    ).getDate();
 
-    // empty spaces before first day
+    // empty box before first day
 
-    for(let i=0;i<firstDay.getDay();i++){
-
-        let empty = document.createElement("div");
-
-        empty.className="calendar-date empty";
-
-        daysContainer.appendChild(empty);
-
+    for(let i=0;i<firstDay;i++)
+    {
+        calendarDays.innerHTML +=
+        `
+        <div class="empty"></div>
+        `;
     }
+    // create dates
 
-
-
-    // dates
-
-    for(let day=1; day<=lastDay.getDate(); day++){
-
-        let dateBox=document.createElement("div");
-
-        dateBox.className="calendar-date";
-
-        dateBox.innerHTML=day;
-
-
-
-        let dateKey =
+    for(let day=1; day<=totalDays; day++)
+    {
+        let date =
         `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
 
+        let dayEvents =
+        events.filter(event =>
 
+            date >= event.start_date
+            &&
+            date <= event.end_date
 
-        if(festivals[dateKey]){
+        );
 
-            dateBox.classList.add("has-event");
+        calendarDays.innerHTML +=
 
-            dateBox.onclick=function(){
+        `
 
-                showEvent(dateKey);
+        <div class="calendar-date
+        ${dayEvents.length ? 'has-event':''}">
 
+            <div class="date-number">
+                ${day}
+            </div>
+
+            <div class="calendar-event-list">
+            ${
+                dayEvents.map(event =>
+                `
+                <div class="calendar-event"
+                onclick="showEvent(${event.id})">
+                    ${event.title}
+                </div>
+                `
+                ).join('')
             }
+            </div>
+        </div>
+        `;
+    }
+}
 
-        }
+// Click event
 
+function showEvent(id)
+{
+    let event =
+    events.find(
+        e => e.id == id
+    );
 
-        daysContainer.appendChild(dateBox);
-
+    if(!event)
+    {
+        return;
     }
 
-}
+    document.getElementById('eventList')
+    .innerHTML =
+    `
+    <div class="event-detail">
+        <h3> ${event.title}</h3>
 
+        <p>
+        📅 
+        ${event.start_date}
+        -
+        ${event.end_date}
+        </p>
 
+        <p> Status: Upcoming </p>
 
-function showEvent(date){
+        <button onclick="learnMore(${event.id})"> Learn More </button>
 
-    let event = festivals[date];
-
-
-    document.getElementById("eventList").innerHTML = `
-
-        <div class="festival-card">
-
-            <h4>${event.name}</h4>
-
-            <p>📍 ${event.location}</p>
-
-            <p>${event.description}</p>
-
-        </div>
-
+    </div>
     `;
-
 }
 
 
+function learnMore(id)
+{
+    
+}
 
-function changeMonth(value){
 
+function changeMonth(value)
+{
     currentDate.setMonth(
         currentDate.getMonth()+value
     );
-
-    loadCalendar();
-
+    renderCalendar();
 }
-
-
-
-loadCalendar();
-
+loadEvents();
 
 </script>
 
 
-@endsection
+@endpush
