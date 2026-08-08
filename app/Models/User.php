@@ -31,5 +31,19 @@ class User extends Authenticatable
         'user_email',
         'profile_photo',
         'bio',
+        'gender',
+        'birthday',
+        'phone_number',
+        'nationality',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'birthday' => 'date',
+        ];
+    }
 }

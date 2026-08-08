@@ -19,6 +19,7 @@
 
     @include('partials.footer')
 
+    @stack('styles')
     @stack('scripts')
 </body>
 </html>

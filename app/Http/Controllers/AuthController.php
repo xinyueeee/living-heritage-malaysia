@@ -53,14 +53,14 @@ class AuthController extends Controller
 
         $metadata = (array) ($payload->user_metadata ?? []);
 
-        $user = User::updateOrCreate(
-            ['user_id' => $payload->sub],
-            [
-                'user_name' => $metadata['full_name'] ?? $metadata['name'] ?? $payload->email,
-                'user_email' => $payload->email,
-                'profile_photo' => $metadata['avatar_url'] ?? $metadata['picture'] ?? null,
-            ]
-        );
+        $user = User::firstOrNew(['user_id' => $payload->sub]);
+
+        if (! $user->exists) {
+            $user->user_name = $metadata['full_name'] ?? $metadata['name'] ?? $payload->email;
+            $user->user_email = $payload->email;
+            $user->profile_photo = $metadata['avatar_url'] ?? $metadata['picture'] ?? null;
+            $user->save();
+        }
 
         Auth::login($user);
         $request->session()->regenerate();
