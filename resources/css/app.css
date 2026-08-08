@@ -1,4 +1,5 @@
 @import './discovery.css';
+@import './recommendations.css';
 
 :root {
     --primary: #A52A1A;
