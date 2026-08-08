@@ -25,4 +25,12 @@ class ExperienceController extends Controller
                 ->getDiscoveryPageData($request->validated())
         );
     }
+
+    public function recommendations(): View
+    {
+        return view(
+            'recommendations.index',
+            $this->experienceDiscoveryService->getRecommendationsPageData()
+        );
+    }
 }

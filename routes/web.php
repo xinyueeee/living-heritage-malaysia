@@ -10,6 +10,7 @@ use App\Http\Controllers\CommunityController;
 
 Route::get('/', [ExperienceController::class, 'home'])->name('home');
 Route::get('/experiences', [ExperienceController::class, 'index'])->name('experiences.index');
+Route::get('/recommendations', [ExperienceController::class, 'recommendations'])->name('recommendations.index');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login')->middleware('guest');
 Route::get('/auth/callback', [AuthController::class, 'callback'])->name('auth.callback');
