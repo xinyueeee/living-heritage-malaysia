@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\Category;
 use App\Models\ProfilePhoto;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -64,6 +67,43 @@ class ProfileService
         $user->save();
 
         return $user;
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getAllCategories(): Collection
+    {
+        return Category::orderBy('category_name')->get(['category_id', 'category_name']);
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function getSelectedCategoryIds(string $userId): array
+    {
+        return DB::table('user_interest')
+            ->where('user_id', $userId)
+            ->pluck('category_id')
+            ->all();
+    }
+
+    /**
+     * @param  list<int>  $categoryIds
+     */
+    public function updateInterests(string $userId, array $categoryIds): void
+    {
+        DB::transaction(function () use ($userId, $categoryIds) {
+            DB::table('user_interest')->where('user_id', $userId)->delete();
+
+            $rows = array_map(fn (int $categoryId) => [
+                'user_id' => $userId,
+                'category_id' => $categoryId,
+                'selected_date' => now(),
+            ], $categoryIds);
+
+            DB::table('user_interest')->insert($rows);
+        });
     }
 
     private function storeInSupabase(string $path, UploadedFile $file): string

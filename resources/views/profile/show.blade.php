@@ -100,7 +100,7 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5 5 0 0 0-7.1 0L12 6.3l-1.7-1.7a5 5 0 0 0-7.1 7.1L12 21l8.8-9.3a5 5 0 0 0 0-7.1z"/></svg>
                             My Interests
                         </h3>
-                        <span class="profile-card-header-link" aria-disabled="true">Edit</span>
+                        <a href="{{ route('profile.interests') }}" class="profile-card-header-link">Edit</a>
                     </div>
 
                     @if ($interests->isEmpty())

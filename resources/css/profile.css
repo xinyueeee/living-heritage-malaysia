@@ -85,6 +85,12 @@
 .profile-field-cancel:hover { background: var(--cream); }
 .profile-field-error { margin: 8px 0 0; color: #762a20; font-size: .85rem; }
 
+.interest-picker { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+.interest-picker-chip { position: relative; display: inline-flex; align-items: center; padding: 10px 18px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--ink); font-size: .9rem; font-weight: 600; cursor: pointer; transition: background .15s ease, border-color .15s ease, color .15s ease; }
+.interest-picker-chip input { position: absolute; opacity: 0; pointer-events: none; }
+.interest-picker-chip:hover { border-color: var(--primary); }
+.interest-picker-chip:has(input:checked) { background: var(--primary); border-color: var(--primary); color: #fff; }
+
 @media (max-width: 900px) {
     .profile-layout { grid-template-columns: 1fr; }
     .profile-sidebar { display: flex; overflow-x: auto; gap: 6px; }

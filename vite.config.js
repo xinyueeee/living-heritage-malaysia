@@ -12,6 +12,7 @@ export default defineConfig({
                 'resources/js/pages/auth-callback.js',
                 'resources/js/pages/personal-information.js',
                 'resources/js/pages/profile-photo.js',
+                'resources/js/pages/interests.js',
                 'resources/css/engagement.css',
                 'resources/js/pages/engagement.js',
             ],
