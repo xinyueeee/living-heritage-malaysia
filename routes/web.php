@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\PersonalInformationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProfilePhotoController;
 use App\Http\Controllers\EngagementController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommunityController;
@@ -23,8 +24,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/personal-information', [PersonalInformationController::class, 'show'])
         ->name('profile.personal-information');
     Route::patch('/profile/personal-information/{field}', [PersonalInformationController::class, 'update'])
-        ->whereIn('field', ['user_name', 'user_email', 'bio', 'gender', 'birthday', 'phone_number', 'nationality'])
+        ->whereIn('field', ['user_name', 'user_email', 'bio', 'gender', 'birthday'])
         ->name('profile.personal-information.update');
+    Route::post('/profile/photo', [ProfilePhotoController::class, 'store'])->name('profile.photo.store');
 });
 
 Route::get('/engagement', [EngagementController::class, 'index'])->name('engagement.index');

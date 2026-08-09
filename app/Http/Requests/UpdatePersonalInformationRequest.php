@@ -22,8 +22,6 @@ class UpdatePersonalInformationRequest extends FormRequest
             'bio' => ['value' => ['nullable', 'string', 'max:500']],
             'gender' => ['value' => ['nullable', 'string', 'in:Male,Female,Other,Prefer not to say']],
             'birthday' => ['value' => ['nullable', 'date', 'before:today']],
-            'phone_number' => ['value' => ['nullable', 'string', 'max:20']],
-            'nationality' => ['value' => ['nullable', 'string', 'max:100']],
             default => ['value' => ['prohibited']],
         };
     }

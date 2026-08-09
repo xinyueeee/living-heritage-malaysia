@@ -32,15 +32,17 @@
 
         <div>
             <div class="profile-card profile-header-card">
-                <div class="profile-avatar-wrap">
+                <div class="profile-avatar-wrap" data-photo-upload>
                     @if ($user->profile_photo)
-                        <img class="profile-avatar-lg" src="{{ $user->profile_photo }}" alt="">
+                        <img class="profile-avatar-lg" src="{{ $user->profile_photo }}" alt="" data-avatar-image>
                     @else
-                        <span class="profile-avatar-lg profile-avatar-lg-fallback">{{ \Illuminate\Support\Str::substr($user->user_name ?? '?', 0, 1) }}</span>
+                        <span class="profile-avatar-lg profile-avatar-lg-fallback" data-avatar-fallback>{{ \Illuminate\Support\Str::substr($user->user_name ?? '?', 0, 1) }}</span>
                     @endif
-                    <span class="profile-avatar-camera" aria-hidden="true">
+                    <button type="button" class="profile-avatar-camera" aria-label="Change profile photo" data-action="edit">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                    </span>
+                    </button>
+                    <input type="file" accept="image/jpeg,image/png,image/webp" hidden data-photo-input>
+                    <p class="profile-avatar-error" data-avatar-error hidden></p>
                 </div>
 
                 <div class="profile-header-info">
@@ -153,4 +155,8 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+        @vite(['resources/js/pages/profile-photo.js'])
+    @endpush
 @endsection
