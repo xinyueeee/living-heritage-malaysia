@@ -24,6 +24,7 @@ Route::post('/auth/sync', [AuthController::class, 'sync'])->name('auth.sync');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+Route::get('/engagement', [EngagementController::class, 'index'])->name('engagement.index');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile/personal-information', [PersonalInformationController::class, 'show'])
@@ -34,18 +35,25 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/photo', [ProfilePhotoController::class, 'store'])->name('profile.photo.store');
     Route::get('/profile/interests', [InterestController::class, 'show'])->name('profile.interests');
     Route::put('/profile/interests', [InterestController::class, 'update'])->name('profile.interests.update');
+
     Route::get('/profile/saved-experiences', [SavedExperienceController::class, 'index'])
         ->name('profile.saved-experiences');
     Route::post('/experiences/{experience}/save', [SavedExperienceController::class, 'store'])
         ->name('experiences.saved.store');
     Route::delete('/experiences/{experience}/save', [SavedExperienceController::class, 'destroy'])
         ->name('experiences.saved.destroy');
-});
 
-Route::get('/engagement', [EngagementController::class, 'index'])->name('engagement.index');
-Route::get('/engagement/passport', [EngagementController::class, 'passport'])->name('engagement.passport');
-Route::get('/engagement/achievements', [EngagementController::class, 'achievements'])->name('engagement.achievements');
-Route::get('/engagement/history', [EngagementController::class, 'history'])->name('engagement.history');
+    Route::get('/engagement/passport', [EngagementController::class, 'passport'])
+        ->name('engagement.passport');
+    Route::get('/engagement/passport/customize',[EngagementController::class, 'customizePassport'])->name('engagement.passport.customize');
+    Route::put('/engagement/passport/customize',[EngagementController::class, 'updatePassportCustomization'])->name('engagement.passport.customization.update');
+
+    Route::get('/engagement/achievements', [EngagementController::class, 'achievements'])
+        ->name('engagement.achievements');
+
+    Route::get('/engagement/history', [EngagementController::class, 'history'])
+        ->name('engagement.history');
+});
 
 Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
 Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');

@@ -15,6 +15,7 @@ export default defineConfig({
                 'resources/js/pages/interests.js',
                 'resources/css/engagement.css',
                 'resources/js/pages/engagement.js',
+                'resources/js/pages/passport.js',
             ],
             refresh: true,
         }),
