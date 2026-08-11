@@ -10,6 +10,7 @@ use App\Http\Controllers\CommunityController;
 
 Route::get('/', [ExperienceController::class, 'home'])->name('home');
 Route::get('/experiences', [ExperienceController::class, 'index'])->name('experiences.index');
+Route::get('/experiences/{experience}', [ExperienceController::class, 'show'])->name('experiences.show');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login')->middleware('guest');
 Route::get('/auth/callback', [AuthController::class, 'callback'])->name('auth.callback');
@@ -38,4 +39,3 @@ Route::post('/community', [CommunityController::class, 'store'])->name('communit
 Route::get('/festival/calendar', function () {
     return view('festival.calendar');
 })->name('festival.calendar');
-

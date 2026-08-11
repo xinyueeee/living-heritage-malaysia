@@ -88,4 +88,11 @@ class ExperienceController extends Controller
 
         return view('experiences.index', compact('categories', 'experiences', 'types'));
     }
+
+    public function show(Experience $experience): View
+    {
+        $experience->loadMissing(['category', 'type']);
+
+        return view('experiences.show', compact('experience'));
+    }
 }

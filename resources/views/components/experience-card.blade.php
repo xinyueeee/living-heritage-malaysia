@@ -3,13 +3,15 @@
     $imagePath = is_string($experience->image_url)
         ? ltrim(str_replace('\\', '/', trim($experience->image_url)), '/')
         : null;
+    $isExternalImage = filled($imagePath)
+        && (str_starts_with(strtolower($imagePath), 'http://')
+            || str_starts_with(strtolower($imagePath), 'https://'));
     $isSafeRelativePath = filled($imagePath)
         && !str_contains($imagePath, '../')
-        && !str_starts_with($imagePath, 'http://')
-        && !str_starts_with($imagePath, 'https://');
-    $imageSource = $isSafeRelativePath && is_file(public_path($imagePath))
-        ? asset($imagePath)
-        : null;
+        && !$isExternalImage;
+    $imageSource = $isExternalImage
+        ? $imagePath
+        : ($isSafeRelativePath && is_file(public_path($imagePath)) ? asset($imagePath) : null);
     $typeName = $experience->type?->type_name;
     $badgeName = $experience->category?->category_name ?? $typeName;
 
@@ -31,9 +33,7 @@
     'festival-card' => $variant === 'festival',
 ])>
     <div class="card-media">
-        @if ($imageSource)
-            <img class="card-image" src="{{ $imageSource }}" alt="{{ $experience->experiences_name }}">
-        @else
+        <div class="card-image-frame">
             <div class="card-image card-image-placeholder" role="img" aria-label="Image unavailable for {{ $experience->experiences_name }}">
                 <svg viewBox="0 0 64 48" fill="none" aria-hidden="true">
                     <circle cx="46" cy="13" r="5" fill="currentColor" opacity=".75"/>
@@ -41,7 +41,16 @@
                     <path d="M8 39h48" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
             </div>
-        @endif
+            @if ($imageSource)
+                <img
+                    class="card-image card-image-actual"
+                    src="{{ $imageSource }}"
+                    alt="{{ $experience->experiences_name }}"
+                    @if ($isExternalImage) referrerpolicy="no-referrer" @endif
+                    onerror="this.style.display='none';"
+                >
+            @endif
+        </div>
 
         @if ($badgeName)
             <span class="card-category">{{ $badgeName }}</span>
@@ -59,7 +68,7 @@
     </div>
 
     <div class="card-content">
-        <h3>{{ $experience->experiences_name }}</h3>
+        <h3><a class="experience-title-link" href="{{ route('experiences.show', $experience) }}">{{ $experience->experiences_name }}</a></h3>
 
         @if ($experience->start_date)
             <p class="card-date">
@@ -74,7 +83,7 @@
         <p class="location"><span aria-hidden="true">&#128205;</span> {{ $experience->location_name }}</p>
 
         @if ($variant === 'standard')
-            <p class="card-description">{{ Str::limit($experience->description ?? '', 105) }}</p>
+            <p class="card-description">{{ Str::limit($experience->short_description ?: ($experience->description ?? ''), 105) }}</p>
         @endif
 
         <div class="card-meta">
@@ -82,7 +91,7 @@
                 @if ($badgeName)
                     <span class="festival-label">{{ $badgeName }}</span>
                 @endif
-                <span class="festival-details-link" aria-disabled="true">View Details <span aria-hidden="true">&rarr;</span></span>
+                <a class="festival-details-link" href="{{ route('experiences.show', $experience) }}">View Details <span aria-hidden="true">&rarr;</span></a>
             @else
                 @if (!is_null($experience->price))
                     <span class="price">RM {{ number_format((float) $experience->price, 2) }}</span>
@@ -93,6 +102,7 @@
                 @if (is_null($experience->price) && !$experience->duration && $typeName)
                     <span class="type-label">{{ $typeName }}</span>
                 @endif
+                <a class="festival-details-link" href="{{ route('experiences.show', $experience) }}">View Details <span aria-hidden="true">&rarr;</span></a>
             @endif
         </div>
     </div>
