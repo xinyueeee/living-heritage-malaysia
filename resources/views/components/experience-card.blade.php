@@ -31,6 +31,7 @@
     'experience-card-festival' => $typeName === 'Festival',
     'home-feature-card' => $variant === 'home',
     'festival-card' => $variant === 'festival',
+    'recommendation-card' => $variant === 'recommendation',
 ])>
     <div class="card-media">
         <div class="card-image-frame">
@@ -56,7 +57,7 @@
             <span class="card-category">{{ $badgeName }}</span>
         @endif
 
-        @if ($variant === 'home')
+        @if (in_array($variant, ['home', 'recommendation'], true))
             <span class="card-favourite" aria-label="Favourite control preview">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></svg>
             </span>
@@ -70,7 +71,7 @@
     <div class="card-content">
         <h3><a class="experience-title-link" href="{{ route('experiences.show', $experience) }}">{{ $experience->experiences_name }}</a></h3>
 
-        @if ($experience->start_date)
+        @if ($experience->start_date && $variant !== 'recommendation')
             <p class="card-date">
                 <span aria-hidden="true">&#128197;</span>
                 {{ $experience->start_date->format('d M Y') }}
@@ -80,7 +81,14 @@
             </p>
         @endif
 
-        <p class="location"><span aria-hidden="true">&#128205;</span> {{ $experience->location_name }}</p>
+        <p class="location">
+            @if ($variant === 'recommendation')
+                <x-home-icon name="map-pin" />
+            @else
+                <span aria-hidden="true">&#128205;</span>
+            @endif
+            {{ $experience->location_name }}
+        </p>
 
         @if ($variant === 'standard')
             <p class="card-description">{{ Str::limit($experience->short_description ?: ($experience->description ?? ''), 105) }}</p>
@@ -97,7 +105,14 @@
                     <span class="price">RM {{ number_format((float) $experience->price, 2) }}</span>
                 @endif
                 @if ($experience->duration)
-                    <span class="duration"><span aria-hidden="true">&#9201;</span> {{ $experience->duration }}</span>
+                    <span class="duration">
+                        @if ($variant === 'recommendation')
+                            <x-home-icon name="clock" />
+                        @else
+                            <span aria-hidden="true">&#9201;</span>
+                        @endif
+                        {{ $experience->duration }}
+                    </span>
                 @endif
                 @if (is_null($experience->price) && !$experience->duration && $typeName)
                     <span class="type-label">{{ $typeName }}</span>

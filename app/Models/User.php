@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -33,8 +34,6 @@ class User extends Authenticatable
         'bio',
         'gender',
         'birthday',
-        'phone_number',
-        'nationality',
     ];
 
     /**
@@ -45,5 +44,10 @@ class User extends Authenticatable
         return [
             'birthday' => 'date',
         ];
+    }
+
+    public function photos(): HasMany
+    {
+        return $this->hasMany(ProfilePhoto::class, 'user_id', 'user_id');
     }
 }
