@@ -16,7 +16,18 @@ class DigitalCulturalPassport extends Model
 
     protected $fillable = [
         'user_id',
+        'display_theme',
+        'display_layout',
+        'show_stamp_details',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'created_date' => 'date',
+            'show_stamp_details' => 'boolean',
+        ];
+    }
 
     public function user(): BelongsTo
     {

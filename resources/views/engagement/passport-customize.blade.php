@@ -1,0 +1,332 @@
+@extends('layouts.app')
+
+@section('title', 'Customize Digital Passport')
+
+@push('styles')
+    @vite('resources/css/engagement.css')
+@endpush
+
+@section('content')
+<div class="engagement-page passport-customize-page">
+
+    <section class="passport-page-header">
+        <div class="container">
+            <a
+                href="{{ route('engagement.passport') }}"
+                class="passport-back-link"
+            >
+                ← Back to Digital Passport
+            </a>
+
+            <span class="passport-eyebrow">
+                PERSONALIZE YOUR PASSPORT
+            </span>
+
+            <h1>Customize Passport</h1>
+
+            <p>
+                Choose how your Digital Cultural Passport should
+                appear. Your preferences are saved to your account.
+            </p>
+        </div>
+    </section>
+
+    <section class="passport-customize-content">
+        <div class="container">
+            <form
+                method="POST"
+                action="{{
+                    route(
+                        'engagement.passport.customization.update'
+                    )
+                }}"
+                class="passport-customize-form"
+            >
+                @csrf
+                @method('PUT')
+
+                @if ($errors->any())
+                    <div
+                        class="passport-form-message error"
+                        role="alert"
+                    >
+                        <strong>
+                            Please check your selections.
+                        </strong>
+
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                {{-- Theme selection --}}
+                <fieldset class="passport-setting-card">
+                    <legend>Passport Theme</legend>
+
+                    <p>
+                        Select the visual style for your passport.
+                    </p>
+
+                    <div class="passport-theme-options">
+                        <label class="passport-option-card">
+                            <input
+                                type="radio"
+                                name="display_theme"
+                                value="heritage"
+                                @checked(
+                                    old(
+                                        'display_theme',
+                                        $passport->display_theme
+                                    ) === 'heritage'
+                                )
+                            >
+
+                            <span
+                                class="passport-theme-preview
+                                    theme-heritage"
+                            ></span>
+
+                            <strong>Heritage Classic</strong>
+
+                            <small>
+                                Traditional parchment and warm brown.
+                            </small>
+                        </label>
+
+                        <label class="passport-option-card">
+                            <input
+                                type="radio"
+                                name="display_theme"
+                                value="batik"
+                                @checked(
+                                    old(
+                                        'display_theme',
+                                        $passport->display_theme
+                                    ) === 'batik'
+                                )
+                            >
+
+                            <span
+                                class="passport-theme-preview
+                                    theme-batik"
+                            ></span>
+
+                            <strong>Batik Red</strong>
+
+                            <small>
+                                Deep Malaysian red with batik colours.
+                            </small>
+                        </label>
+
+                        <label class="passport-option-card">
+                            <input
+                                type="radio"
+                                name="display_theme"
+                                value="gold"
+                                @checked(
+                                    old(
+                                        'display_theme',
+                                        $passport->display_theme
+                                    ) === 'gold'
+                                )
+                            >
+
+                            <span
+                                class="passport-theme-preview
+                                    theme-gold"
+                            ></span>
+
+                            <strong>Golden Parchment</strong>
+
+                            <small>
+                                Warm gold with an elegant finish.
+                            </small>
+                        </label>
+                    </div>
+                </fieldset>
+
+                {{-- Layout selection --}}
+                <fieldset class="passport-setting-card">
+                    <legend>Stamp Layout</legend>
+
+                    <p>
+                        Choose how stamps are presented when viewing
+                        your passport.
+                    </p>
+
+                    <div class="passport-layout-options">
+                        <label class="passport-option-card">
+                            <input
+                                type="radio"
+                                name="display_layout"
+                                value="book"
+                                @checked(
+                                    old(
+                                        'display_layout',
+                                        $passport->display_layout
+                                    ) === 'book'
+                                )
+                            >
+
+                            <span class="layout-preview layout-book">
+                                <i></i>
+                                <i></i>
+                            </span>
+
+                            <strong>Passport Book</strong>
+
+                            <small>
+                                Display stamps across book pages.
+                            </small>
+                        </label>
+
+                        <label class="passport-option-card">
+                            <input
+                                type="radio"
+                                name="display_layout"
+                                value="grid"
+                                @checked(
+                                    old(
+                                        'display_layout',
+                                        $passport->display_layout
+                                    ) === 'grid'
+                                )
+                            >
+
+                            <span class="layout-preview layout-grid">
+                                <i></i>
+                                <i></i>
+                                <i></i>
+                                <i></i>
+                            </span>
+
+                            <strong>Gallery Grid</strong>
+
+                            <small>
+                                Display full stamp cards in a grid.
+                            </small>
+                        </label>
+
+                        <label class="passport-option-card">
+                            <input
+                                type="radio"
+                                name="display_layout"
+                                value="compact"
+                                @checked(
+                                    old(
+                                        'display_layout',
+                                        $passport->display_layout
+                                    ) === 'compact'
+                                )
+                            >
+
+                            <span class="layout-preview layout-compact">
+                                <i></i>
+                                <i></i>
+                                <i></i>
+                            </span>
+
+                            <strong>Compact Collection</strong>
+
+                            <small>
+                                Display smaller stamps with less text.
+                            </small>
+                        </label>
+                    </div>
+                </fieldset>
+
+                {{-- Details preference --}}
+                <fieldset class="passport-setting-card">
+                    <legend>Stamp Information</legend>
+
+                    <label class="passport-checkbox-setting">
+                        <input
+                            type="checkbox"
+                            name="show_stamp_details"
+                            value="1"
+                            @checked(
+                                old(
+                                    'show_stamp_details',
+                                    $passport->show_stamp_details
+                                )
+                            )
+                        >
+
+                        <span>
+                            <strong>Show stamp details</strong>
+
+                            <small>
+                                Display the unlocking experience and
+                                collection date.
+                            </small>
+                        </span>
+                    </label>
+                </fieldset>
+
+                {{-- Collected stamp preview --}}
+                <section class="passport-setting-card">
+                    <h2>Your Collected Stamps</h2>
+
+                    <p>
+                        Drag-and-drop arrangement will be added to
+                        this section next.
+                    </p>
+
+                    @if ($passportStamps->isEmpty())
+                        <div class="passport-customize-empty">
+                            No collected stamps are available to
+                            arrange yet.
+                        </div>
+                    @else
+                        <div class="passport-customize-stamps">
+                            @foreach ($passportStamps as $userStamp)
+                                <div class="passport-customize-stamp">
+                                    <img
+                                        src="{{ asset(
+                                            $userStamp
+                                                ->stamp
+                                                ->stamp_image
+                                        ) }}"
+                                        alt="{{
+                                            $userStamp
+                                                ->stamp
+                                                ->category
+                                        }}"
+                                    >
+
+                                    <span>
+                                        {{
+                                            $userStamp
+                                                ->stamp
+                                                ->category
+                                        }}
+                                    </span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </section>
+
+                <div class="passport-form-actions">
+                    <a
+                        href="{{ route('engagement.passport') }}"
+                        class="passport-cancel-button"
+                    >
+                        Cancel
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="hero-btn"
+                    >
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>
+@endsection
