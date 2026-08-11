@@ -4,218 +4,439 @@
 
 @section('content')
 
-<section class="section">
-    <div class="container">
+<div class="calendar-container">
 
-        <div class="section-heading">
-            <div>
-                <h1>Festival Calendar</h1>
-                <p class="section-description">
-                    Explore upcoming cultural festivals and events in Malaysia.
-                </p>
-            </div>
-        </div>
+    <!-- Calendar Header -->
+    <div class="calendar-header">
 
+        <button
+            onclick="changeMonth(-1)"
+            class="calendar-btn">
+            ←
+        </button>
 
-        <div class="calendar-container">
+        <h2 id="monthYear"></h2>
 
-            <!-- Calendar Header -->
-            <div class="calendar-header">
-                <button onclick="changeMonth(-1)" class="calendar-btn">
-                    ←
-                </button>
+        <button
+            onclick="changeMonth(1)"
+            class="calendar-btn">
+            →
+        </button>
 
-                <h2 id="monthYear"></h2>
-
-                <button onclick="changeMonth(1)" class="calendar-btn">
-                    →
-                </button>
-            </div>
+    </div>
 
 
-            <!-- Week Day -->
-            <div class="calendar-weekdays">
-                <div>Sun</div>
-                <div>Mon</div>
-                <div>Tue</div>
-                <div>Wed</div>
-                <div>Thu</div>
-                <div>Fri</div>
-                <div>Sat</div>
-            </div>
+    <!-- Week Day -->
+    <div class="calendar-weekdays">
+
+        <div>Sun</div>
+        <div>Mon</div>
+        <div>Tue</div>
+        <div>Wed</div>
+        <div>Thu</div>
+        <div>Fri</div>
+        <div>Sat</div>
+
+    </div>
 
 
-            <!-- Calendar Dates -->
-            <div id="calendarDays" class="calendar-days"></div>
+    <!-- Calendar -->
+    <div id="calendarDays" class="calendar-days"></div>
 
 
-            <!-- Event List -->
-            <div class="event-box">
+    <!-- Event Detail -->
+    <div class="event-box">
 
-                <h3>Events This Month</h3>
+        <h3>Festival Details</h3>
 
-                <div id="eventList">
-                    Select a date to view events.
-                </div>
-
-            </div>
-
+        <div id="eventList">
+            Click an event to view details.
         </div>
 
     </div>
-</section>
 
+</div>
+
+@endsection
+
+
+@push('scripts')
 
 <script>
 
 let currentDate = new Date();
 
-
-const festivals = {
-
-    "2026-08-31": {
-        name: "Hari Merdeka Celebration",
-        location: "Kuala Lumpur",
-        description: "National Day cultural celebration."
-    },
-
-    "2026-09-16": {
-        name: "Malaysia Day Festival",
-        location: "Putrajaya",
-        description: "Celebrate Malaysian heritage and unity."
-    },
-
-    "2026-10-20": {
-        name: "Deepavali Festival",
-        location: "Brickfields",
-        description: "Indian cultural celebration with lights."
-    },
-
-    "2026-12-25": {
-        name: "Christmas Celebration",
-        location: "Kuala Lumpur",
-        description: "Festive cultural event."
-    }
-
-};
+let events = [];
 
 
+// ========================================
+// GET DATABASE EVENTS
+// ========================================
 
-function loadCalendar(){
+async function loadEvents()
+{
+    const response =
+        await fetch('/calendar/events');
 
-    let year = currentDate.getFullYear();
-    let month = currentDate.getMonth();
+    events =
+        await response.json();
 
+    console.log(
+        "Calendar Events:",
+        events
+    );
 
-    let firstDay = new Date(year, month, 1);
-    let lastDay = new Date(year, month + 1, 0);
-
-
-    let daysContainer = document.getElementById("calendarDays");
-
-    daysContainer.innerHTML = "";
-
-
-    document.getElementById("monthYear").innerHTML =
-        firstDay.toLocaleString('default',
-        {
-            month:'long',
-            year:'numeric'
-        });
-
-
-
-    // empty spaces before first day
-
-    for(let i=0;i<firstDay.getDay();i++){
-
-        let empty = document.createElement("div");
-
-        empty.className="calendar-date empty";
-
-        daysContainer.appendChild(empty);
-
-    }
-
-
-
-    // dates
-
-    for(let day=1; day<=lastDay.getDate(); day++){
-
-        let dateBox=document.createElement("div");
-
-        dateBox.className="calendar-date";
-
-        dateBox.innerHTML=day;
-
-
-
-        let dateKey =
-        `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-
-
-
-        if(festivals[dateKey]){
-
-            dateBox.classList.add("has-event");
-
-            dateBox.onclick=function(){
-
-                showEvent(dateKey);
-
-            }
-
-        }
-
-
-        daysContainer.appendChild(dateBox);
-
-    }
-
+    renderCalendar();
 }
 
 
+// ========================================
+// RENDER CALENDAR
+// ========================================
 
-function showEvent(date){
+function renderCalendar()
+{
+    let year =
+        currentDate.getFullYear();
 
-    let event = festivals[date];
+    let month =
+        currentDate.getMonth();
 
 
-    document.getElementById("eventList").innerHTML = `
+    document.getElementById('monthYear')
+    .innerHTML =
+        currentDate.toLocaleString(
+            'default',
+            {
+                month:'long',
+                year:'numeric'
+            }
+        );
 
-        <div class="festival-card">
 
-            <h4>${event.name}</h4>
+    let calendarDays =
+        document.getElementById(
+            'calendarDays'
+        );
 
-            <p>📍 ${event.location}</p>
 
-            <p>${event.description}</p>
+    calendarDays.innerHTML = "";
+
+
+    let firstDay =
+        new Date(
+            year,
+            month,
+            1
+        ).getDay();
+
+
+    let totalDays =
+        new Date(
+            year,
+            month + 1,
+            0
+        ).getDate();
+
+
+    // Empty boxes before first day
+
+    for(
+        let i = 0;
+        i < firstDay;
+        i++
+    )
+    {
+        calendarDays.innerHTML +=
+        `
+        <div class="empty"></div>
+        `;
+    }
+
+
+    // Create dates
+
+    for(
+        let day = 1;
+        day <= totalDays;
+        day++
+    )
+    {
+        let date =
+            `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+
+
+        let dayEvents =
+            events.filter(event =>
+                date >= event.start_date
+                &&
+                date <= event.end_date
+            );
+
+
+        calendarDays.innerHTML +=
+        `
+        <div class="calendar-date
+        ${dayEvents.length ? 'has-event':''}">
+
+            <div class="date-number">
+                ${day}
+            </div>
+
+
+            <div class="calendar-event-list">
+
+            ${
+                dayEvents.map(event =>
+                `
+                <div
+                    class="calendar-event"
+                    onclick="showEvent(${event.id})">
+
+                    ${event.title}
+
+                </div>
+                `
+                ).join('')
+            }
+
+            </div>
+
+        </div>
+        `;
+    }
+}
+
+
+// ========================================
+// CLICK EVENT
+// ========================================
+
+function showEvent(id)
+{
+    let event =
+        events.find(
+            e => e.id == id
+        );
+
+
+    if(!event)
+    {
+        return;
+    }
+
+
+    document.getElementById('eventList')
+    .innerHTML =
+    `
+    <div class="event-detail">
+
+        <h3>
+            ${event.title}
+        </h3>
+
+
+        <p>
+            📅
+            ${event.start_date}
+            -
+            ${event.end_date}
+        </p>
+
+
+        <p>
+            Status: Upcoming
+        </p>
+
+
+        <div class="event-actions">
+
+            <!-- REMIND ME BUTTON -->
+
+            <button
+                class="reminder-btn"
+                onclick="setReminder(${event.id})">
+
+                🔔 Remind Me
+
+            </button>
+
+
+            <!-- LEARN MORE BUTTON -->
+
+            <button
+                class="learn-more-btn"
+                onclick="learnMore(${event.id})">
+
+                Learn More
+
+            </button>
 
         </div>
 
+    </div>
     `;
+}
+
+
+// ========================================
+// REMIND ME
+// ========================================
+
+async function setReminder(id)
+{
+    window.selectedEventId = id;
+
+    try
+    {
+        const response = await fetch(
+            "{{ route('calendar.reminder') }}",
+            {
+                method: "POST",
+
+                headers:
+                {
+                    "Content-Type": "application/json",
+
+                    "X-CSRF-TOKEN":
+                        document.querySelector(
+                            'meta[name="csrf-token"]'
+                        ).getAttribute('content'),
+
+                    "Accept": "application/json"
+                },
+
+                body: JSON.stringify({
+                    experience_id: id
+                })
+            }
+        );
+
+
+        console.log("Response status:", response.status);
+
+
+        const text = await response.text();
+
+        console.log("Server response:", text);
+
+
+        if (!response.ok)
+        {
+            alert(
+                "Reminder failed.\n\n" +
+                "Status: " +
+                response.status +
+                "\n\n" +
+                text
+            );
+
+            return;
+        }
+
+
+        const data = JSON.parse(text);
+
+
+        if (data.success)
+        {
+            alert(data.message);
+        }
+        else
+        {
+            alert("Reminder could not be saved.");
+        }
+
+    }
+    catch(error)
+    {
+        console.error("Reminder error:", error);
+
+        alert(
+            "Something went wrong.\n\n" +
+            error.message
+        );
+    }
+}
+
+function showLoginPrompt()
+{
+    document.getElementById('eventList').innerHTML =
+    `
+    <div class="reminder-login-card">
+
+        <div class="reminder-login-icon">
+            🔒
+        </div>
+
+        <h3>Log In to Set a Reminder</h3>
+
+        <p>
+            Please sign in to your account to receive
+            reminders for your favourite festivals.
+        </p>
+
+        <div class="reminder-login-actions">
+
+            <a href="{{ route('login') }}"
+               class="button button-primary">
+                Continue to Login
+            </a>
+
+            <button
+                type="button"
+                class="button"
+                onclick="showEventAgain()">
+                Not Now
+            </button>
+
+        </div>
+
+    </div>
+    `;
+}
+function showEventAgain()
+{
+    if (window.selectedEventId)
+    {
+        showEvent(window.selectedEventId);
+    }
+}
+
+
+// ========================================
+// LEARN MORE
+// ========================================
+
+function learnMore(id)
+{
+
+    // We will implement this later
 
 }
 
 
+// ========================================
+// CHANGE MONTH
+// ========================================
 
-function changeMonth(value){
-
+function changeMonth(value)
+{
     currentDate.setMonth(
-        currentDate.getMonth()+value
+        currentDate.getMonth() + value
     );
 
-    loadCalendar();
 
+    renderCalendar();
 }
 
 
+// ========================================
+// LOAD CALENDAR
+// ========================================
 
-loadCalendar();
-
+loadEvents();
 
 </script>
 
-
-@endsection
+@endpush

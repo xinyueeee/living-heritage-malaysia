@@ -59,6 +59,15 @@
 .profile-achievement-info p.profile-achievement-desc { margin: 2px 0 0; color: var(--muted); font-size: .85rem; }
 .profile-achievement-date { flex-shrink: 0; color: var(--muted); font-size: .8rem; }
 .profile-empty { padding: 10px 0; color: var(--muted); font-size: .9rem; }
+.profile-saved-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.profile-saved-grid .experience-card { display: flex; min-width: 0; flex-direction: column; background: var(--surface); }
+.profile-saved-grid .card-content { display: flex; flex: 1; flex-direction: column; }
+.profile-saved-grid .card-description { flex: 1; }
+.profile-saved-status { margin: 0 0 16px; padding: 11px 14px; border: 1px solid #b9d8c4; border-radius: 8px; background: #effaf2; color: #195b33; }
+.profile-saved-empty { padding: 54px 28px; text-align: center; }
+.profile-saved-empty > span { color: var(--primary); font-size: 3rem; line-height: 1; }
+.profile-saved-empty h2 { margin: 14px 0 8px; font-family: Georgia, serif; }
+.profile-saved-empty p { margin: 0 auto 22px; color: var(--muted); }
 
 .profile-feedback-banner { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 20px; padding: 26px 30px; border-radius: 14px; background: linear-gradient(90deg, #fdf3e7, #fbe6d3); }
 .profile-feedback-banner h3 { margin: 0 0 4px; font-family: Georgia, serif; font-size: 1.2rem; }
@@ -99,6 +108,7 @@
 }
 
 @media (max-width: 760px) {
+    .profile-saved-grid { grid-template-columns: 1fr; }
     .profile-hero-illustration { display: none; }
     .profile-stats { grid-template-columns: 1fr; }
     .profile-header-card { flex-wrap: wrap; }

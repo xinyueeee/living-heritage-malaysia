@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Experience extends Model
 {
@@ -30,5 +31,17 @@ class Experience extends Model
     public function type(): BelongsTo
     {
         return $this->belongsTo(ExperienceType::class, 'type_id', 'type_id');
+    }
+
+    public function savedByUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            'favourite',
+            'experience_id',
+            'user_id',
+            'experiences_id',
+            'user_id',
+        )->withPivot('saved_date');
     }
 }
