@@ -9,6 +9,8 @@ use App\Http\Controllers\ProfilePhotoController;
 use App\Http\Controllers\EngagementController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommunityController;
+use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', [ExperienceController::class, 'home'])->name('home');
 Route::get('/experiences', [ExperienceController::class, 'index'])->name('experiences.index');
@@ -40,8 +42,15 @@ Route::get('/engagement/history', [EngagementController::class, 'history'])->nam
 Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
 Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
 Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
+Route::get('/festival/calendar', [CalendarController::class, 'index'])->name('festival.calendar');
+Route::get('/calendar/events', [CalendarController::class, 'calendarEvents']);
 
-Route::get('/festival/calendar', function () {
-    return view('festival.calendar');
-})->name('festival.calendar');
+Route::get('/calendar/login', function () {return view('calendar.login-required');})->name('calendar.login');
 
+Route::get('/notifications', [NotificationController::class, 'index'])
+    ->name('notifications.index')
+    ->middleware('auth');
+
+Route::post('/calendar/reminder', [NotificationController::class, 'storeReminder'])
+    ->name('calendar.reminder')
+    ->middleware('auth');
