@@ -5,21 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
-
 class CalendarController extends Controller
 {
 
-
+    // Show calendar page
     public function index()
     {
         return view('festival.calendar');
     }
 
 
-
+    // Get event data for calendar
     public function calendarEvents(): JsonResponse
     {
-
         $events = DB::table('experiences')
             ->select(
                 'experiences_id as id',
@@ -31,8 +29,6 @@ class CalendarController extends Controller
 
 
         return response()->json($events);
-
     }
-
 
 }

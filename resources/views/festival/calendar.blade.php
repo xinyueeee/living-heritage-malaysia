@@ -1,18 +1,34 @@
 @extends('layouts.app')
+
 @section('title', 'Festival Calendar')
+
 @section('content')
 
 <div class="calendar-container">
+
     <!-- Calendar Header -->
     <div class="calendar-header">
-        <button onclick="changeMonth(-1)" class="calendar-btn"> ← </button>
-        <h2 id="monthYear"></h2>
-        <button onclick="changeMonth(1)" class="calendar-btn"> →
+
+        <button
+            onclick="changeMonth(-1)"
+            class="calendar-btn">
+            ←
         </button>
+
+        <h2 id="monthYear"></h2>
+
+        <button
+            onclick="changeMonth(1)"
+            class="calendar-btn">
+            →
+        </button>
+
     </div>
+
 
     <!-- Week Day -->
     <div class="calendar-weekdays">
+
         <div>Sun</div>
         <div>Mon</div>
         <div>Tue</div>
@@ -20,30 +36,51 @@
         <div>Thu</div>
         <div>Fri</div>
         <div>Sat</div>
+
     </div>
+
+
     <!-- Calendar -->
     <div id="calendarDays" class="calendar-days"></div>
+
+
     <!-- Event Detail -->
     <div class="event-box">
+
         <h3>Festival Details</h3>
-        <div id="eventList"> Click an event to view details. </div>
+
+        <div id="eventList">
+            Click an event to view details.
+        </div>
+
     </div>
+
 </div>
+
 @endsection
 
+
 @push('scripts')
+
 <script>
+
 let currentDate = new Date();
+
 let events = [];
 
-// Get database events
+
+// ========================================
+// GET DATABASE EVENTS
+// ========================================
 
 async function loadEvents()
 {
     const response =
         await fetch('/calendar/events');
+
     events =
         await response.json();
+
     console.log(
         "Calendar Events:",
         events
@@ -53,6 +90,10 @@ async function loadEvents()
 }
 
 
+// ========================================
+// RENDER CALENDAR
+// ========================================
+
 function renderCalendar()
 {
     let year =
@@ -61,67 +102,80 @@ function renderCalendar()
     let month =
         currentDate.getMonth();
 
+
     document.getElementById('monthYear')
     .innerHTML =
-    currentDate.toLocaleString(
-        'default',
-        {
-            month:'long',
-            year:'numeric'
-        }
-    );
+        currentDate.toLocaleString(
+            'default',
+            {
+                month:'long',
+                year:'numeric'
+            }
+        );
+
 
     let calendarDays =
-    document.getElementById(
-        'calendarDays'
-    );
+        document.getElementById(
+            'calendarDays'
+        );
 
-    calendarDays.innerHTML="";
+
+    calendarDays.innerHTML = "";
+
 
     let firstDay =
-    new Date(
-        year,
-        month,
-        1
-    ).getDay();
+        new Date(
+            year,
+            month,
+            1
+        ).getDay();
 
 
     let totalDays =
-    new Date(
-        year,
-        month+1,
-        0
-    ).getDate();
+        new Date(
+            year,
+            month + 1,
+            0
+        ).getDate();
 
-    // empty box before first day
 
-    for(let i=0;i<firstDay;i++)
+    // Empty boxes before first day
+
+    for(
+        let i = 0;
+        i < firstDay;
+        i++
+    )
     {
         calendarDays.innerHTML +=
         `
         <div class="empty"></div>
         `;
     }
-    // create dates
 
-    for(let day=1; day<=totalDays; day++)
+
+    // Create dates
+
+    for(
+        let day = 1;
+        day <= totalDays;
+        day++
+    )
     {
         let date =
-        `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+            `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+
 
         let dayEvents =
-        events.filter(event =>
+            events.filter(event =>
+                date >= event.start_date
+                &&
+                date <= event.end_date
+            );
 
-            date >= event.start_date
-            &&
-            date <= event.end_date
-
-        );
 
         calendarDays.innerHTML +=
-
         `
-
         <div class="calendar-date
         ${dayEvents.length ? 'has-event':''}">
 
@@ -129,75 +183,260 @@ function renderCalendar()
                 ${day}
             </div>
 
+
             <div class="calendar-event-list">
+
             ${
                 dayEvents.map(event =>
                 `
-                <div class="calendar-event"
-                onclick="showEvent(${event.id})">
+                <div
+                    class="calendar-event"
+                    onclick="showEvent(${event.id})">
+
                     ${event.title}
+
                 </div>
                 `
                 ).join('')
             }
+
             </div>
+
         </div>
         `;
     }
 }
 
-// Click event
+
+// ========================================
+// CLICK EVENT
+// ========================================
 
 function showEvent(id)
 {
     let event =
-    events.find(
-        e => e.id == id
-    );
+        events.find(
+            e => e.id == id
+        );
+
 
     if(!event)
     {
         return;
     }
 
+
     document.getElementById('eventList')
     .innerHTML =
     `
     <div class="event-detail">
-        <h3> ${event.title}</h3>
+
+        <h3>
+            ${event.title}
+        </h3>
+
 
         <p>
-        📅 
-        ${event.start_date}
-        -
-        ${event.end_date}
+            📅
+            ${event.start_date}
+            -
+            ${event.end_date}
         </p>
 
-        <p> Status: Upcoming </p>
 
-        <button onclick="learnMore(${event.id})"> Learn More </button>
+        <p>
+            Status: Upcoming
+        </p>
+
+
+        <div class="event-actions">
+
+            <!-- REMIND ME BUTTON -->
+
+            <button
+                class="reminder-btn"
+                onclick="setReminder(${event.id})">
+
+                🔔 Remind Me
+
+            </button>
+
+
+            <!-- LEARN MORE BUTTON -->
+
+            <button
+                class="learn-more-btn"
+                onclick="learnMore(${event.id})">
+
+                Learn More
+
+            </button>
+
+        </div>
 
     </div>
     `;
 }
 
 
-function learnMore(id)
+// ========================================
+// REMIND ME
+// ========================================
+
+async function setReminder(id)
 {
-    
+    window.selectedEventId = id;
+
+    try
+    {
+        const response = await fetch(
+            "{{ route('calendar.reminder') }}",
+            {
+                method: "POST",
+
+                headers:
+                {
+                    "Content-Type": "application/json",
+
+                    "X-CSRF-TOKEN":
+                        document.querySelector(
+                            'meta[name="csrf-token"]'
+                        ).getAttribute('content'),
+
+                    "Accept": "application/json"
+                },
+
+                body: JSON.stringify({
+                    experience_id: id
+                })
+            }
+        );
+
+
+        console.log("Response status:", response.status);
+
+
+        const text = await response.text();
+
+        console.log("Server response:", text);
+
+
+        if (!response.ok)
+        {
+            alert(
+                "Reminder failed.\n\n" +
+                "Status: " +
+                response.status +
+                "\n\n" +
+                text
+            );
+
+            return;
+        }
+
+
+        const data = JSON.parse(text);
+
+
+        if (data.success)
+        {
+            alert(data.message);
+        }
+        else
+        {
+            alert("Reminder could not be saved.");
+        }
+
+    }
+    catch(error)
+    {
+        console.error("Reminder error:", error);
+
+        alert(
+            "Something went wrong.\n\n" +
+            error.message
+        );
+    }
 }
 
+function showLoginPrompt()
+{
+    document.getElementById('eventList').innerHTML =
+    `
+    <div class="reminder-login-card">
+
+        <div class="reminder-login-icon">
+            🔒
+        </div>
+
+        <h3>Log In to Set a Reminder</h3>
+
+        <p>
+            Please sign in to your account to receive
+            reminders for your favourite festivals.
+        </p>
+
+        <div class="reminder-login-actions">
+
+            <a href="{{ route('login') }}"
+               class="button button-primary">
+                Continue to Login
+            </a>
+
+            <button
+                type="button"
+                class="button"
+                onclick="showEventAgain()">
+                Not Now
+            </button>
+
+        </div>
+
+    </div>
+    `;
+}
+function showEventAgain()
+{
+    if (window.selectedEventId)
+    {
+        showEvent(window.selectedEventId);
+    }
+}
+
+
+// ========================================
+// LEARN MORE
+// ========================================
+
+function learnMore(id)
+{
+
+    // We will implement this later
+
+}
+
+
+// ========================================
+// CHANGE MONTH
+// ========================================
 
 function changeMonth(value)
 {
     currentDate.setMonth(
-        currentDate.getMonth()+value
+        currentDate.getMonth() + value
     );
+
+
     renderCalendar();
 }
+
+
+// ========================================
+// LOAD CALENDAR
+// ========================================
+
 loadEvents();
 
 </script>
-
 
 @endpush
