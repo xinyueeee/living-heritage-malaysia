@@ -14,6 +14,7 @@
         : ($isSafeRelativePath && is_file(public_path($imagePath)) ? asset($imagePath) : null);
     $typeName = $experience->type?->type_name;
     $badgeName = $experience->category?->category_name ?? $typeName;
+    $isSaved = in_array((int) $experience->experiences_id, $savedExperienceIds ?? [], true);
 
     $countdownTarget = null;
     if ($variant === 'festival') {
@@ -57,11 +58,25 @@
             <span class="card-category">{{ $badgeName }}</span>
         @endif
 
-        @if (in_array($variant, ['home', 'recommendation'], true))
-            <span class="card-favourite" aria-label="Favourite control preview">
+        @auth
+            <form
+                class="card-favourite {{ $isSaved ? 'is-saved' : '' }}"
+                method="POST"
+                action="{{ $isSaved ? route('experiences.saved.destroy', $experience) : route('experiences.saved.store', $experience) }}"
+            >
+                @csrf
+                @if ($isSaved)
+                    @method('DELETE')
+                @endif
+                <button type="submit" aria-label="{{ $isSaved ? 'Remove from saved experiences' : 'Save experience' }}">
+                    <svg viewBox="0 0 24 24" fill="{{ $isSaved ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></svg>
+                </button>
+            </form>
+        @else
+            <a class="card-favourite" href="{{ route('login') }}" aria-label="Log in to save this experience">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></svg>
-            </span>
-        @endif
+            </a>
+        @endauth
 
         @if ($variant === 'festival' && !is_null($daysRemaining))
             <span class="festival-countdown"><strong>{{ $daysRemaining }}</strong> {{ $daysRemaining === 1 ? 'day' : 'days' }} left</span>

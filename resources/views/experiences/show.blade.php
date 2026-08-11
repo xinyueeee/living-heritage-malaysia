@@ -45,7 +45,23 @@
                         </p>
                     @endif
 
-                    <h1>{{ $experience->experiences_name }}</h1>
+                    <div class="experience-details-heading">
+                        <h1>{{ $experience->experiences_name }}</h1>
+                        @auth
+                            <form method="POST" action="{{ $isSaved ? route('experiences.saved.destroy', $experience) : route('experiences.saved.store', $experience) }}">
+                                @csrf
+                                @if ($isSaved)
+                                    @method('DELETE')
+                                @endif
+                                <button type="submit" class="experience-save-button {{ $isSaved ? 'is-saved' : '' }}">
+                                    <span aria-hidden="true">{{ $isSaved ? '♥' : '♡' }}</span>
+                                    {{ $isSaved ? 'Saved' : 'Save Experience' }}
+                                </button>
+                            </form>
+                        @else
+                            <a class="experience-save-button" href="{{ route('login') }}"><span aria-hidden="true">♡</span> Save Experience</a>
+                        @endauth
+                    </div>
 
                     <dl class="experience-details-meta">
                         @if ($experience->start_date)
@@ -109,6 +125,11 @@
         .experience-details-content { padding: clamp(24px, 5vw, 48px); }
         .experience-details-eyebrow { margin: 0 0 8px; color: var(--primary); font-size: .8rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
         .experience-details-content h1 { margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(2rem, 5vw, 3.3rem); line-height: 1.15; }
+        .experience-details-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+        .experience-details-heading form { flex-shrink: 0; }
+        .experience-save-button { display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px; border: 1px solid var(--primary); border-radius: 7px; background: #fff; color: var(--primary); font: inherit; font-weight: 700; cursor: pointer; white-space: nowrap; }
+        .experience-save-button:hover,
+        .experience-save-button.is-saved { background: var(--primary); color: #fff; }
         .experience-details-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 28px; margin: 30px 0; padding: 22px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
         .experience-details-meta div { min-width: 0; }
         .experience-details-meta dt { color: var(--muted); font-size: .75rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
@@ -118,6 +139,8 @@
         @media (max-width: 640px) {
             .experience-details-page { padding-top: 28px; }
             .experience-details-meta { grid-template-columns: 1fr; }
+            .experience-details-heading { align-items: stretch; flex-direction: column; }
+            .experience-save-button { justify-content: center; }
         }
     </style>
 @endpush

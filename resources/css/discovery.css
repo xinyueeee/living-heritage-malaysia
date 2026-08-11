@@ -220,7 +220,11 @@
     border-radius: 50%;
     background: rgba(40, 24, 18, .38);
     color: #fff;
+    z-index: 3;
 }
+.card-favourite button { display: grid; width: 100%; height: 100%; padding: 0; place-items: center; border: 0; border-radius: inherit; background: transparent; color: inherit; cursor: pointer; }
+.card-favourite:hover,
+.card-favourite.is-saved { background: rgba(165, 42, 26, .92); }
 .card-favourite svg { width: 18px; height: 18px; }
 .home-page .card-content,
 .discovery-page .card-content {

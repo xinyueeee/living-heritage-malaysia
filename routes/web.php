@@ -6,6 +6,7 @@ use App\Http\Controllers\InterestController;
 use App\Http\Controllers\PersonalInformationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilePhotoController;
+use App\Http\Controllers\SavedExperienceController;
 use App\Http\Controllers\EngagementController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommunityController;
@@ -33,6 +34,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/photo', [ProfilePhotoController::class, 'store'])->name('profile.photo.store');
     Route::get('/profile/interests', [InterestController::class, 'show'])->name('profile.interests');
     Route::put('/profile/interests', [InterestController::class, 'update'])->name('profile.interests.update');
+    Route::get('/profile/saved-experiences', [SavedExperienceController::class, 'index'])
+        ->name('profile.saved-experiences');
+    Route::post('/experiences/{experience}/save', [SavedExperienceController::class, 'store'])
+        ->name('experiences.saved.store');
+    Route::delete('/experiences/{experience}/save', [SavedExperienceController::class, 'destroy'])
+        ->name('experiences.saved.destroy');
 });
 
 Route::get('/engagement', [EngagementController::class, 'index'])->name('engagement.index');
