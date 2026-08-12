@@ -122,23 +122,27 @@
                             $images = json_decode($post->post_images, true);
                         @endphp
 
-                        @if(is_array($images)&&count($images)>0)
+                        @if(is_array($images) && count($images) > 0)
 
                             @php
                                 $totalImages = count($images);
                                 $displayImages = array_slice($images, 0, 3);
+
+                                $galleryImages = collect($images)->values()->toArray();
                             @endphp
 
-                            <div class="post-gallery post-gallery-{{ count($displayImages) }}">
+                            <div class="post-gallery post-gallery-{{ count($displayImages) }}" 
+                                data-images='@json($galleryImages)'>
 
                                 @foreach($displayImages as $index => $image)
 
-                                <div class="gallery-item">
-                                    <img src="{{ asset('images/community/' . $image) }}"
-                                    alt="Community Post Image">
+                                <div class="gallery-item" data-index="{{ $index }}">
+                                    <img src="{{ $image }}"
+                                        alt="Community Post Image">
 
                                     {{-- Show +X on the 3rd image if there are more photos --}}
                                     @if($index === 2 && $totalImages > 3)
+
                                     <div class="more-images">
                                         +{{ $totalImages - 3 }}
                                     </div>
@@ -232,3 +236,271 @@
 </div>
 
 @endsection
+
+<!-- =========================
+     PHOTO VIEWER MODAL
+========================== -->
+
+<div id="photoViewer" class="photo-viewer">
+
+    <button
+        type="button"
+        class="photo-viewer-close"
+        id="photoViewerClose">
+        ×
+    </button>
+
+    <button
+        type="button"
+        class="photo-viewer-prev"
+        id="photoViewerPrev">
+        ‹
+    </button>
+
+    <div class="photo-viewer-content">
+
+        <img
+            id="photoViewerImage"
+            src=""
+            alt="Community Post Image">
+
+        <div
+            id="photoViewerCounter"
+            class="photo-viewer-counter">
+            1 / 1
+        </div>
+
+    </div>
+
+    <button
+        type="button"
+        class="photo-viewer-next"
+        id="photoViewerNext">
+        ›
+    </button>
+
+</div>
+
+@push('scripts')
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const photoViewer = document.getElementById('photoViewer');
+    const photoViewerImage = document.getElementById('photoViewerImage');
+    const photoViewerCounter = document.getElementById('photoViewerCounter');
+
+    const closeButton = document.getElementById('photoViewerClose');
+    const prevButton = document.getElementById('photoViewerPrev');
+    const nextButton = document.getElementById('photoViewerNext');
+
+    let currentImages = [];
+    let currentIndex = 0;
+
+
+    // ==========================================
+    // OPEN PHOTO VIEWER
+    // ==========================================
+
+    document.querySelectorAll('.post-gallery').forEach(function (gallery) {
+
+        gallery.querySelectorAll('.gallery-item').forEach(function (item) {
+
+            item.addEventListener('click', function () {
+
+                currentImages = JSON.parse(
+                    gallery.dataset.images
+                );
+
+                currentIndex = parseInt(
+                    item.dataset.index
+                );
+
+                openPhotoViewer();
+
+            });
+
+        });
+
+    });
+
+
+    // ==========================================
+    // OPEN
+    // ==========================================
+
+    function openPhotoViewer() {
+
+        if (currentImages.length === 0) {
+            return;
+        }
+
+        photoViewer.classList.add('active');
+
+        updatePhotoViewer();
+
+        document.body.style.overflow = 'hidden';
+    }
+
+
+    // ==========================================
+    // UPDATE PHOTO
+    // ==========================================
+
+    function updatePhotoViewer() {
+
+        photoViewerImage.src = currentImages[currentIndex];
+
+        photoViewerCounter.textContent =
+            `${currentIndex + 1} / ${currentImages.length}`;
+
+
+        // Hide previous button if first image
+
+        if (currentImages.length <= 1) {
+
+            prevButton.style.display = 'none';
+            nextButton.style.display = 'none';
+
+        } else {
+
+            prevButton.style.display = 'flex';
+            nextButton.style.display = 'flex';
+
+        }
+
+    }
+
+
+    // ==========================================
+    // CLOSE
+    // ==========================================
+
+    function closePhotoViewer() {
+
+        photoViewer.classList.remove('active');
+
+        document.body.style.overflow = '';
+
+        photoViewerImage.src = '';
+
+    }
+
+
+    closeButton.addEventListener('click', function () {
+
+        closePhotoViewer();
+
+    });
+
+
+    // ==========================================
+    // PREVIOUS
+    // ==========================================
+
+    prevButton.addEventListener('click', function (event) {
+
+        event.stopPropagation();
+
+        currentIndex--;
+
+        if (currentIndex < 0) {
+            currentIndex = currentImages.length - 1;
+        }
+
+        updatePhotoViewer();
+
+    });
+
+
+    // ==========================================
+    // NEXT
+    // ==========================================
+
+    nextButton.addEventListener('click', function (event) {
+
+        event.stopPropagation();
+
+        currentIndex++;
+
+        if (currentIndex >= currentImages.length) {
+            currentIndex = 0;
+        }
+
+        updatePhotoViewer();
+
+    });
+
+
+    // ==========================================
+    // CLICK BACKGROUND TO CLOSE
+    // ==========================================
+
+    photoViewer.addEventListener('click', function (event) {
+
+        if (event.target === photoViewer) {
+
+            closePhotoViewer();
+
+        }
+
+    });
+
+
+    // ==========================================
+    // KEYBOARD CONTROLS
+    // ==========================================
+
+    document.addEventListener('keydown', function (event) {
+
+        if (!photoViewer.classList.contains('active')) {
+            return;
+        }
+
+
+        // ESC
+
+        if (event.key === 'Escape') {
+
+            closePhotoViewer();
+
+        }
+
+
+        // LEFT ARROW
+
+        if (event.key === 'ArrowLeft') {
+
+            currentIndex--;
+
+            if (currentIndex < 0) {
+                currentIndex = currentImages.length - 1;
+            }
+
+            updatePhotoViewer();
+
+        }
+
+
+        // RIGHT ARROW
+
+        if (event.key === 'ArrowRight') {
+
+            currentIndex++;
+
+            if (currentIndex >= currentImages.length) {
+                currentIndex = 0;
+            }
+
+            updatePhotoViewer();
+
+        }
+
+    });
+
+});
+
+</script>
+
+@endpush
