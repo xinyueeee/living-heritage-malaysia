@@ -25,7 +25,6 @@
 
     </div>
 
-
     <!-- Week Day -->
     <div class="calendar-weekdays">
 
@@ -39,10 +38,8 @@
 
     </div>
 
-
     <!-- Calendar -->
     <div id="calendarDays" class="calendar-days"></div>
-
 
     <!-- Event Detail -->
     <div class="event-box">
@@ -58,7 +55,6 @@
 </div>
 
 @endsection
-
 
 @push('scripts')
 
@@ -108,26 +104,22 @@ function renderCalendar()
     let month =
         currentDate.getMonth();
 
-
     document.getElementById('monthYear')
     .innerHTML =
         currentDate.toLocaleString(
             'default',
             {
-                month:'long',
-                year:'numeric'
+                month: 'long',
+                year: 'numeric'
             }
         );
-
 
     let calendarDays =
         document.getElementById(
             'calendarDays'
         );
 
-
     calendarDays.innerHTML = "";
-
 
     let firstDay =
         new Date(
@@ -135,7 +127,6 @@ function renderCalendar()
             month,
             1
         ).getDay();
-
 
     let totalDays =
         new Date(
@@ -169,8 +160,7 @@ function renderCalendar()
     )
     {
         let date =
-            `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-
+            `${year}-${String(month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
 
         let dayEvents =
             events.filter(event =>
@@ -179,16 +169,14 @@ function renderCalendar()
                 date <= event.end_date
             );
 
-
         calendarDays.innerHTML +=
         `
         <div class="calendar-date
-        ${dayEvents.length ? 'has-event':''}">
+        ${dayEvents.length ? 'has-event' : ''}">
 
             <div class="date-number">
                 ${day}
             </div>
-
 
             <div class="calendar-event-list">
 
@@ -225,12 +213,10 @@ function showEvent(id)
             e => e.id == id
         );
 
-
     if(!event)
     {
         return;
     }
-
 
     document.getElementById('eventList')
     .innerHTML =
@@ -241,7 +227,6 @@ function showEvent(id)
             ${event.title}
         </h3>
 
-
         <p>
             📅
             ${event.start_date}
@@ -249,11 +234,9 @@ function showEvent(id)
             ${event.end_date}
         </p>
 
-
         <p>
             Status: Upcoming
         </p>
-
 
         <div class="event-actions">
 
@@ -355,17 +338,13 @@ async function setReminder(id)
 }
 
 
-
-
 // ========================================
 // LEARN MORE
 // ========================================
 
 function learnMore(id)
 {
-
     // We will implement this later
-
 }
 
 
@@ -378,7 +357,6 @@ function changeMonth(value)
     currentDate.setMonth(
         currentDate.getMonth() + value
     );
-
 
     renderCalendar();
 }

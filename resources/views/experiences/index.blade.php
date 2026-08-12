@@ -123,7 +123,7 @@
                     <h2>Can't find what you're looking for?</h2>
                     <p>Tell us your interests and we'll recommend cultural experiences for you.</p>
                 </div>
-                <span class="button button-primary" aria-disabled="true">Personalize My Recommendations <span aria-hidden="true">&rarr;</span></span>
+                <a class="button button-primary" href="{{ route('recommendations.index') }}">Personalize My Recommendations <span aria-hidden="true">&rarr;</span></a>
             </section>
         </div>
     </div>

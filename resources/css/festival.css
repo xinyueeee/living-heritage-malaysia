@@ -9,7 +9,6 @@
     box-shadow: var(--shadow);
 }
 
-
 /* ================================
    Calendar Header
 ================================ */
@@ -41,7 +40,6 @@
     opacity: 0.85;
 }
 
-
 /* ================================
    Weekdays + Calendar Grid
 ================================ */
@@ -64,7 +62,6 @@
     color: #555;
 }
 
-
 /* ================================
    Calendar Date
 ================================ */
@@ -86,7 +83,6 @@
     border: 2px solid #A52A1A;
 }
 
-
 /* Date number */
 
 .date-number {
@@ -96,13 +92,11 @@
     color: #333;
 }
 
-
 /* Empty spaces before first day */
 
 .empty {
     min-height: 100px;
 }
-
 
 /* ================================
    EVENTS INSIDE DATE
@@ -115,12 +109,10 @@
     width: 100%;
 }
 
-
 /* Event name */
 
 .calendar-event {
     display: block;
-
     width: 100%;
     box-sizing: border-box;
 
@@ -142,13 +134,11 @@
     text-overflow: ellipsis;
 }
 
-
 /* Event hover */
 
 .calendar-event:hover {
     background: #7f2015;
 }
-
 
 /* ================================
    EVENT DETAIL
@@ -163,7 +153,6 @@
     color: var(--primary);
 }
 
-
 .event-detail {
     background: #faf7f2;
 
@@ -174,7 +163,6 @@
     border-left: 4px solid #A52A1A;
 }
 
-
 .event-detail h3 {
     margin-top: 0;
     margin-bottom: 12px;
@@ -182,12 +170,10 @@
     color: #A52A1A;
 }
 
-
 .event-detail p {
     margin: 8px 0;
     line-height: 1.5;
 }
-
 
 .event-detail button {
     background: var(--primary);
@@ -209,9 +195,8 @@
     opacity: 0.85;
 }
 
-
 /* ================================
-   Mobile
+   Calendar Mobile
 ================================ */
 
 @media (max-width: 768px) {
@@ -234,7 +219,6 @@
         font-size: 10px;
         padding: 4px;
     }
-
 }
 
 /* ========================================
@@ -250,7 +234,6 @@
     max-width: 850px;
     margin: 0 auto;
 }
-
 
 /* ========================================
    HEADER
@@ -287,7 +270,6 @@
     font-size: 15px;
 }
 
-
 /* ========================================
    NOTIFICATION LIST
 ======================================== */
@@ -297,7 +279,6 @@
     flex-direction: column;
     gap: 15px;
 }
-
 
 /* ========================================
    NOTIFICATION CARD
@@ -328,7 +309,6 @@
         0 7px 20px rgba(0, 0, 0, 0.08);
 }
 
-
 /* ========================================
    NOTIFICATION ICON
 ======================================== */
@@ -348,7 +328,6 @@
 
     font-size: 21px;
 }
-
 
 /* ========================================
    NOTIFICATION CONTENT
@@ -378,7 +357,6 @@
     color: #999;
     font-size: 13px;
 }
-
 
 /* ========================================
    EMPTY NOTIFICATION
@@ -412,9 +390,8 @@
     color: #777;
 }
 
-
 /* ========================================
-   MOBILE
+   NOTIFICATION MOBILE
 ======================================== */
 
 @media (max-width: 600px) {
@@ -441,5 +418,4 @@
     .notification-card-content h3 {
         font-size: 15px;
     }
-
 }

@@ -96,7 +96,7 @@
                     </div>
                 </div>
 
-                <div class="profile-field" data-field="birthday">
+                <div class="profile-field profile-field-last" data-field="birthday">
                     <div class="profile-field-label">Birthday</div>
                     <div class="profile-field-display">
                         <span class="profile-field-value" data-raw="{{ $user->birthday?->format('Y-m-d') }}">{{ $user->birthday?->format('d M Y') ?? 'Not set yet.' }}</span>
@@ -107,44 +107,6 @@
                     </div>
                     <div class="profile-field-form" hidden>
                         <input type="date" class="profile-field-input" value="{{ $user->birthday?->format('Y-m-d') }}">
-                        <div class="profile-field-actions">
-                            <button type="button" class="button button-primary" data-action="save">Save</button>
-                            <button type="button" class="profile-field-cancel" data-action="cancel">Cancel</button>
-                        </div>
-                        <p class="profile-field-error" hidden></p>
-                    </div>
-                </div>
-
-                <div class="profile-field" data-field="phone_number">
-                    <div class="profile-field-label">Phone Number</div>
-                    <div class="profile-field-display">
-                        <span class="profile-field-value" data-raw="{{ $user->phone_number }}">{{ $user->phone_number ?: 'Not set yet.' }}</span>
-                        <button type="button" class="profile-field-edit-btn" data-action="edit" aria-label="Edit phone number">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
-                        </button>
-                        <span class="profile-field-success" hidden>Saved</span>
-                    </div>
-                    <div class="profile-field-form" hidden>
-                        <input type="tel" class="profile-field-input" maxlength="20" value="{{ $user->phone_number }}">
-                        <div class="profile-field-actions">
-                            <button type="button" class="button button-primary" data-action="save">Save</button>
-                            <button type="button" class="profile-field-cancel" data-action="cancel">Cancel</button>
-                        </div>
-                        <p class="profile-field-error" hidden></p>
-                    </div>
-                </div>
-
-                <div class="profile-field profile-field-last" data-field="nationality">
-                    <div class="profile-field-label">Nationality</div>
-                    <div class="profile-field-display">
-                        <span class="profile-field-value" data-raw="{{ $user->nationality }}">{{ $user->nationality ?: 'Not set yet.' }}</span>
-                        <button type="button" class="profile-field-edit-btn" data-action="edit" aria-label="Edit nationality">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
-                        </button>
-                        <span class="profile-field-success" hidden>Saved</span>
-                    </div>
-                    <div class="profile-field-form" hidden>
-                        <input type="text" class="profile-field-input" maxlength="100" value="{{ $user->nationality }}">
                         <div class="profile-field-actions">
                             <button type="button" class="button button-primary" data-action="save">Save</button>
                             <button type="button" class="profile-field-cancel" data-action="cancel">Cancel</button>

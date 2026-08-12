@@ -6,7 +6,7 @@ A web-based platform designed to promote, preserve, and encourage participation 
 
 ## 📖 Project Overview
 
-Living Heritage Malaysia is a Final Year Project (FYP) developed using Laravel. The platform allows users to discover Malaysian cultural experiences, browse upcoming festivals, participate in communities, and engage with heritage-related activities.
+Living Heritage Malaysia is a Collaborative Development Assignment developed using Laravel. The platform allows users to discover Malaysian cultural experiences, browse upcoming festivals, participate in communities, and engage with heritage-related activities.
 
 The system aims to provide a centralized platform for promoting Malaysia's cultural heritage while encouraging public participation and cultural preservation.
 
