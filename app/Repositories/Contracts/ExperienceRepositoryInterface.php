@@ -5,6 +5,7 @@ namespace App\Repositories\Contracts;
 use App\Models\ExperienceType;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 
 interface ExperienceRepositoryInterface
 {
@@ -19,4 +20,19 @@ interface ExperienceRepositoryInterface
     public function getCategories(): Collection;
 
     public function getExperienceTypes(): Collection;
+
+    public function getRecommendationCandidates(int $limit): Collection;
+
+    public function getUserInterestCategories(string $userId): Collection;
+
+    /**
+     * @return SupportCollection<int, object>
+     */
+    public function getUserInteractions(string $userId): SupportCollection;
+
+    /**
+     * @param  list<int>  $experienceIds
+     * @return SupportCollection<int, int>
+     */
+    public function getPopularityCounts(array $experienceIds): SupportCollection;
 }

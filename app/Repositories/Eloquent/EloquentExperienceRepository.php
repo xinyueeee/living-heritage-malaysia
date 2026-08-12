@@ -8,6 +8,8 @@ use App\Models\ExperienceType;
 use App\Repositories\Contracts\ExperienceRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Facades\DB;
 
 class EloquentExperienceRepository implements ExperienceRepositoryInterface
 {
@@ -95,5 +97,120 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
             ->withCount('experiences')
             ->orderBy('type_id')
             ->get();
+    }
+
+    public function getRecommendationCandidates(int $limit): Collection
+    {
+        return Experience::query()
+            ->with(['category', 'type'])
+            ->whereHas('type', function ($query) {
+                $query->where('type_name', 'Cultural Experience');
+            })
+            ->whereRaw('LOWER(status) = ?', ['available'])
+            ->where(function ($query) {
+                $query->whereNull('end_date')
+                    ->orWhereDate('end_date', '>=', today());
+            })
+            ->latest('created_at')
+            ->latest('experiences_id')
+            ->limit($limit)
+            ->get();
+    }
+
+    public function getUserInterestCategories(string $userId): Collection
+    {
+        return Category::query()
+            ->select('category.*')
+            ->join('user_interest', 'category.category_id', '=', 'user_interest.category_id')
+            ->with('type')
+            ->where('user_interest.user_id', $userId)
+            ->latest('user_interest.selected_date')
+            ->orderBy('category.category_id')
+            ->get();
+    }
+
+    public function getUserInteractions(string $userId): SupportCollection
+    {
+        $columns = [
+            'experiences.experiences_id',
+            'experiences.experiences_name',
+            'experiences.category_id',
+            'experiences.type_id',
+            'experiences.location_name',
+            'category.category_name',
+            'experience_type.type_name',
+        ];
+
+        $completed = DB::table('completed_experience')
+            ->join('experiences', 'completed_experience.experience_id', '=', 'experiences.experiences_id')
+            ->join('category', 'experiences.category_id', '=', 'category.category_id')
+            ->join('experience_type', 'experiences.type_id', '=', 'experience_type.type_id')
+            ->where('completed_experience.user_id', $userId)
+            ->select($columns)
+            ->addSelect([
+                'completed_experience.completed_date as activity_at',
+                DB::raw("'completed' as activity_type"),
+                DB::raw('CAST(NULL AS SMALLINT) as rating'),
+            ])
+            ->get();
+
+        $favourites = DB::table('favourite')
+            ->join('experiences', 'favourite.experience_id', '=', 'experiences.experiences_id')
+            ->join('category', 'experiences.category_id', '=', 'category.category_id')
+            ->join('experience_type', 'experiences.type_id', '=', 'experience_type.type_id')
+            ->where('favourite.user_id', $userId)
+            ->select($columns)
+            ->addSelect([
+                'favourite.saved_date as activity_at',
+                DB::raw("'saved' as activity_type"),
+                DB::raw('CAST(NULL AS SMALLINT) as rating'),
+            ])
+            ->get();
+
+        $reviews = DB::table('review')
+            ->join('experiences', 'review.experience_id', '=', 'experiences.experiences_id')
+            ->join('category', 'experiences.category_id', '=', 'category.category_id')
+            ->join('experience_type', 'experiences.type_id', '=', 'experience_type.type_id')
+            ->where('review.user_id', $userId)
+            ->select($columns)
+            ->addSelect([
+                'review.review_date as activity_at',
+                DB::raw("'reviewed' as activity_type"),
+                'review.rating',
+            ])
+            ->get();
+
+        return $completed
+            ->concat($favourites)
+            ->concat($reviews)
+            ->sortByDesc('activity_at')
+            ->values();
+    }
+
+    public function getPopularityCounts(array $experienceIds): SupportCollection
+    {
+        if ($experienceIds === []) {
+            return collect();
+        }
+
+        $favouriteCounts = DB::table('favourite')
+            ->whereIn('experience_id', $experienceIds)
+            ->select('experience_id', DB::raw('COUNT(*) as total'))
+            ->groupBy('experience_id')
+            ->pluck('total', 'experience_id');
+
+        $reviewCounts = DB::table('review')
+            ->whereIn('experience_id', $experienceIds)
+            ->where('rating', '>=', 3)
+            ->select('experience_id', DB::raw('COUNT(*) as total'))
+            ->groupBy('experience_id')
+            ->pluck('total', 'experience_id');
+
+        return collect($experienceIds)->mapWithKeys(function (int $experienceId) use ($favouriteCounts, $reviewCounts) {
+            return [
+                $experienceId => (int) ($favouriteCounts->get($experienceId, 0)
+                    + $reviewCounts->get($experienceId, 0)),
+            ];
+        });
     }
 }

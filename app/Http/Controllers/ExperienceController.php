@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ExperienceIndexRequest;
 use App\Services\Experience\ExperienceDiscoveryService;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ExperienceController extends Controller
@@ -26,11 +27,13 @@ class ExperienceController extends Controller
         );
     }
 
-    public function recommendations(): View
+    public function recommendations(Request $request): View
     {
         return view(
             'recommendations.index',
-            $this->experienceDiscoveryService->getRecommendationsPageData()
+            $this->experienceDiscoveryService->getRecommendationsPageData(
+                $request->user()?->getAuthIdentifier()
+            )
         );
     }
 }

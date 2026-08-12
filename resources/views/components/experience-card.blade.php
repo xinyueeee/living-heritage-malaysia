@@ -62,6 +62,10 @@
     <div class="card-content">
         <h3>{{ $experience->experiences_name }}</h3>
 
+        @if ($variant === 'recommendation' && filled($recommendationReason ?? null))
+            <p class="recommendation-reason">{{ $recommendationReason }}</p>
+        @endif
+
         @if ($experience->start_date && $variant !== 'recommendation')
             <p class="card-date">
                 <span aria-hidden="true">&#128197;</span>
