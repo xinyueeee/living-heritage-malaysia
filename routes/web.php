@@ -42,10 +42,11 @@ Route::get('/engagement/history', [EngagementController::class, 'history'])->nam
 Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
 Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
 Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
-Route::get('/festival/calendar', [CalendarController::class, 'index'])->name('festival.calendar');
+
 Route::get('/calendar/events', [CalendarController::class, 'calendarEvents']);
 
-Route::get('/calendar/login', function () {return view('calendar.login-required');})->name('calendar.login');
+Route::get('/festival/calendar', [CalendarController::class, 'index'])
+    ->name('festival.calendar');
 
 Route::get('/notifications', [NotificationController::class, 'index'])
     ->name('notifications.index')
@@ -54,3 +55,6 @@ Route::get('/notifications', [NotificationController::class, 'index'])
 Route::post('/calendar/reminder', [NotificationController::class, 'storeReminder'])
     ->name('calendar.reminder')
     ->middleware('auth');
+
+Route::get('/festival/login-required', function () {return view('festival.login-required');})->name('festival.login-required');
+    

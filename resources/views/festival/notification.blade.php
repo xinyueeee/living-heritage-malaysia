@@ -1,8 +1,12 @@
 @extends('layouts.app')
 
 @section('title', 'Notifications')
+@push('styles')
+    @vite('resources/css/festival.css')
+@endpush
 
 @section('content')
+
 
 <div class="notification-page">
 
@@ -72,7 +76,7 @@
                                 selected festival.
                             </p>
 
-                            <small>
+                            FsetRe<small>
                                 Scheduled:
                                 {{ $notification->scheduled_at->format('d M Y, h:i A') }}
                             </small>

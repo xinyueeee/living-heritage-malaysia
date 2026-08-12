@@ -68,6 +68,12 @@ let currentDate = new Date();
 
 let events = [];
 
+let isLoggedIn = false;
+
+@if(auth()->check())
+    isLoggedIn = true;
+@endif
+
 
 // ========================================
 // GET DATABASE EVENTS
@@ -287,6 +293,16 @@ async function setReminder(id)
 {
     window.selectedEventId = id;
 
+    // User is not logged in
+    if (!isLoggedIn)
+    {
+        window.location.href =
+            "{{ route('festival.login-required') }}";
+
+        return;
+    }
+
+    // User is logged in
     try
     {
         const response = await fetch(
@@ -312,96 +328,33 @@ async function setReminder(id)
             }
         );
 
+        const data = await response.json();
 
-        console.log("Response status:", response.status);
+        console.log("Status:", response.status);
+        console.log("Response:", data);
 
-
-        const text = await response.text();
-
-        console.log("Server response:", text);
-
-
-        if (!response.ok)
-        {
-            alert(
-                "Reminder failed.\n\n" +
-                "Status: " +
-                response.status +
-                "\n\n" +
-                text
-            );
-
-            return;
-        }
-
-
-        const data = JSON.parse(text);
-
-
-        if (data.success)
+        if (response.ok && data.success)
         {
             alert(data.message);
         }
         else
         {
-            alert("Reminder could not be saved.");
+            alert(
+                "Reminder failed.\n\n" +
+                "Status: " + response.status + "\n" +
+                "Message: " + (data.message || "Unknown error")
+            );
         }
-
     }
     catch(error)
     {
         console.error("Reminder error:", error);
 
-        alert(
-            "Something went wrong.\n\n" +
-            error.message
-        );
+        alert("Something went wrong.");
     }
 }
 
-function showLoginPrompt()
-{
-    document.getElementById('eventList').innerHTML =
-    `
-    <div class="reminder-login-card">
 
-        <div class="reminder-login-icon">
-            🔒
-        </div>
-
-        <h3>Log In to Set a Reminder</h3>
-
-        <p>
-            Please sign in to your account to receive
-            reminders for your favourite festivals.
-        </p>
-
-        <div class="reminder-login-actions">
-
-            <a href="{{ route('login') }}"
-               class="button button-primary">
-                Continue to Login
-            </a>
-
-            <button
-                type="button"
-                class="button"
-                onclick="showEventAgain()">
-                Not Now
-            </button>
-
-        </div>
-
-    </div>
-    `;
-}
-function showEventAgain()
-{
-    if (window.selectedEventId)
-    {
-        showEvent(window.selectedEventId);
-    }
-}
 
 
 // ========================================
