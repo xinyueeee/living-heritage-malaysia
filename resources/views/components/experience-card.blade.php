@@ -86,6 +86,10 @@
     <div class="card-content">
         <h3><a class="experience-title-link" href="{{ route('experiences.show', $experience) }}">{{ $experience->experiences_name }}</a></h3>
 
+        @if ($variant === 'recommendation' && filled($recommendationReason ?? null))
+            <p class="recommendation-reason">{{ $recommendationReason }}</p>
+        @endif
+
         @if ($experience->start_date && $variant !== 'recommendation')
             <p class="card-date">
                 <span aria-hidden="true">&#128197;</span>

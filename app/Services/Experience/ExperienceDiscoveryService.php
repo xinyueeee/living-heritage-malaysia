@@ -12,21 +12,9 @@ class ExperienceDiscoveryService
 
     private const DISCOVERY_PAGE_SIZE = 9;
 
-    private const RECOMMENDATION_CANDIDATE_LIMIT = 6;
-
-    private const INTEREST_PLACEHOLDERS = [
-        ['name' => 'Museums', 'icon' => 'museum'],
-        ['name' => 'Culinary', 'icon' => 'culinary'],
-        ['name' => 'Traditional Performances', 'icon' => 'performance'],
-    ];
-
-    private const RECENT_ACTIVITY_PLACEHOLDERS = [
-        'searched' => ['Batik Workshop', 'George Town'],
-        'viewed' => ['National Museum', 'Baba Nyonya Heritage Museum'],
-    ];
-
     public function __construct(
-        private ExperienceRepositoryInterface $experienceRepository
+        private ExperienceRepositoryInterface $experienceRepository,
+        private PersonalizedRecommendationService $personalizedRecommendationService,
     ) {}
 
     public function getHomePageData(): array
@@ -51,13 +39,8 @@ class ExperienceDiscoveryService
         ];
     }
 
-    public function getRecommendationsPageData(): array
+    public function getRecommendationsPageData(?string $userId): array
     {
-        return [
-            'recommendedExperiences' => $this->experienceRepository
-                ->getFeaturedExperiences(self::RECOMMENDATION_CANDIDATE_LIMIT),
-            'interestPlaceholders' => self::INTEREST_PLACEHOLDERS,
-            'recentActivityPlaceholders' => self::RECENT_ACTIVITY_PLACEHOLDERS,
-        ];
+        return $this->personalizedRecommendationService->getRecommendations($userId);
     }
 }
