@@ -2,38 +2,53 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Experience;
 use App\Http\Requests\ExperienceIndexRequest;
 use App\Services\Experience\ExperienceDiscoveryService;
+use App\Services\Experience\SavedExperienceService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ExperienceController extends Controller
 {
     public function __construct(
-        private ExperienceDiscoveryService $experienceDiscoveryService
+        private ExperienceDiscoveryService $experienceDiscoveryService,
+        private SavedExperienceService $savedExperienceService,
     ) {}
 
-    public function home(): View
+    public function home(Request $request): View
     {
-        return view('welcome', $this->experienceDiscoveryService->getHomePageData());
+        return view('welcome', [
+            ...$this->experienceDiscoveryService->getHomePageData(),
+            'savedExperienceIds' => $this->savedExperienceService
+                ->getSavedExperienceIds($request->user()),
+        ]);
     }
 
     public function index(ExperienceIndexRequest $request): View
     {
-        return view(
-            'experiences.index',
-            $this->experienceDiscoveryService
-                ->getDiscoveryPageData($request->validated())
-        );
+        return view('experiences.index', [
+            ...$this->experienceDiscoveryService
+                ->getDiscoveryPageData($request->validated()),
+            'savedExperienceIds' => $this->savedExperienceService
+                ->getSavedExperienceIds($request->user()),
+        ]);
     }
 
     public function recommendations(Request $request): View
     {
-        return view(
-            'recommendations.index',
-            $this->experienceDiscoveryService->getRecommendationsPageData(
-                $request->user()?->getAuthIdentifier()
-            )
-        );
+        return view('recommendations.index', [
+            ...$this->experienceDiscoveryService->getRecommendationsPageData(),
+            'savedExperienceIds' => $this->savedExperienceService
+                ->getSavedExperienceIds($request->user()),
+        ]);
+    }
+
+    public function show(Request $request, Experience $experience): View
+    {
+        $experience->loadMissing(['category', 'type']);
+        $isSaved = $this->savedExperienceService->isSaved($request->user(), $experience);
+
+        return view('experiences.show', compact('experience', 'isSaved'));
     }
 }

@@ -2,11 +2,20 @@
 
 namespace App\Services;
 
+use App\Models\Category;
+use App\Models\ProfilePhoto;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use RuntimeException;
 
 class ProfileService
 {
+    private const PHOTO_BUCKET = 'profile-photos';
     /**
      * Personal-information fields that are allowed to be edited one at a time
      * from the Personal Information page.
@@ -19,8 +28,6 @@ class ProfileService
         'bio',
         'gender',
         'birthday',
-        'phone_number',
-        'nationality',
     ];
 
     public function getProfile(string $userId): User
@@ -41,5 +48,81 @@ class ProfileService
         $user->save();
 
         return $user;
+    }
+
+    public function uploadProfilePhoto(string $userId, UploadedFile $file): User
+    {
+        $user = User::findOrFail($userId);
+
+        $path = $userId.'/'.(string) Str::uuid().'.'.$file->extension();
+        $photoUrl = $this->storeInSupabase($path, $file);
+
+        ProfilePhoto::create([
+            'user_id' => $userId,
+            'photo_url' => $photoUrl,
+            'uploaded_at' => now(),
+        ]);
+
+        $user->profile_photo = $photoUrl;
+        $user->save();
+
+        return $user;
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getAllCategories(): Collection
+    {
+        return Category::orderBy('category_name')->get(['category_id', 'category_name']);
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function getSelectedCategoryIds(string $userId): array
+    {
+        return DB::table('user_interest')
+            ->where('user_id', $userId)
+            ->pluck('category_id')
+            ->all();
+    }
+
+    /**
+     * @param  list<int>  $categoryIds
+     */
+    public function updateInterests(string $userId, array $categoryIds): void
+    {
+        DB::transaction(function () use ($userId, $categoryIds) {
+            DB::table('user_interest')->where('user_id', $userId)->delete();
+
+            $rows = array_map(fn (int $categoryId) => [
+                'user_id' => $userId,
+                'category_id' => $categoryId,
+                'selected_date' => now(),
+            ], $categoryIds);
+
+            DB::table('user_interest')->insert($rows);
+        });
+    }
+
+    private function storeInSupabase(string $path, UploadedFile $file): string
+    {
+        $baseUrl = rtrim(config('services.supabase.url'), '/');
+        $serviceRoleKey = config('services.supabase.service_role_key');
+
+        $response = Http::withHeaders([
+            'Authorization' => "Bearer {$serviceRoleKey}",
+            'apikey' => $serviceRoleKey,
+            'Content-Type' => $file->getMimeType(),
+        ])
+            ->withBody(file_get_contents($file->getRealPath()), $file->getMimeType())
+            ->post("{$baseUrl}/storage/v1/object/".self::PHOTO_BUCKET."/{$path}");
+
+        if ($response->failed()) {
+            throw new RuntimeException('Failed to upload photo to storage: '.$response->body());
+        }
+
+        return "{$baseUrl}/storage/v1/object/public/".self::PHOTO_BUCKET."/{$path}";
     }
 }

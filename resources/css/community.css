@@ -1,6 +1,6 @@
 /* ===================================================
    COMMUNITY PAGE
-=================================================== */
+   =================================================== */
 
 .community-page {
     background: #f7f4ef;
@@ -8,9 +8,10 @@
     padding-bottom: 80px;
 }
 
+
 /* ===================================================
    HERO SECTION
-=================================================== */
+   =================================================== */
 
 .community-hero {
     padding: 50px 0 45px;
@@ -24,37 +25,38 @@
 }
 
 .community-intro {
-    flex:1;
+    flex: 1;
     max-width: 720px;
 }
 
 .community-intro .community-eyebrow {
-    color:#D99A2B;
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:2px;
-    margin-bottom:10px;
+    color: #D99A2B;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
 }
 
 .community-intro h1 {
-    font-family:Georgia,"Times New Roman",serif;
-    font-size:clamp(3rem,4.6vw,4rem);
-    line-height:1.05;
-    margin-bottom:18px;
-    color:#2C1E16;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(3rem, 4.6vw, 4rem);
+    line-height: 1.05;
+    margin-bottom: 18px;
+    color: #2C1E16;
 }
 
 .community-intro p {
-    max-width:520px;
-    color:#5A4A42;
-    line-height:1.8;
-    font-size:1rem;
-    font-family:Georgia,"Times New Roman",serif;
+    max-width: 520px;
+    color: #5A4A42;
+    line-height: 1.8;
+    font-size: 1rem;
+    font-family: Georgia, "Times New Roman", serif;
 }
 
+
 /* ===================================================
-   BUTTON
-=================================================== */
+   CREATE POST BUTTON
+   =================================================== */
 
 .create-post-btn {
     display: inline-flex;
@@ -67,16 +69,17 @@
     text-decoration: none;
     font-weight: 600;
     transition: .3s;
-    font-family:Georgia,"Times New Roman",serif;
+    font-family: Georgia, "Times New Roman", serif;
 }
 
 .create-post-btn:hover {
     background: #6f2d22;
 }
 
+
 /* ===================================================
    FEED
-=================================================== */
+   =================================================== */
 
 .community-content {
     max-width: 900px;
@@ -87,9 +90,10 @@
     padding-top: 10px;
 }
 
+
 /* ===================================================
    EMPTY FEED
-=================================================== */
+   =================================================== */
 
 .empty-feed {
     background: #fff;
@@ -114,17 +118,21 @@
     line-height: 1.8;
 }
 
+
 /* ===================================================
    CREATE POST PAGE
-=================================================== */
+   =================================================== */
+
 .create-post-page {
     max-width: 1000px;
     margin: 50px auto;
 }
 
+
 /* ===================================================
    BACK LINK
-=================================================== */
+   =================================================== */
+
 .back-link {
     display: inline-block;
     margin-bottom: 20px;
@@ -139,9 +147,11 @@
     color: #6f2d22;
 }
 
+
 /* ===================================================
    PAGE HEADER
-=================================================== */
+   =================================================== */
+
 .create-header {
     margin-bottom: 30px;
 }
@@ -158,9 +168,11 @@
     font-size: 1rem;
 }
 
+
 /* ===================================================
    CREATE CARD
-=================================================== */
+   =================================================== */
+
 .create-card {
     background: #fff;
     border-radius: 20px;
@@ -168,11 +180,58 @@
     box-shadow: 0 12px 35px rgba(0,0,0,.06);
 }
 
+
+/* ===================================================
+   DYNAMIC CREATE POST LAYOUT
+   =================================================== */
+
+/* Default state: no photos */
+
+.create-form-layout {
+    display: block;
+}
+
+
+/* Left side */
+
+.post-form-left {
+    width: 100%;
+}
+
+
+/* Right side is hidden initially */
+
+.photo-preview-panel {
+    display: none;
+}
+
+
+/* ===================================================
+   WHEN PHOTOS ARE SELECTED
+   =================================================== */
+
+.create-form-layout.has-photos {
+    display: grid;
+    grid-template-columns: 380px minmax(0, 1fr);
+    gap: 30px;
+    align-items: start;
+}
+
+
+/* Show photo preview */
+
+.create-form-layout.has-photos .photo-preview-panel {
+    display: block;
+    min-width: 0;
+}
+
+
 /* ===================================================
    FORM
-=================================================== */
+   =================================================== */
+
 .form-group {
-    margin-bottom: 35px;
+    margin-bottom: 25px;
 }
 
 .form-group label {
@@ -189,9 +248,11 @@
     font-size: .9rem;
 }
 
+
 /* ===================================================
    TEXTAREA
-=================================================== */
+   =================================================== */
+
 .form-group textarea {
     width: 100%;
     min-height: 180px;
@@ -211,6 +272,18 @@
     box-shadow: 0 0 0 3px rgba(138,58,45,.12);
 }
 
+
+/* Smaller textarea when photos exist */
+
+.create-form-layout.has-photos .form-group textarea {
+    min-height: 150px;
+}
+
+
+/* ===================================================
+   CHARACTER COUNTER
+   =================================================== */
+
 .character-counter {
     text-align: right;
     margin-top: 8px;
@@ -218,9 +291,11 @@
     font-size: .85rem;
 }
 
+
 /* ===================================================
    UPLOAD BOX
-=================================================== */
+   =================================================== */
+
 .upload-box {
     border: 2px dashed #d9b4aa;
     border-radius: 15px;
@@ -257,129 +332,209 @@
     color: #999;
 }
 
-.upload-box input[type=file] {
+.upload-box input[type="file"] {
     position: absolute;
     inset: 0;
     opacity: 0;
     cursor: pointer;
-
 }
+
+
+/* Smaller upload box when photos exist */
+
+.create-form-layout.has-photos .upload-box {
+    padding: 30px 15px;
+}
+
+.create-form-layout.has-photos .upload-icon {
+    font-size: 35px;
+    margin-bottom: 8px;
+}
+
+.create-form-layout.has-photos .upload-box h3 {
+    font-size: 1rem;
+}
+
+.create-form-layout.has-photos .upload-box p {
+    font-size: .85rem;
+}
+
+.create-form-layout.has-photos .upload-box small {
+    font-size: .75rem;
+}
+
 
 /* ===================================================
-   UPLOAD NOTE
-=================================================== */
-.upload-note {
-    margin-top: 15px;
-    padding: 12px 15px;
-    background: #faf6ef;
-    border-radius: 10px;
-    color: #666;
-    font-size: .9rem;
+   PHOTO PREVIEW HEADER
+   =================================================== */
+
+.photo-preview-header {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 15px;
+
+    color: #2C1E16;
+
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1rem;
 }
+
+.photo-preview-header span {
+    color: #888;
+    font-weight: normal;
+}
+
 
 /* ===================================================
    IMAGE PREVIEW
-=================================================== */
-.image-preview{
-    margin-top:20px;
-    display:flex;
-    flex-wrap:wrap;
-    gap:15px;
+   =================================================== */
+
+.image-preview {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
 }
 
-.preview-item{
-    width:140px;
-    height:140px;
-    border-radius:12px;
-    overflow:hidden;
-    box-shadow:0 5px 15px rgba(0,0,0,.1);
-    border:1px solid #ddd;
 
+/* ===================================================
+   PREVIEW ITEM
+   =================================================== */
+
+.preview-item {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+
+    border-radius: 12px;
+    overflow: hidden;
+
+    box-shadow: 0 5px 15px rgba(0,0,0,.1);
+    border: 1px solid #ddd;
+
+    background: #f5f5f5;
 }
 
-.preview-item img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-
+.preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
-.upload-limit{
-    margin-top:10px;
-    color:#888;
-    font-size:.85rem;
+
+/* ===================================================
+   REMOVE IMAGE BUTTON
+   =================================================== */
+
+.remove-image {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+
+    width: 25px;
+    height: 25px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.95);
+    color: #8A3A2D;
+
+    cursor: pointer;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: 0 2px 6px rgba(0,0,0,.15);
+
+    z-index: 2;
 }
 
-.preview-item{
-    position:relative;
+.remove-image:hover {
+    background: #8A3A2D;
+    color: white;
 }
 
-.remove-image{
-    position:absolute;
-    top:6px;
-    right:6px;
-    width:24px;
-    height:24px;
-    border:none;
-    border-radius:50%;
-    background:#8A3A2D;
-    color:white;
-    cursor:pointer;
-    font-size:14px;
-    font-weight:bold;
+
+/* ===================================================
+   UPLOAD NOTE
+   =================================================== */
+
+.upload-note {
+    margin-top: 15px;
+    padding: 12px 15px;
+
+    background: #faf6ef;
+
+    border-radius: 10px;
+
+    color: #666;
+
+    font-size: .9rem;
 }
 
-.remove-image:hover{
-    background:#6f2d22;
-
-}
 
 /* ===================================================
    BUTTONS
-=================================================== */
+   =================================================== */
+
 .button-group {
     display: flex;
     justify-content: flex-end;
     gap: 15px;
     margin-top: 40px;
-
 }
 
 .cancel-btn {
     padding: 12px 32px;
+
     border: 1px solid #8A3A2D;
     border-radius: 10px;
-    color: #8A3A2D;
-    text-decoration: none;
-    font-weight: 600;
-    transition: .3s;
 
+    color: #8A3A2D;
+
+    text-decoration: none;
+
+    font-weight: 600;
+
+    transition: .3s;
 }
 
 .cancel-btn:hover {
     background: #f8ece8;
-
 }
 
 .publish-btn {
     padding: 12px 36px;
+
     border: none;
     border-radius: 10px;
+
     background: #8A3A2D;
+
     color: white;
+
     font-weight: 600;
+
     cursor: pointer;
+
     transition: .3s;
 }
 
 .publish-btn:hover {
     background: #6f2d22;
-
 }
 
+
 /* ===================================================
-   SUCCESS MESSAGE
-=================================================== */
+   SUCCESS / ALERT MESSAGE
+   =================================================== */
 
 .alert {
     margin-bottom: 25px;
@@ -393,89 +548,292 @@
     border: 1px solid #b8e6bf;
 }
 
-
 /* ===================================================
    POST CARD
-=================================================== */
+   =================================================== */
 
-.post-card{
+.post-card {
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.08);
+}
 
-    background:#fff;
 
-    border-radius:20px;
+/* ===================================================
+   POST HEADER
+   =================================================== */
 
-    overflow:hidden;
+.post-header {
+    display: flex;
+    align-items: center;
+    padding: 20px 24px 15px;
+}
 
-    margin-bottom:30px;
+.avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+}
 
-    box-shadow:0 8px 30px rgba(0,0,0,.08);
+.post-user {
+    flex: 1;
+}
+
+.post-user h4 {
+    margin: 0 0 5px;
+    color: #2C1E16;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.post-user small {
+    color: #888;
+    font-size: .85rem;
+}
+
+.post-separator {
+    margin: 0 5px;
+    color: #aaa;
+}
+
+.post-location {
+    color: #666;
+}
+
+
+/* ===================================================
+   MORE BUTTON
+   =================================================== */
+
+.post-more-btn {
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    color: #333;
+    cursor: pointer;
+    padding: 5px 8px;
+}
+
+.post-more-btn:hover {
+    color: #8A3A2D;
+}
+
+
+/* ===================================================
+   POST CAPTION
+   =================================================== */
+
+.post-caption {
+    padding: 5px 24px 20px;
+    color: #2C1E16;
+    line-height: 1.7;
+    font-size: 15px;
+    white-space: pre-line;
+}
+
+
+/* ===================================================
+   POST GALLERY
+   =================================================== */
+
+.post-gallery {
+    width: calc(100% - 48px);
+    margin: 0 24px 18px;
+
+    display: grid;
+    gap: 4px;
+
+    overflow: hidden;
+    border-radius: 14px;
+
+    height: 360px;
+}
+
+
+/* ===================================================
+   1 IMAGE
+   =================================================== */
+
+.post-gallery-1 {
+    grid-template-columns: 1fr;
+}
+
+.post-gallery-1 .gallery-item {
+    height: 450px;
+}
+
+
+/* ===================================================
+   2 IMAGES
+   =================================================== */
+
+.post-gallery-2 {
+    grid-template-columns: 1fr 1fr;
+}
+
+.post-gallery-2 .gallery-item {
+    height: 360px;
+}
+
+
+/* ===================================================
+   3 IMAGES
+   =================================================== */
+
+.post-gallery-3 {
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+
+
+/* First image = large */
+
+.post-gallery-3 .gallery-item:first-child {
+    grid-row: span 2;
+}
+
+
+/* ===================================================
+   GALLERY ITEM
+   =================================================== */
+
+.gallery-item {
+    position: relative;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform .3s ease;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.03);
+}
+
+
+/* ===================================================
+   +X MORE IMAGES
+   =================================================== */
+
+.more-images {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, .45);
+
+    color: white;
+    font-size: 32px;
+    font-weight: 700;
+
+    pointer-events: none;
+}
+
+
+/* ===================================================
+   POST FOOTER
+   =================================================== */
+
+.post-footer {
+    display: flex;
+    align-items: center;
+    gap: 35px;
+
+    padding: 15px 24px 20px;
+
+    border-top: 1px solid #eee;
+}
+
+
+/* ===================================================
+   POST ACTION
+   =================================================== */
+
+.post-action {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    border: none;
+    background: transparent;
+
+    color: #333;
+
+    font-size: 14px;
+    cursor: pointer;
+
+    padding: 5px;
+}
+
+.post-action:hover {
+    color: #8A3A2D;
+}
+
+.action-icon {
+    font-size: 20px;
+}
+
+.like-action:hover {
+    color: #8A3A2D;
+}
+
+/* ===================================================
+   RESPONSIVE
+   =================================================== */
+
+@media (max-width: 900px) {
+
+    .create-form-layout.has-photos {
+        grid-template-columns: 1fr;
+    }
+
+    .photo-preview-panel {
+        border-top: 1px solid #eee;
+        padding-top: 25px;
+    }
 
 }
 
-.post-header{
 
-    display:flex;
+@media (max-width: 600px) {
 
-    align-items:center;
+    .create-post-page {
+        margin: 30px auto;
+    }
 
-    padding:20px;
+    .create-card {
+        padding: 25px;
+    }
 
-}
+    .create-form-layout.has-photos {
+        grid-template-columns: 1fr;
+    }
 
-.avatar{
+    .image-preview {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 
-    width:52px;
+    .button-group {
+        flex-direction: column-reverse;
+    }
 
-    height:52px;
-
-    border-radius:50%;
-
-    object-fit:cover;
-
-    margin-right:15px;
-
-}
-
-.post-user h4{
-
-    margin:0;
-
-    color:#2C1E16;
-
-}
-
-.post-user small{
-
-    color:#888;
-
-}
-
-.post-caption{
-
-    padding:0 20px 18px;
-
-    line-height:1.8;
-
-}
-
-.post-image{
-
-    width:100%;
-
-    max-height:520px;
-
-    object-fit:cover;
-
-}
-
-.post-footer{
-
-    display:flex;
-
-    justify-content:space-around;
-
-    padding:18px;
-
-    border-top:1px solid #eee;
+    .cancel-btn,
+    .publish-btn {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+    }
 
 }

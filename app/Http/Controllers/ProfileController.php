@@ -30,10 +30,10 @@ class ProfileController extends Controller
         ];
 
         $interests = DB::table('user_interest')
-            ->join('interest', 'user_interest.interest_id', '=', 'interest.interest_id')
+            ->join('category', 'user_interest.category_id', '=', 'category.category_id')
             ->where('user_interest.user_id', $userId)
-            ->orderBy('interest.interest_name')
-            ->pluck('interest.interest_name');
+            ->orderBy('category.category_name')
+            ->pluck('category.category_name');
 
         $achievements = DB::table('user_achievement')
             ->join('achievement_badge', 'user_achievement.badge_id', '=', 'achievement_badge.badge_id')

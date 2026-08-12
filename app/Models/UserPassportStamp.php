@@ -16,13 +16,26 @@ class UserPassportStamp extends Model
     protected $fillable = [
         'passport_id',
         'stamp_id',
+        'completed_exp_id',
         'collected_date',
+        'page_number',
+        'position_x',
+        'position_y',
+        'rotation',
+        'scale',
+        'z_index',
     ];
 
     protected function casts(): array
     {
         return [
             'collected_date' => 'datetime',
+            'page_number' => 'integer',
+            'position_x' => 'float',
+            'position_y' => 'float',
+            'rotation' => 'float',
+            'scale' => 'float',
+            'z_index' => 'integer',
         ];
     }
 
@@ -41,6 +54,15 @@ class UserPassportStamp extends Model
             DigitalCulturalPassport::class,
             'passport_id',
             'passport_id'
+        );
+    }
+
+    public function completedExperience(): BelongsTo
+    {
+        return $this->belongsTo(
+            CompletedExperience::class,
+            'completed_exp_id',
+            'completed_exp_id'
         );
     }
 }

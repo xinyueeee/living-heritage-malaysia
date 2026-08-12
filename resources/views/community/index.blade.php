@@ -6,11 +6,14 @@
 
 <div class="community-page">
 
-    <!-- Hero -->
+    <!-- =========================
+         HERO
+    ========================== -->
     <section class="community-hero">
         <div class="container community-hero-content">
 
             <div class="community-intro">
+
                 <p class="community-eyebrow">
                     Share. Inspire. Preserve.
                 </p>
@@ -21,6 +24,7 @@
                     Share your cultural experiences, connect with other travellers,
                     and inspire more people to explore Malaysia's living heritage.
                 </p>
+
             </div>
 
             <div>
@@ -33,66 +37,188 @@
         </div>
     </section>
 
-    <!-- Success Message -->
+
+    <!-- =========================
+         SUCCESS MESSAGE
+    ========================== -->
     @if(session('success'))
+
         <div class="container">
+
             <div class="alert alert-success">
                 {{ session('success') }}
             </div>
+
         </div>
+
     @endif
 
-    <!-- Feed -->
+
+    <!-- =========================
+         COMMUNITY FEED
+    ========================== -->
     <div class="container community-content">
 
         <div class="community-feed">
 
             @forelse($posts as $post)
 
-                <div class="post-card">
+                <article class="post-card">
 
-                    <!--Header-->
+                    <!-- =========================
+                         POST HEADER
+                    ========================== -->
                     <div class="post-header">
-                        <img src="{{ asset('images/default-avatar.png') }}" class="avatar" alt="Avatar">
+
+                        <img
+                            src="{{ asset('images/default-avatar.png') }}"
+                            class="avatar"
+                            alt="Avatar"
+                        >
 
                         <div class="post-user">
-                            <h4>{{ $post->user->user_name ?? 'Anonymous' }}</h4>
+
+                            <h4>
+                                {{ $post->user->user_name ?? 'Anonymous' }}
+                            </h4>
 
                             <small>
                                 {{ \Carbon\Carbon::parse($post->created_at)->diffForHumans() }}
+
+                                <span class="post-separator">•</span>
+
+                                <span class="post-location">
+                                    📍 {{ $post->location ?? 'Malaysia' }}
+                                </span>
                             </small>
-                            
+
                         </div>
+
+                        <!-- More button -->
+                        <button type="button" class="post-more-btn">
+                            ⋯
+                        </button>
+
                     </div>
 
-                    <!--Caption-->
+
+                    <!-- =========================
+                         POST CAPTION
+                    ========================== -->
                     <div class="post-caption">
+
                         {{ $post->content }}
+
                     </div>
 
-                    <!--Image-->
+
+                    <!-- =========================
+                         POST IMAGE
+                    ========================== -->
+
                     @if($post->post_images)
-                    <img  src="{{ asset('images/community/'.$post->post_images) }}" class="post-image">
+
+                        @php 
+                            $images = json_decode($post->post_images, true);
+                        @endphp
+
+                        @if(is_array($images)&&count($images)>0)
+
+                            @php
+                                $totalImages = count($images);
+                                $displayImages = array_slice($images, 0, 3);
+                            @endphp
+
+                            <div class="post-gallery post-gallery-{{ count($displayImages) }}">
+
+                                @foreach($displayImages as $index => $image)
+
+                                <div class="gallery-item">
+                                    <img src="{{ asset('images/community/' . $image) }}"
+                                    alt="Community Post Image">
+
+                                    {{-- Show +X on the 3rd image if there are more photos --}}
+                                    @if($index === 2 && $totalImages > 3)
+                                    <div class="more-images">
+                                        +{{ $totalImages - 3 }}
+                                    </div>
+                                    @endif
+
+                                </div>
+
+                                @endforeach
+                            </div>
+                        @endif
 
                     @endif
 
-                    <!--Footer-->
+
+                    <!-- =========================
+                         POST ACTIONS
+                    ========================== -->
+
                     <div class="post-footer">
-                        <span>❤️ {{ $post->like_count ?? 0 }}</span>
-                        <span>💬 0</span>
-                        <span>🔖 Save</span>
+
+                        <button type="button" class="post-action like-action">
+
+                            <span class="action-icon">
+                                ❤️
+                            </span>
+
+                            <span>
+                                {{ $post->like_count ?? 0 }}
+                            </span>
+
+                        </button>
+
+
+                        <button type="button" class="post-action">
+
+                            <span class="action-icon">
+                                💬
+                            </span>
+
+                            <span>
+                                0
+                            </span>
+
+                        </button>
+
+
+                        <button type="button" class="post-action">
+
+                            <span class="action-icon">
+                                🔖
+                            </span>
+
+                            <span>
+                                Save
+                            </span>
+
+                        </button>
+
                     </div>
 
-                </div>
+                </article>
+
 
             @empty
 
+                <!-- =========================
+                     EMPTY FEED
+                ========================== -->
+
                 <div class="empty-feed">
+
+                    <div class="empty-icon">
+                        💬
+                    </div>
 
                     <h2>No Posts Yet</h2>
 
                     <p>
-                        Be the first to share your cultural experience with the community.
+                        Be the first to share your cultural experience
+                        with the community.
                     </p>
 
                 </div>
