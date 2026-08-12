@@ -260,10 +260,7 @@ NOTIFICATION HEADER
 .notification-icon {
     width: 58px;
     height: 58px;
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
     display: flex;
     align-items: center;
     justify-content: center;
@@ -286,11 +283,7 @@ NOTIFICATION HEADER
 }
 
 /* ========================================
-<<<<<<< Updated upstream
-   NOTIFICATION LIST
-=======
-NOTIFICATION LIST
->>>>>>> Stashed changes
+
 ======================================== */
 
 .notification-list {
@@ -300,11 +293,6 @@ NOTIFICATION LIST
 }
 
 /* ========================================
-<<<<<<< Updated upstream
-   NOTIFICATION CARD
-=======
-NOTIFICATION CARD
->>>>>>> Stashed changes
 ======================================== */
 
 .notification-card {
@@ -332,13 +320,7 @@ NOTIFICATION CARD
         0 7px 20px rgba(0, 0, 0, 0.08);
 }
 
-/* ========================================
-<<<<<<< Updated upstream
-   NOTIFICATION ICON
-=======
-NOTIFICATION CARD ICON
->>>>>>> Stashed changes
-======================================== */
+
 
 .notification-card-icon {
     width: 45px;
@@ -356,13 +338,7 @@ NOTIFICATION CARD ICON
     font-size: 21px;
 }
 
-/* ========================================
-<<<<<<< Updated upstream
-   NOTIFICATION CONTENT
-=======
-NOTIFICATION CONTENT
->>>>>>> Stashed changes
-======================================== */
+
 
 .notification-card-content {
     flex: 1;
@@ -389,13 +365,6 @@ NOTIFICATION CONTENT
     font-size: 13px;
 }
 
-/* ========================================
-<<<<<<< Updated upstream
-   EMPTY NOTIFICATION
-=======
-EMPTY NOTIFICATION
->>>>>>> Stashed changes
-======================================== */
 
 .notification-empty {
     text-align: center;
@@ -425,13 +394,7 @@ EMPTY NOTIFICATION
     color: #777;
 }
 
-/* ========================================
-<<<<<<< Updated upstream
-   NOTIFICATION MOBILE
-=======
-NOTIFICATION MOBILE
->>>>>>> Stashed changes
-======================================== */
+
 
 @media (max-width: 600px) {
 
