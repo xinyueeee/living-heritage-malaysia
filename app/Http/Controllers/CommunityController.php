@@ -21,6 +21,7 @@ class CommunityController extends Controller
         return view('community.index', compact('posts'));
     }
 
+
     /**
      * Show Create Post page
      */
@@ -29,6 +30,7 @@ class CommunityController extends Controller
         return view('community.create');
     }
 
+
     /**
      * Store a new post
      */
@@ -36,28 +38,56 @@ class CommunityController extends Controller
     {
         $request->validate([
             'content' => 'required|max:2000',
+            'images' => 'nullable|array|max:10',
             'images.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
         ]);
 
-        $imagePath = null;
 
-        // Upload first image (Version 1)
+        /*
+        |--------------------------------------------------------------------------
+        | Upload Images
+        |--------------------------------------------------------------------------
+        */
+
+        $imagePaths = [];
+
+
         if ($request->hasFile('images')) {
 
-            $image = $request->file('images')[0];
+            foreach ($request->file('images') as $image) {
 
-            $imageName = time() . '_' . $image->getClientOriginalExtension();
+                $imageName = time()
+                    . '_'
+                    . uniqid()
+                    . '.'
+                    . $image->getClientOriginalExtension();
 
-            $image->move(public_path('images/community'), $imageName);
 
-            $imagePath = $imageName;
+                $image->move(
+                    public_path('images/community'),
+                    $imageName
+                );
+
+
+                $imagePaths[] = $imageName;
+            }
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Create Post
+        |--------------------------------------------------------------------------
+        */
+
         Post::create([
-            'user_id'     => Auth::user()->user_id,
-            'content'     => $request->content,
-            'post_images' => $imagePath,
+            'user_id' => Auth::user()->user_id,
+
+            'content' => $request->content,
+
+            'post_images' => json_encode($imagePaths),
         ]);
+
 
         return redirect()
             ->route('community.index')
