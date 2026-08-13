@@ -82,10 +82,100 @@ class PersonalizedRecommendationServiceTest extends TestCase
 
         $this->assertSame(1, $recommendations->first()['experience']->experiences_id);
         $this->assertGreaterThan(
-            $recommendations->get(1)['score'],
-            $recommendations->first()['score'],
+            $recommendations->get(1)['final_score'],
+            $recommendations->first()['final_score'],
         );
         $this->assertEqualsWithDelta(100, array_sum($result['effectiveWeights']) * 100, 0.01);
+    }
+
+    public function test_multiple_interests_produce_a_mix_of_matching_categories(): void
+    {
+        $candidates = [
+            $this->experience(1, 3, 'Heritage', 'Heritage Walk'),
+            $this->experience(2, 6, 'Arts & Crafts', 'Craft Workshop'),
+            $this->experience(3, 2, 'Culinary', 'Cooking Class'),
+        ];
+        $service = $this->service($candidates, [
+            $this->category(3, 'Heritage'),
+            $this->category(6, 'Arts & Crafts'),
+        ]);
+
+        $result = $service->getRecommendations('user-1');
+        $topCategories = $result['recommendedExperiences']
+            ->take(2)
+            ->pluck('experience.category_id')
+            ->sort()
+            ->values()
+            ->all();
+
+        $this->assertSame([3, 6], $topCategories);
+        $this->assertSame(100.0, $result['recommendedExperiences']->first()['interest_score']);
+    }
+
+    public function test_interaction_history_personalizes_a_user_without_interests(): void
+    {
+        $heritage = $this->experience(1, 3, 'Heritage', 'Heritage Walk', location: 'Melaka');
+        $culinary = $this->experience(2, 2, 'Culinary', 'Cooking Class', location: 'Johor');
+        $history = [
+            $this->interaction(20, 3, 'Heritage', 'Penang', 'completed'),
+        ];
+        $service = $this->service([$culinary, $heritage], [], $history);
+
+        $result = $service->getRecommendations('user-1');
+        $top = $result['recommendedExperiences']->first();
+
+        $this->assertTrue($result['isPersonalized']);
+        $this->assertSame(1, $top['experience']->experiences_id);
+        $this->assertSame('Based on your Heritage activity', $top['reason']);
+    }
+
+    public function test_completed_reviewed_and_saved_interactions_have_explainable_strengths(): void
+    {
+        $heritage = $this->experience(1, 3, 'Heritage', 'Heritage Walk', location: 'Melaka');
+        $culinary = $this->experience(2, 2, 'Culinary', 'Cooking Class', location: 'Johor');
+        $craft = $this->experience(3, 6, 'Arts & Crafts', 'Craft Workshop', location: 'Perak');
+        $history = [
+            $this->interaction(20, 3, 'Heritage', 'Penang', 'completed'),
+            $this->interaction(21, 2, 'Culinary', 'Sabah', 'reviewed', rating: 5),
+            $this->interaction(22, 6, 'Arts & Crafts', 'Sarawak', 'saved'),
+        ];
+        $service = $this->service([$craft, $culinary, $heritage], [], $history);
+
+        $result = $service->getRecommendations('user-1');
+        $recommendations = $result['recommendedExperiences']->keyBy('experience.category_id');
+
+        $this->assertSame(100.0, $recommendations->get(3)['interaction_score']);
+        $this->assertSame(80.0, $recommendations->get(2)['interaction_score']);
+        $this->assertSame(60.0, $recommendations->get(6)['interaction_score']);
+        $this->assertSame('Based on your Heritage activity', $recommendations->get(3)['reason']);
+        $this->assertSame(
+            "Based on Culinary experiences you've reviewed positively",
+            $recommendations->get(2)['reason'],
+        );
+        $this->assertSame(
+            "Recommended from Arts & Crafts experiences you've saved",
+            $recommendations->get(6)['reason'],
+        );
+    }
+
+    public function test_each_recommendation_contains_explicit_internal_diagnostics(): void
+    {
+        $service = $this->service(
+            [$this->experience(1, 3, 'Heritage', 'Heritage Walk')],
+            [$this->category(3, 'Heritage')],
+        );
+
+        $recommendation = $service->getRecommendations('user-1')['recommendedExperiences']->first();
+
+        $this->assertArrayHasKey('experience', $recommendation);
+        $this->assertArrayHasKey('final_score', $recommendation);
+        $this->assertArrayHasKey('interest_score', $recommendation);
+        $this->assertArrayHasKey('interaction_score', $recommendation);
+        $this->assertArrayHasKey('location_score', $recommendation);
+        $this->assertArrayHasKey('type_score', $recommendation);
+        $this->assertArrayHasKey('reason', $recommendation);
+        $this->assertGreaterThanOrEqual(0, $recommendation['final_score']);
+        $this->assertLessThanOrEqual(100, $recommendation['final_score']);
     }
 
     public function test_diversity_limits_the_first_pass_to_two_per_category(): void
@@ -132,6 +222,20 @@ class PersonalizedRecommendationServiceTest extends TestCase
             $result['recommendedExperiences']->pluck('experience.category_id')->unique()->count(),
         );
         $this->assertStringStartsWith('Explore something new in', $result['recommendedExperiences']->first()['reason']);
+    }
+
+    public function test_cold_start_uses_real_popularity_before_recency(): void
+    {
+        $popularOlder = $this->experience(1, 3, 'Heritage', 'Popular Heritage');
+        $newer = $this->experience(2, 2, 'Culinary', 'New Cooking Class');
+        $service = $this->service([$newer, $popularOlder], popularity: [1 => 4]);
+
+        $result = $service->getRecommendations(null);
+        $top = $result['recommendedExperiences']->first();
+
+        $this->assertSame(1, $top['experience']->experiences_id);
+        $this->assertSame(100.0, $top['popularity_score']);
+        $this->assertSame('Popular Cultural Experience', $top['reason']);
     }
 
     public function test_location_reason_is_used_when_location_is_the_actual_match(): void
@@ -233,6 +337,7 @@ class PersonalizedRecommendationServiceTest extends TestCase
         string $activityType,
         int $typeId = 1,
         string $typeName = 'Cultural Experience',
+        ?int $rating = null,
     ): object {
         return (object) [
             'experiences_id' => $experienceId,
@@ -244,7 +349,7 @@ class PersonalizedRecommendationServiceTest extends TestCase
             'location_name' => $location,
             'activity_type' => $activityType,
             'activity_at' => '2026-08-01',
-            'rating' => null,
+            'rating' => $rating,
         ];
     }
 }

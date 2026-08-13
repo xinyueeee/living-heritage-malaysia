@@ -18,6 +18,15 @@ class PersonalizedRecommendationService
     private const MAX_PER_CATEGORY = 2;
 
     /**
+     * Relative strength of each real interaction signal.
+     */
+    private const INTERACTION_WEIGHTS = [
+        'completed' => 1.0,
+        'reviewed' => 0.8,
+        'saved' => 0.6,
+    ];
+
+    /**
      * Base weights from the approved recommendation design. Signals that are
      * unavailable for a user are removed and the remaining weights are
      * proportionally normalized so that their effective total stays at 100%.
@@ -35,7 +44,16 @@ class PersonalizedRecommendationService
 
     /**
      * @return array{
-     *     recommendedExperiences: Collection<int, array<string, mixed>>,
+     *     recommendedExperiences: Collection<int, array{
+     *         experience: Experience,
+     *         final_score: float,
+     *         interest_score: float,
+     *         interaction_score: float,
+     *         location_score: float,
+     *         type_score: float,
+     *         reason: string,
+     *         popularity_score: float
+     *     }>,
      *     interests: EloquentCollection<int, Category>,
      *     recentActivity: Collection<string, Collection<int, object>>,
      *     isPersonalized: bool,
@@ -63,12 +81,16 @@ class PersonalizedRecommendationService
         $effectiveWeights = $this->normalizeWeights($profile);
         $ranked = $this->rankCandidates($candidates, $profile, $effectiveWeights, $popularity);
 
+        $displayInterests = $interests
+            ->whereIn('category_id', $profile['interestIds'])
+            ->take(3)
+            ->values();
+
         return [
             'recommendedExperiences' => $this->selectDiverse($ranked, $limit),
-            'interests' => new EloquentCollection($interests->take(3)->values()->all()),
+            'interests' => new EloquentCollection($displayInterests->all()),
             'recentActivity' => $this->groupRecentActivity($interactions),
-            'isPersonalized' => filled($userId)
-                && ($interests->isNotEmpty() || $interactions->isNotEmpty()),
+            'isPersonalized' => filled($userId) && $effectiveWeights !== [],
             'effectiveWeights' => $effectiveWeights,
         ];
     }
@@ -83,12 +105,11 @@ class PersonalizedRecommendationService
         Collection $interactions
     ): array {
         $interactionWeights = $interactions->map(function (object $interaction) {
-            $weight = match ($interaction->activity_type) {
-                'reviewed' => (int) $interaction->rating >= 3
-                    ? (int) $interaction->rating / 5
-                    : 0.0,
-                default => 1.0,
-            };
+            $weight = self::INTERACTION_WEIGHTS[$interaction->activity_type] ?? 0.0;
+
+            if ($interaction->activity_type === 'reviewed' && (int) $interaction->rating < 3) {
+                $weight = 0.0;
+            }
 
             return ['interaction' => $interaction, 'weight' => $weight];
         })->filter(fn (array $item) => $item['weight'] > 0);
@@ -105,6 +126,7 @@ class PersonalizedRecommendationService
             'historyCategoryNames' => $interactions->pluck('category_name', 'category_id')
                 ->mapWithKeys(fn ($name, $id) => [(int) $id => $name])
                 ->all(),
+            'historySources' => $this->dominantHistorySources($interactionWeights),
             'locations' => $this->normalizedFrequency(
                 $interactionWeights->filter(fn (array $item) => filled($item['interaction']->location_name)),
                 fn (array $item) => $this->normalizeLocation($item['interaction']->location_name),
@@ -123,6 +145,25 @@ class PersonalizedRecommendationService
                 ->map(fn ($id) => (int) $id)
                 ->all(),
         ];
+    }
+
+    /**
+     * @param  Collection<int, array{interaction: object, weight: float}>  $items
+     * @return array<int, string>
+     */
+    private function dominantHistorySources(Collection $items): array
+    {
+        return $items
+            ->groupBy(fn (array $item) => (int) $item['interaction']->category_id)
+            ->map(function (Collection $categoryItems) {
+                return $categoryItems
+                    ->groupBy(fn (array $item) => $item['interaction']->activity_type)
+                    ->map(fn (Collection $sourceItems) => $sourceItems->sum('weight'))
+                    ->sortDesc()
+                    ->keys()
+                    ->first();
+            })
+            ->all();
     }
 
     /**
@@ -285,14 +326,17 @@ class PersonalizedRecommendationService
 
             return [
                 'experience' => $experience,
-                'score' => round($score, 2),
-                'components' => $components,
+                'final_score' => round($score, 2),
+                'interest_score' => round($components['interest'] * 100, 2),
+                'interaction_score' => round($components['history'] * 100, 2),
+                'location_score' => round($components['location'] * 100, 2),
+                'type_score' => round($components['type'] * 100, 2),
                 'reason' => $this->buildReason($experience, $components, $weights, $profile, $popularityScore),
-                'popularity' => $popularityScore,
+                'popularity_score' => round($popularityScore * 100, 2),
             ];
         })->sort(function (array $left, array $right) {
-            return [$right['score'], $right['popularity'], $this->createdTimestamp($right['experience']), (int) $right['experience']->experiences_id]
-                <=> [$left['score'], $left['popularity'], $this->createdTimestamp($left['experience']), (int) $left['experience']->experiences_id];
+            return [$right['final_score'], $right['popularity_score'], $this->createdTimestamp($right['experience']), (int) $right['experience']->experiences_id]
+                <=> [$left['final_score'], $left['popularity_score'], $this->createdTimestamp($left['experience']), (int) $left['experience']->experiences_id];
         })->values();
     }
 
@@ -323,12 +367,30 @@ class PersonalizedRecommendationService
 
         return match ($strongestSignal) {
             'interest' => "Because you're interested in ".($profile['interestNames'][(int) $experience->category_id] ?? $experience->category?->category_name),
-            'history' => 'Similar to '.($profile['historyCategoryNames'][(int) $experience->category_id] ?? 'cultural').' experiences you have explored',
+            'history' => $this->historyReason($experience, $profile),
             'location' => 'Recommended based on your activity in '.($profile['locationNames'][$this->normalizeLocation($experience->location_name)] ?? $experience->location_name),
             'type' => 'Based on the experience types you have explored',
             default => $popularityScore > 0
-                ? 'Popular with cultural explorers'
+                ? 'Popular Cultural Experience'
                 : 'Explore something new in '.($experience->category?->category_name ?? 'Malaysian culture'),
+        };
+    }
+
+    /**
+     * @param  array<string, mixed>  $profile
+     */
+    private function historyReason(Experience $experience, array $profile): string
+    {
+        $categoryId = (int) $experience->category_id;
+        $categoryName = $profile['historyCategoryNames'][$categoryId]
+            ?? $experience->category?->category_name
+            ?? 'cultural';
+
+        return match ($profile['historySources'][$categoryId] ?? null) {
+            'completed' => "Based on your {$categoryName} activity",
+            'reviewed' => "Based on {$categoryName} experiences you've reviewed positively",
+            'saved' => "Recommended from {$categoryName} experiences you've saved",
+            default => "Based on your {$categoryName} activity",
         };
     }
 
