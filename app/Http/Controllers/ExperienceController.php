@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Experience;
 use App\Http\Requests\ExperienceIndexRequest;
+use App\Models\Experience;
 use App\Services\Experience\ExperienceDiscoveryService;
 use App\Services\Experience\SavedExperienceService;
 use Illuminate\Http\Request;
@@ -38,7 +38,9 @@ class ExperienceController extends Controller
     public function recommendations(Request $request): View
     {
         return view('recommendations.index', [
-            ...$this->experienceDiscoveryService->getRecommendationsPageData(),
+            ...$this->experienceDiscoveryService->getRecommendationsPageData(
+                $request->user()?->getAuthIdentifier()
+            ),
             'savedExperienceIds' => $this->savedExperienceService
                 ->getSavedExperienceIds($request->user()),
         ]);
