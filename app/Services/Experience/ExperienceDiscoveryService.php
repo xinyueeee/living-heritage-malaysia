@@ -2,7 +2,9 @@
 
 namespace App\Services\Experience;
 
+use App\Models\Experience;
 use App\Repositories\Contracts\ExperienceRepositoryInterface;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 class ExperienceDiscoveryService
 {
@@ -15,6 +17,7 @@ class ExperienceDiscoveryService
     public function __construct(
         private ExperienceRepositoryInterface $experienceRepository,
         private PersonalizedRecommendationService $personalizedRecommendationService,
+        private UserDiscoveryActivityService $userDiscoveryActivityService,
     ) {}
 
     public function getHomePageData(): array
@@ -37,6 +40,19 @@ class ExperienceDiscoveryService
             'categories' => $this->experienceRepository->getCategories(),
             'types' => $this->experienceRepository->getExperienceTypes(),
         ];
+    }
+
+    /** @param array<string, mixed> $filters */
+    public function recordSearch(?Authenticatable $user, array $filters): void
+    {
+        $this->userDiscoveryActivityService->recordSearch($user, $filters);
+    }
+
+    public function recordExperienceView(
+        ?Authenticatable $user,
+        Experience $experience,
+    ): void {
+        $this->userDiscoveryActivityService->recordExperienceView($user, $experience);
     }
 
     public function getRecommendationsPageData(?string $userId): array

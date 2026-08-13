@@ -7,6 +7,7 @@ use App\Models\Experience;
 use App\Models\ExperienceType;
 use App\Repositories\Contracts\ExperienceRepositoryInterface;
 use App\Services\Experience\PersonalizedRecommendationService;
+use App\Services\Experience\UserDiscoveryActivityService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Mockery;
@@ -256,6 +257,98 @@ class PersonalizedRecommendationServiceTest extends TestCase
         );
     }
 
+    public function test_recent_view_category_influences_ranking_and_reason(): void
+    {
+        Carbon::setTestNow('2026-08-13 12:00:00');
+        $heritage = $this->experience(1, 3, 'Heritage', 'Heritage Walk');
+        $culinary = $this->experience(2, 2, 'Culinary', 'Cooking Class');
+        $service = $this->service(
+            [$culinary, $heritage],
+            recentActivity: [
+                'views' => [
+                    $this->viewSignal(10, 3, 'Heritage', 'Penang', '2026-08-12 12:00:00'),
+                ],
+            ],
+        );
+
+        $top = $service->getRecommendations('user-1')['recommendedExperiences']->first();
+
+        $this->assertSame(1, $top['experience']->experiences_id);
+        $this->assertSame(100.0, $top['recent_view_score']);
+        $this->assertSame("Because you've recently explored Heritage experiences", $top['reason']);
+        Carbon::setTestNow();
+    }
+
+    public function test_recent_search_category_influences_ranking_and_reason(): void
+    {
+        Carbon::setTestNow('2026-08-13 12:00:00');
+        $heritage = $this->experience(1, 3, 'Heritage', 'Heritage Walk');
+        $culinary = $this->experience(2, 2, 'Culinary', 'Cooking Class');
+        $service = $this->service(
+            [$heritage, $culinary],
+            recentActivity: [
+                'searches' => [
+                    $this->searchSignal(categoryId: 2, activityAt: '2026-08-12 12:00:00'),
+                ],
+            ],
+        );
+
+        $top = $service->getRecommendations('user-1')['recommendedExperiences']->first();
+
+        $this->assertSame(2, $top['experience']->experiences_id);
+        $this->assertSame(100.0, $top['recent_search_score']);
+        $this->assertSame("Because you've been looking for Culinary experiences", $top['reason']);
+        Carbon::setTestNow();
+    }
+
+    public function test_recent_search_location_influences_ranking_with_evidence_based_reason(): void
+    {
+        Carbon::setTestNow('2026-08-13 12:00:00');
+        $penang = $this->experience(1, 3, 'Heritage', 'Penang Walk', location: 'George Town, Penang');
+        $melaka = $this->experience(2, 3, 'Heritage', 'Melaka Walk', location: 'Melaka');
+        $service = $this->service(
+            [$melaka, $penang],
+            recentActivity: [
+                'searches' => [
+                    $this->searchSignal(location: 'Penang', activityAt: '2026-08-12 12:00:00'),
+                ],
+            ],
+        );
+
+        $top = $service->getRecommendations('user-1')['recommendedExperiences']->first();
+
+        $this->assertSame(1, $top['experience']->experiences_id);
+        $this->assertSame('Based on your recent searches in Penang', $top['reason']);
+        Carbon::setTestNow();
+    }
+
+    public function test_recent_activity_uses_explainable_recency_decay(): void
+    {
+        Carbon::setTestNow('2026-08-13 12:00:00');
+        $heritage = $this->experience(1, 3, 'Heritage', 'Heritage Walk');
+        $culinary = $this->experience(2, 2, 'Culinary', 'Cooking Class');
+        $service = $this->service(
+            [$culinary, $heritage],
+            recentActivity: [
+                'views' => [
+                    $this->viewSignal(10, 3, 'Heritage', 'Penang', '2026-08-12 12:00:00'),
+                    $this->viewSignal(11, 2, 'Culinary', 'Melaka', '2026-08-03 12:00:00'),
+                ],
+            ],
+        );
+
+        $recommendations = $service->getRecommendations('user-1')['recommendedExperiences']
+            ->keyBy('experience.category_id');
+
+        $this->assertSame(100.0, $recommendations->get(3)['recent_view_score']);
+        $this->assertSame(50.0, $recommendations->get(2)['recent_view_score']);
+        $this->assertGreaterThan(
+            $recommendations->get(2)['final_score'],
+            $recommendations->get(3)['final_score'],
+        );
+        Carbon::setTestNow();
+    }
+
     /**
      * @param  list<Experience>  $candidates
      * @param  list<Category>  $interests
@@ -267,6 +360,7 @@ class PersonalizedRecommendationServiceTest extends TestCase
         array $interests = [],
         array $interactions = [],
         array $popularity = [],
+        array $recentActivity = [],
     ): PersonalizedRecommendationService {
         $repository = Mockery::mock(ExperienceRepositoryInterface::class);
         $candidateCollection = new EloquentCollection($candidates);
@@ -278,7 +372,7 @@ class PersonalizedRecommendationServiceTest extends TestCase
             ->once()
             ->andReturn(collect($popularity));
 
-        if ($interests !== [] || $interactions !== []) {
+        if ($interests !== [] || $interactions !== [] || $recentActivity !== []) {
             $repository->shouldReceive('getUserInterestCategories')
                 ->once()
                 ->andReturn(new EloquentCollection($interests));
@@ -287,7 +381,16 @@ class PersonalizedRecommendationServiceTest extends TestCase
                 ->andReturn(collect($interactions));
         }
 
-        return new PersonalizedRecommendationService($repository);
+        $activityService = Mockery::mock(UserDiscoveryActivityService::class);
+        $activityService->shouldReceive('getRecentActivity')
+            ->andReturn([
+                'views' => collect($recentActivity['views'] ?? []),
+                'searches' => collect($recentActivity['searches'] ?? []),
+            ]);
+        $activityService->shouldReceive('formatForDisplay')
+            ->andReturn(collect());
+
+        return new PersonalizedRecommendationService($repository, $activityService);
     }
 
     private function category(int $id, string $name): Category
@@ -350,6 +453,43 @@ class PersonalizedRecommendationServiceTest extends TestCase
             'activity_type' => $activityType,
             'activity_at' => '2026-08-01',
             'rating' => $rating,
+        ];
+    }
+
+    private function viewSignal(
+        int $experienceId,
+        int $categoryId,
+        string $categoryName,
+        string $location,
+        string $activityAt,
+    ): object {
+        return (object) [
+            'experiences_id' => $experienceId,
+            'experiences_name' => 'Recently Viewed Experience',
+            'category_id' => $categoryId,
+            'category_name' => $categoryName,
+            'type_id' => 1,
+            'type_name' => 'Cultural Experience',
+            'location_name' => $location,
+            'activity_at' => $activityAt,
+        ];
+    }
+
+    private function searchSignal(
+        ?string $keyword = null,
+        ?string $location = null,
+        ?int $categoryId = null,
+        ?int $typeId = null,
+        string $activityAt = '2026-08-12 12:00:00',
+    ): object {
+        return (object) [
+            'keyword' => $keyword,
+            'location' => $location,
+            'category_id' => $categoryId,
+            'category_name' => null,
+            'type_id' => $typeId,
+            'type_name' => null,
+            'activity_at' => $activityAt,
         ];
     }
 }

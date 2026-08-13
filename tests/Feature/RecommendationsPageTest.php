@@ -8,6 +8,7 @@ use App\Models\ExperienceType;
 use App\Models\User;
 use App\Repositories\Contracts\ExperienceRepositoryInterface;
 use App\Services\Experience\SavedExperienceService;
+use App\Services\Experience\UserDiscoveryActivityService;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,6 +17,18 @@ use Tests\TestCase;
 
 class RecommendationsPageTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $activityService = Mockery::mock(UserDiscoveryActivityService::class);
+        $activityService->shouldReceive('getRecentActivity')
+            ->andReturn(['views' => collect(), 'searches' => collect()]);
+        $activityService->shouldReceive('formatForDisplay')
+            ->andReturn(collect());
+        $this->app->instance(UserDiscoveryActivityService::class, $activityService);
+    }
+
     public function test_guest_recommendations_page_uses_cold_start_without_database_writes(): void
     {
         $experience = (new Experience)->forceFill([
