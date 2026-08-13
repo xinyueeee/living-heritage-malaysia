@@ -5,6 +5,7 @@ namespace App\Services\Experience;
 use App\Models\Category;
 use App\Models\Experience;
 use App\Repositories\Contracts\ExperienceRepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -17,9 +18,6 @@ class PersonalizedRecommendationService
 
     private const MAX_PER_CATEGORY = 2;
 
-    /**
-     * Relative strength of each real interaction signal.
-     */
     private const INTERACTION_WEIGHTS = [
         'completed' => 1.0,
         'reviewed' => 0.8,
@@ -27,39 +25,21 @@ class PersonalizedRecommendationService
     ];
 
     /**
-     * Base weights from the approved recommendation design. Signals that are
-     * unavailable for a user are removed and the remaining weights are
-     * proportionally normalized so that their effective total stays at 100%.
+     * Missing signals are removed and the remaining values are normalized.
      */
     private const BASE_WEIGHTS = [
-        'interest' => 40,
+        'interest' => 35,
         'history' => 25,
-        'location' => 20,
-        'type' => 15,
+        'recent_view' => 20,
+        'recent_search' => 10,
+        'context' => 10,
     ];
 
     public function __construct(
-        private ExperienceRepositoryInterface $experienceRepository
+        private ExperienceRepositoryInterface $experienceRepository,
+        private UserDiscoveryActivityService $userDiscoveryActivityService,
     ) {}
 
-    /**
-     * @return array{
-     *     recommendedExperiences: Collection<int, array{
-     *         experience: Experience,
-     *         final_score: float,
-     *         interest_score: float,
-     *         interaction_score: float,
-     *         location_score: float,
-     *         type_score: float,
-     *         reason: string,
-     *         popularity_score: float
-     *     }>,
-     *     interests: EloquentCollection<int, Category>,
-     *     recentActivity: Collection<string, Collection<int, object>>,
-     *     isPersonalized: bool,
-     *     effectiveWeights: array<string, float>
-     * }
-     */
     public function getRecommendations(?string $userId, int $limit = self::RESULT_LIMIT): array
     {
         $candidates = $this->experienceRepository
@@ -70,17 +50,25 @@ class PersonalizedRecommendationService
         $interactions = $userId
             ? $this->experienceRepository->getUserInteractions($userId)
             : collect();
+        $recentActivity = $userId
+            ? $this->userDiscoveryActivityService->getRecentActivity($userId)
+            : ['views' => collect(), 'searches' => collect()];
         $popularity = $this->experienceRepository->getPopularityCounts(
             $candidates->pluck('experiences_id')->map(fn ($id) => (int) $id)->all()
         );
 
         $profile = $this->makeProfileCandidateAware(
-            $this->buildPreferenceProfile($interests, $interactions),
+            $this->buildPreferenceProfile(
+                $interests,
+                $interactions,
+                $recentActivity['views'],
+                $recentActivity['searches'],
+                $candidates,
+            ),
             $candidates,
         );
         $effectiveWeights = $this->normalizeWeights($profile);
         $ranked = $this->rankCandidates($candidates, $profile, $effectiveWeights, $popularity);
-
         $displayInterests = $interests
             ->whereIn('category_id', $profile['interestIds'])
             ->take(3)
@@ -89,7 +77,8 @@ class PersonalizedRecommendationService
         return [
             'recommendedExperiences' => $this->selectDiverse($ranked, $limit),
             'interests' => new EloquentCollection($displayInterests->all()),
-            'recentActivity' => $this->groupRecentActivity($interactions),
+            'recentActivity' => $this->userDiscoveryActivityService
+                ->formatForDisplay($recentActivity),
             'isPersonalized' => filled($userId) && $effectiveWeights !== [],
             'effectiveWeights' => $effectiveWeights,
         ];
@@ -98,11 +87,17 @@ class PersonalizedRecommendationService
     /**
      * @param  EloquentCollection<int, Category>  $interests
      * @param  Collection<int, object>  $interactions
+     * @param  Collection<int, object>  $recentViews
+     * @param  Collection<int, object>  $recentSearches
+     * @param  EloquentCollection<int, Experience>  $candidates
      * @return array<string, mixed>
      */
     private function buildPreferenceProfile(
         EloquentCollection $interests,
-        Collection $interactions
+        Collection $interactions,
+        Collection $recentViews,
+        Collection $recentSearches,
+        EloquentCollection $candidates,
     ): array {
         $interactionWeights = $interactions->map(function (object $interaction) {
             $weight = self::INTERACTION_WEIGHTS[$interaction->activity_type] ?? 0.0;
@@ -111,34 +106,66 @@ class PersonalizedRecommendationService
                 $weight = 0.0;
             }
 
-            return ['interaction' => $interaction, 'weight' => $weight];
+            return ['item' => $interaction, 'weight' => $weight];
         })->filter(fn (array $item) => $item['weight'] > 0);
+        $viewWeights = $this->applyRecencyDecay($recentViews);
+        $searchWeights = $this->applyRecencyDecay($recentSearches);
+        $searchCategoryEvidence = $this->searchCategoryEvidence($searchWeights, $candidates);
+        $searchTypeEvidence = $this->searchTypeEvidence($searchWeights, $candidates);
+
+        $locationEvidence = $this->makeEvidence(
+            $interactionWeights,
+            fn (object $item) => $item->location_name ?? null,
+            normalize: true,
+        )->concat($this->makeEvidence(
+            $viewWeights,
+            fn (object $item) => $item->location_name ?? null,
+            normalize: true,
+        ))->concat($this->makeEvidence(
+            $searchWeights,
+            fn (object $item) => $item->location ?? null,
+            normalize: true,
+        ));
+        $typeEvidence = $this->makeEvidence(
+            $interactionWeights->concat($viewWeights),
+            fn (object $item) => isset($item->type_id) ? (int) $item->type_id : null,
+        )->concat($searchTypeEvidence);
 
         return [
             'interestIds' => $interests->pluck('category_id')->map(fn ($id) => (int) $id)->all(),
             'interestNames' => $interests->pluck('category_name', 'category_id')
                 ->mapWithKeys(fn ($name, $id) => [(int) $id => $name])
                 ->all(),
-            'historyCategories' => $this->normalizedFrequency(
+            'historyCategories' => $this->normalizedEvidence($this->makeEvidence(
                 $interactionWeights,
-                fn (array $item) => (int) $item['interaction']->category_id,
-            ),
+                fn (object $item) => (int) $item->category_id,
+            )),
             'historyCategoryNames' => $interactions->pluck('category_name', 'category_id')
                 ->mapWithKeys(fn ($name, $id) => [(int) $id => $name])
                 ->all(),
             'historySources' => $this->dominantHistorySources($interactionWeights),
-            'locations' => $this->normalizedFrequency(
-                $interactionWeights->filter(fn (array $item) => filled($item['interaction']->location_name)),
-                fn (array $item) => $this->normalizeLocation($item['interaction']->location_name),
-            ),
-            'locationNames' => $interactions->filter(fn (object $item) => filled($item->location_name))
-                ->pluck('location_name')
+            'recentViewCategories' => $this->normalizedEvidence($this->makeEvidence(
+                $viewWeights,
+                fn (object $item) => (int) $item->category_id,
+            )),
+            'recentViewCategoryNames' => $recentViews->pluck('category_name', 'category_id')
+                ->mapWithKeys(fn ($name, $id) => [(int) $id => $name])
+                ->all(),
+            'recentSearchCategories' => $this->normalizedEvidence($searchCategoryEvidence),
+            'recentSearchTypes' => $this->normalizedEvidence($searchTypeEvidence),
+            'recentSearchCategoryNames' => $candidates->pluck('category')
+                ->filter()
+                ->pluck('category_name', 'category_id')
+                ->mapWithKeys(fn ($name, $id) => [(int) $id => $name])
+                ->all(),
+            'contextLocations' => $this->normalizedEvidence($locationEvidence),
+            'contextTypes' => $this->normalizedEvidence($typeEvidence),
+            'locationNames' => $this->locationNameMap($interactions, $recentViews, $recentSearches),
+            'recentSearchLocations' => $recentSearches
+                ->filter(fn (object $item) => filled($item->location ?? null))
+                ->pluck('location')
                 ->mapWithKeys(fn (string $name) => [$this->normalizeLocation($name) => $name])
                 ->all(),
-            'types' => $this->normalizedFrequency(
-                $interactionWeights,
-                fn (array $item) => (int) $item['interaction']->type_id,
-            ),
             'completedExperienceIds' => $interactions
                 ->where('activity_type', 'completed')
                 ->pluck('experiences_id')
@@ -148,16 +175,154 @@ class PersonalizedRecommendationService
     }
 
     /**
-     * @param  Collection<int, array{interaction: object, weight: float}>  $items
+     * Activity from the last seven days has full strength, activity from days
+     * 8-30 has half strength, and older activity is excluded by the repository.
+     *
+     * @param  Collection<int, object>  $items
+     * @return Collection<int, array{item: object, weight: float}>
+     */
+    private function applyRecencyDecay(Collection $items): Collection
+    {
+        return $items->map(function (object $item) {
+            $activityAt = Carbon::parse($item->activity_at);
+            $ageInDays = now()->diffInDays($activityAt, true);
+
+            return [
+                'item' => $item,
+                'weight' => $ageInDays <= 7 ? 1.0 : ($ageInDays <= 30 ? 0.5 : 0.0),
+            ];
+        })->filter(fn (array $item) => $item['weight'] > 0);
+    }
+
+    /**
+     * @param  Collection<int, array{item: object, weight: float}>  $weightedItems
+     * @return Collection<int, array{key: int|string, weight: float}>
+     */
+    private function makeEvidence(
+        Collection $weightedItems,
+        callable $keyResolver,
+        bool $normalize = false,
+    ): Collection {
+        return $weightedItems->map(function (array $weightedItem) use ($keyResolver, $normalize) {
+            $key = $keyResolver($weightedItem['item']);
+
+            if ($normalize && filled($key)) {
+                $key = $this->normalizeLocation((string) $key);
+            }
+
+            return ['key' => $key, 'weight' => $weightedItem['weight']];
+        })->filter(fn (array $item) => filled($item['key']));
+    }
+
+    /**
+     * Free text is mapped only when it contains a real category name from the
+     * current candidate set. Otherwise it remains display-only context.
+     *
+     * @param  Collection<int, array{item: object, weight: float}>  $searchWeights
+     * @param  EloquentCollection<int, Experience>  $candidates
+     * @return Collection<int, array{key: int, weight: float}>
+     */
+    private function searchCategoryEvidence(
+        Collection $searchWeights,
+        EloquentCollection $candidates,
+    ): Collection {
+        $knownCategories = $candidates->pluck('category')
+            ->filter()
+            ->unique('category_id');
+
+        return $searchWeights->flatMap(function (array $weightedItem) use ($knownCategories) {
+            $search = $weightedItem['item'];
+            $categoryIds = collect();
+
+            if (filled($search->category_id ?? null)) {
+                $categoryIds->push((int) $search->category_id);
+            }
+
+            if (filled($search->keyword ?? null)) {
+                $knownCategories->each(function (Category $category) use ($search, $categoryIds) {
+                    if ($this->keywordMatchesTaxonomy($search->keyword, $category->category_name)) {
+                        $categoryIds->push((int) $category->category_id);
+                    }
+                });
+            }
+
+            return $categoryIds->unique()->map(fn (int $categoryId) => [
+                'key' => $categoryId,
+                'weight' => $weightedItem['weight'],
+            ]);
+        })->values();
+    }
+
+    /**
+     * @param  Collection<int, array{item: object, weight: float}>  $searchWeights
+     * @param  EloquentCollection<int, Experience>  $candidates
+     * @return Collection<int, array{key: int, weight: float}>
+     */
+    private function searchTypeEvidence(
+        Collection $searchWeights,
+        EloquentCollection $candidates,
+    ): Collection {
+        $knownTypes = $candidates->pluck('type')->filter()->unique('type_id');
+
+        return $searchWeights->flatMap(function (array $weightedItem) use ($knownTypes) {
+            $search = $weightedItem['item'];
+            $typeIds = collect();
+
+            if (filled($search->type_id ?? null)) {
+                $typeIds->push((int) $search->type_id);
+            }
+
+            if (filled($search->keyword ?? null)) {
+                $knownTypes->each(function ($type) use ($search, $typeIds) {
+                    if ($this->keywordMatchesTaxonomy($search->keyword, $type->type_name)) {
+                        $typeIds->push((int) $type->type_id);
+                    }
+                });
+            }
+
+            return $typeIds->unique()->map(fn (int $typeId) => [
+                'key' => $typeId,
+                'weight' => $weightedItem['weight'],
+            ]);
+        })->values();
+    }
+
+    private function keywordMatchesTaxonomy(string $keyword, string $taxonomyName): bool
+    {
+        $keyword = Str::lower(trim($keyword));
+        $taxonomyName = Str::lower(trim($taxonomyName));
+
+        return mb_strlen($taxonomyName) >= 3 && Str::contains($keyword, $taxonomyName);
+    }
+
+    /**
+     * @param  Collection<int, array{key: int|string, weight: float}>  $evidence
+     * @return array<int|string, float>
+     */
+    private function normalizedEvidence(Collection $evidence): array
+    {
+        if ($evidence->isEmpty()) {
+            return [];
+        }
+
+        $totals = $evidence->groupBy('key')
+            ->map(fn (Collection $items) => (float) $items->sum('weight'));
+        $highest = (float) $totals->max();
+
+        return $totals->map(fn (float $total) => $total / $highest)->all();
+    }
+
+    /**
+     * @param  Collection<int, array{item: object, weight: float}>  $items
      * @return array<int, string>
      */
     private function dominantHistorySources(Collection $items): array
     {
         return $items
-            ->groupBy(fn (array $item) => (int) $item['interaction']->category_id)
+            ->groupBy(fn (array $item) => (int) $item['item']->category_id)
             ->map(function (Collection $categoryItems) {
                 return $categoryItems
-                    ->groupBy(fn (array $item) => $item['interaction']->activity_type)
+                    ->groupBy(fn (array $item) => $item['item']->activity_type)
                     ->map(fn (Collection $sourceItems) => $sourceItems->sum('weight'))
                     ->sortDesc()
                     ->keys()
@@ -166,40 +331,16 @@ class PersonalizedRecommendationService
             ->all();
     }
 
-    /**
-     * @param  Collection<int, array{interaction: object, weight: float}>  $items
-     * @return array<int|string, float>
-     */
-    private function normalizedFrequency(Collection $items, callable $keyResolver): array
-    {
-        if ($items->isEmpty()) {
-            return [];
-        }
-
-        $frequencies = $items->reduce(function (array $totals, array $item) use ($keyResolver) {
-            $key = $keyResolver($item);
-            $totals[$key] = ($totals[$key] ?? 0) + $item['weight'];
-
-            return $totals;
-        }, []);
-        $highestFrequency = max($frequencies);
-
-        return collect($frequencies)
-            ->map(fn (float $frequency) => $frequency / $highestFrequency)
-            ->all();
-    }
-
-    /**
-     * @param  array<string, mixed>  $profile
-     * @return array<string, float>
-     */
+    /** @return array<string, float> */
     private function normalizeWeights(array $profile): array
     {
         $availableSignals = [
             'interest' => $profile['interestIds'] !== [],
             'history' => $profile['historyCategories'] !== [],
-            'location' => $profile['locations'] !== [],
-            'type' => isset($profile['types'][1]),
+            'recent_view' => $profile['recentViewCategories'] !== [],
+            'recent_search' => $profile['recentSearchCategories'] !== []
+                || $profile['recentSearchTypes'] !== [],
+            'context' => $profile['contextLocations'] !== [] || $profile['contextTypes'] !== [],
         ];
         $availableTotal = collect(self::BASE_WEIGHTS)
             ->filter(fn (int $weight, string $signal) => $availableSignals[$signal])
@@ -216,44 +357,32 @@ class PersonalizedRecommendationService
     }
 
     /**
-     * Signals that cannot match any valid Cultural Experience candidate are
-     * unavailable for this request, so their weights must be redistributed.
-     *
-     * @param  array<string, mixed>  $profile
      * @param  EloquentCollection<int, Experience>  $candidates
      * @return array<string, mixed>
      */
     private function makeProfileCandidateAware(array $profile, EloquentCollection $candidates): array
     {
-        $candidateCategoryIds = $candidates->pluck('category_id')
-            ->map(fn ($id) => (int) $id)
-            ->unique()
-            ->all();
-        $candidateTypeIds = $candidates->pluck('type_id')
-            ->map(fn ($id) => (int) $id)
-            ->unique()
-            ->all();
+        $candidateCategoryIds = $candidates->pluck('category_id')->map(fn ($id) => (int) $id)->unique()->all();
+        $candidateTypeIds = $candidates->pluck('type_id')->map(fn ($id) => (int) $id)->unique()->all();
         $candidateLocations = $candidates->pluck('location_name')
             ->filter()
             ->map(fn (string $location) => $this->normalizeLocation($location))
             ->unique()
             ->all();
 
-        $profile['interestIds'] = array_values(array_intersect(
-            $profile['interestIds'],
-            $candidateCategoryIds,
-        ));
-        $profile['historyCategories'] = $this->filterAndRenormalizeScores(
-            $profile['historyCategories'],
-            $candidateCategoryIds,
-        );
-        $profile['locations'] = $this->filterAndRenormalizeScores(
-            $profile['locations'],
+        $profile['interestIds'] = array_values(array_intersect($profile['interestIds'], $candidateCategoryIds));
+
+        foreach (['historyCategories', 'recentViewCategories', 'recentSearchCategories'] as $key) {
+            $profile[$key] = $this->filterAndRenormalizeScores($profile[$key], $candidateCategoryIds);
+        }
+
+        foreach (['recentSearchTypes', 'contextTypes'] as $key) {
+            $profile[$key] = $this->filterAndRenormalizeScores($profile[$key], $candidateTypeIds);
+        }
+
+        $profile['contextLocations'] = $this->filterLocationScores(
+            $profile['contextLocations'],
             $candidateLocations,
-        );
-        $profile['types'] = $this->filterAndRenormalizeScores(
-            $profile['types'],
-            $candidateTypeIds,
         );
 
         return $profile;
@@ -270,19 +399,38 @@ class PersonalizedRecommendationService
             fn (float $score, int|string $key) => in_array($key, $validKeys, true)
         );
 
-        if ($filtered->isEmpty()) {
+        return $this->renormalizeScores($filtered);
+    }
+
+    /**
+     * @param  array<string, float>  $scores
+     * @param  array<int, string>  $candidateLocations
+     * @return array<string, float>
+     */
+    private function filterLocationScores(array $scores, array $candidateLocations): array
+    {
+        $filtered = collect($scores)->filter(
+            fn (float $score, string $location) => collect($candidateLocations)
+                ->contains(fn (string $candidate) => $this->locationsMatch($candidate, $location))
+        );
+
+        return $this->renormalizeScores($filtered);
+    }
+
+    /** @return array<int|string, float> */
+    private function renormalizeScores(Collection $scores): array
+    {
+        if ($scores->isEmpty()) {
             return [];
         }
 
-        $highestScore = (float) $filtered->max();
+        $highestScore = (float) $scores->max();
 
-        return $filtered->map(fn (float $score) => $score / $highestScore)->all();
+        return $scores->map(fn (float $score) => $score / $highestScore)->all();
     }
 
     /**
      * @param  EloquentCollection<int, Experience>  $candidates
-     * @param  array<string, mixed>  $profile
-     * @param  array<string, float>  $weights
      * @param  Collection<int, int>  $popularity
      * @return Collection<int, array<string, mixed>>
      */
@@ -290,16 +438,15 @@ class PersonalizedRecommendationService
         EloquentCollection $candidates,
         array $profile,
         array $weights,
-        Collection $popularity
+        Collection $popularity,
     ): Collection {
         $validCandidates = $candidates
             ->filter(fn (Experience $experience) => $this->isValidCandidate($experience)
-                    && ! in_array(
-                        (int) $experience->experiences_id,
-                        $profile['completedExperienceIds'],
-                        true,
-                    )
-            )
+                && ! in_array(
+                    (int) $experience->experiences_id,
+                    $profile['completedExperienceIds'],
+                    true,
+                ))
             ->unique(fn (Experience $experience) => (int) $experience->experiences_id);
         $maximumPopularity = max(1, (int) $popularity->max());
 
@@ -307,36 +454,77 @@ class PersonalizedRecommendationService
             $profile,
             $weights,
             $popularity,
-            $maximumPopularity
+            $maximumPopularity,
         ) {
             $categoryId = (int) $experience->category_id;
             $typeId = (int) $experience->type_id;
-            $locationKey = $this->normalizeLocation($experience->location_name);
+            $locationScore = $this->locationPreferenceScore(
+                $experience->location_name,
+                $profile['contextLocations'],
+            );
+            $typeScore = $profile['contextTypes'][$typeId] ?? 0.0;
+            $contextParts = collect();
+
+            if ($profile['contextLocations'] !== []) {
+                $contextParts->push($locationScore);
+            }
+
+            if ($profile['contextTypes'] !== []) {
+                $contextParts->push($typeScore);
+            }
+
+            $recentSearchCategoryScore = $profile['recentSearchCategories'][$categoryId] ?? 0.0;
+            $recentSearchTypeScore = $profile['recentSearchTypes'][$typeId] ?? 0.0;
             $components = [
                 'interest' => in_array($categoryId, $profile['interestIds'], true) ? 1.0 : 0.0,
                 'history' => $profile['historyCategories'][$categoryId] ?? 0.0,
-                'location' => $profile['locations'][$locationKey] ?? 0.0,
-                'type' => $profile['types'][$typeId] ?? 0.0,
+                'recent_view' => $profile['recentViewCategories'][$categoryId] ?? 0.0,
+                'recent_search' => max($recentSearchCategoryScore, $recentSearchTypeScore),
+                'context' => $contextParts->isEmpty() ? 0.0 : (float) $contextParts->average(),
             ];
             $score = collect($weights)->map(
                 fn (float $weight, string $signal) => $components[$signal] * $weight * 100
             )->sum();
             $popularityScore = (int) $popularity->get((int) $experience->experiences_id, 0)
                 / $maximumPopularity;
+            $diagnostics = [
+                'location' => $locationScore,
+                'type' => $typeScore,
+                'recent_search_category' => $recentSearchCategoryScore,
+                'recent_search_type' => $recentSearchTypeScore,
+            ];
 
             return [
                 'experience' => $experience,
                 'final_score' => round($score, 2),
                 'interest_score' => round($components['interest'] * 100, 2),
                 'interaction_score' => round($components['history'] * 100, 2),
-                'location_score' => round($components['location'] * 100, 2),
-                'type_score' => round($components['type'] * 100, 2),
-                'reason' => $this->buildReason($experience, $components, $weights, $profile, $popularityScore),
+                'recent_view_score' => round($components['recent_view'] * 100, 2),
+                'recent_search_score' => round($components['recent_search'] * 100, 2),
+                'location_score' => round($locationScore * 100, 2),
+                'type_score' => round($typeScore * 100, 2),
+                'reason' => $this->buildReason(
+                    $experience,
+                    $components,
+                    $diagnostics,
+                    $weights,
+                    $profile,
+                    $popularityScore,
+                ),
                 'popularity_score' => round($popularityScore * 100, 2),
             ];
         })->sort(function (array $left, array $right) {
-            return [$right['final_score'], $right['popularity_score'], $this->createdTimestamp($right['experience']), (int) $right['experience']->experiences_id]
-                <=> [$left['final_score'], $left['popularity_score'], $this->createdTimestamp($left['experience']), (int) $left['experience']->experiences_id];
+            return [
+                $right['final_score'],
+                $right['popularity_score'],
+                $this->createdTimestamp($right['experience']),
+                (int) $right['experience']->experiences_id,
+            ] <=> [
+                $left['final_score'],
+                $left['popularity_score'],
+                $this->createdTimestamp($left['experience']),
+                (int) $left['experience']->experiences_id,
+            ];
         })->values();
     }
 
@@ -349,36 +537,40 @@ class PersonalizedRecommendationService
 
     /**
      * @param  array<string, float>  $components
+     * @param  array<string, float>  $diagnostics
      * @param  array<string, float>  $weights
-     * @param  array<string, mixed>  $profile
      */
     private function buildReason(
         Experience $experience,
         array $components,
+        array $diagnostics,
         array $weights,
         array $profile,
-        float $popularityScore
+        float $popularityScore,
     ): string {
-        $contributions = collect($weights)
+        $strongestSignal = collect($weights)
             ->map(fn (float $weight, string $signal) => $weight * $components[$signal])
             ->filter(fn (float $contribution) => $contribution > 0)
-            ->sortDesc();
-        $strongestSignal = $contributions->keys()->first();
+            ->sortDesc()
+            ->keys()
+            ->first();
+        $categoryId = (int) $experience->category_id;
+        $categoryName = $experience->category?->category_name ?? 'cultural';
 
         return match ($strongestSignal) {
-            'interest' => "Because you're interested in ".($profile['interestNames'][(int) $experience->category_id] ?? $experience->category?->category_name),
+            'interest' => "Because you're interested in ".($profile['interestNames'][$categoryId] ?? $categoryName),
             'history' => $this->historyReason($experience, $profile),
-            'location' => 'Recommended based on your activity in '.($profile['locationNames'][$this->normalizeLocation($experience->location_name)] ?? $experience->location_name),
-            'type' => 'Based on the experience types you have explored',
+            'recent_view' => "Because you've recently explored ".($profile['recentViewCategoryNames'][$categoryId] ?? $categoryName).' experiences',
+            'recent_search' => $diagnostics['recent_search_category'] >= $diagnostics['recent_search_type']
+                ? "Because you've been looking for ".($profile['recentSearchCategoryNames'][$categoryId] ?? $categoryName).' experiences'
+                : 'Based on the experience types in your recent searches',
+            'context' => $this->contextReason($experience, $diagnostics, $profile),
             default => $popularityScore > 0
                 ? 'Popular Cultural Experience'
-                : 'Explore something new in '.($experience->category?->category_name ?? 'Malaysian culture'),
+                : 'Explore something new in '.$categoryName,
         };
     }
 
-    /**
-     * @param  array<string, mixed>  $profile
-     */
     private function historyReason(Experience $experience, array $profile): string
     {
         $categoryId = (int) $experience->category_id;
@@ -392,6 +584,29 @@ class PersonalizedRecommendationService
             'saved' => "Recommended from {$categoryName} experiences you've saved",
             default => "Based on your {$categoryName} activity",
         };
+    }
+
+    /** @param array<string, float> $diagnostics */
+    private function contextReason(
+        Experience $experience,
+        array $diagnostics,
+        array $profile,
+    ): string {
+        if ($diagnostics['location'] > 0) {
+            $locationKey = $this->matchingLocationKey(
+                $experience->location_name,
+                array_keys($profile['contextLocations']),
+            );
+            $locationName = $profile['locationNames'][$locationKey] ?? $experience->location_name;
+
+            if (isset($profile['recentSearchLocations'][$locationKey])) {
+                return 'Based on your recent searches in '.$profile['recentSearchLocations'][$locationKey];
+            }
+
+            return 'Recommended based on your activity in '.$locationName;
+        }
+
+        return 'Based on the experience types you have explored';
     }
 
     /**
@@ -420,8 +635,7 @@ class PersonalizedRecommendationService
 
         foreach ($ranked as $recommendation) {
             if ($selected->contains(fn (array $selectedItem) => (int) $selectedItem['experience']->experiences_id
-                    === (int) $recommendation['experience']->experiences_id
-            )) {
+                === (int) $recommendation['experience']->experiences_id)) {
                 continue;
             }
 
@@ -437,14 +651,45 @@ class PersonalizedRecommendationService
 
     /**
      * @param  Collection<int, object>  $interactions
-     * @return Collection<string, Collection<int, object>>
+     * @param  Collection<int, object>  $recentViews
+     * @param  Collection<int, object>  $recentSearches
+     * @return array<string, string>
      */
-    private function groupRecentActivity(Collection $interactions): Collection
+    private function locationNameMap(
+        Collection $interactions,
+        Collection $recentViews,
+        Collection $recentSearches,
+    ): array {
+        return $interactions->pluck('location_name')
+            ->concat($recentViews->pluck('location_name'))
+            ->concat($recentSearches->pluck('location'))
+            ->filter()
+            ->mapWithKeys(fn (string $name) => [$this->normalizeLocation($name) => $name])
+            ->all();
+    }
+
+    /** @param array<string, float> $preferences */
+    private function locationPreferenceScore(?string $location, array $preferences): float
     {
-        return $interactions
-            ->unique(fn (object $interaction) => $interaction->activity_type.'-'.$interaction->experiences_id)
-            ->groupBy('activity_type')
-            ->map(fn (Collection $items) => $items->take(3)->values());
+        $location = $this->normalizeLocation($location);
+
+        return (float) (collect($preferences)
+            ->filter(fn (float $score, string $preference) => $this->locationsMatch($location, $preference))
+            ->max() ?? 0.0);
+    }
+
+    /** @param array<int, string> $preferences */
+    private function matchingLocationKey(?string $location, array $preferences): string
+    {
+        $location = $this->normalizeLocation($location);
+
+        return collect($preferences)
+            ->first(fn (string $preference) => $this->locationsMatch($location, $preference), $location);
+    }
+
+    private function locationsMatch(string $left, string $right): bool
+    {
+        return Str::contains($left, $right) || Str::contains($right, $left);
     }
 
     private function normalizeLocation(?string $location): string

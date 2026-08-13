@@ -66,19 +66,17 @@
                     @forelse ($recentActivity as $activityType => $activityItems)
                         <div class="recommendations-activity-column">
                             <h3>
-                                @if ($activityType === 'completed')
-                                    Recently completed:
-                                @elseif ($activityType === 'saved')
-                                    Recently saved:
-                                @elseif ($activityType === 'reviewed')
-                                    Recently reviewed:
+                                @if ($activityType === 'searched')
+                                    Recently searched:
+                                @elseif ($activityType === 'viewed')
+                                    Recently viewed:
                                 @else
                                     Recent activity:
                                 @endif
                             </h3>
                             <ul>
                                 @foreach ($activityItems as $activity)
-                                    <li>{{ $activity->experiences_name }}</li>
+                                    <li>{{ $activity->display_text }}</li>
                                 @endforeach
                             </ul>
                         </div>

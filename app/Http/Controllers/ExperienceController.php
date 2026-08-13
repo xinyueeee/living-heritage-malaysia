@@ -27,9 +27,12 @@ class ExperienceController extends Controller
 
     public function index(ExperienceIndexRequest $request): View
     {
+        $filters = $request->validated();
+        $this->experienceDiscoveryService->recordSearch($request->user(), $filters);
+
         return view('experiences.index', [
             ...$this->experienceDiscoveryService
-                ->getDiscoveryPageData($request->validated()),
+                ->getDiscoveryPageData($filters),
             'savedExperienceIds' => $this->savedExperienceService
                 ->getSavedExperienceIds($request->user()),
         ]);
@@ -48,6 +51,7 @@ class ExperienceController extends Controller
 
     public function show(Request $request, Experience $experience): View
     {
+        $this->experienceDiscoveryService->recordExperienceView($request->user(), $experience);
         $experience->loadMissing(['category', 'type']);
         $isSaved = $this->savedExperienceService->isSaved($request->user(), $experience);
 

@@ -1,0 +1,206 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\User;
+use App\Repositories\Contracts\ExperienceRepositoryInterface;
+use App\Services\Experience\SavedExperienceService;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Mockery;
+use Tests\TestCase;
+
+class DiscoveryActivityTrackingTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->createSchema();
+        $this->seedReferenceData();
+
+        $savedExperienceService = Mockery::mock(SavedExperienceService::class);
+        $savedExperienceService->shouldReceive('getSavedExperienceIds')->andReturn([]);
+        $savedExperienceService->shouldReceive('isSaved')->andReturn(false);
+        $this->app->instance(SavedExperienceService::class, $savedExperienceService);
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+
+        parent::tearDown();
+    }
+
+    public function test_authenticated_view_is_recorded_and_repeat_view_updates_one_row(): void
+    {
+        Carbon::setTestNow('2026-08-13 10:00:00');
+        $user = $this->user();
+
+        $this->actingAs($user)->get('/experiences/1')->assertOk();
+        $this->assertDatabaseCount('experience_view_history', 1);
+        $this->assertDatabaseHas('experience_view_history', [
+            'user_id' => 'user-123',
+            'experience_id' => 1,
+            'viewed_at' => '2026-08-13 10:00:00',
+        ]);
+
+        Carbon::setTestNow('2026-08-13 10:05:00');
+        $this->actingAs($user)->get('/experiences/1')->assertOk();
+
+        $this->assertDatabaseCount('experience_view_history', 1);
+        $this->assertDatabaseHas('experience_view_history', [
+            'user_id' => 'user-123',
+            'experience_id' => 1,
+            'viewed_at' => '2026-08-13 10:05:00',
+        ]);
+    }
+
+    public function test_authenticated_meaningful_search_is_recorded(): void
+    {
+        $this->mockDiscoveryRepository();
+
+        $this->actingAs($this->user())->get(
+            '/experiences?search=Batik&location=Penang&category=1&type=1'
+        )->assertOk();
+
+        $this->assertDatabaseHas('search_history', [
+            'user_id' => 'user-123',
+            'keyword' => 'Batik',
+            'location' => 'Penang',
+            'category_id' => 1,
+            'type_id' => 1,
+        ]);
+    }
+
+    public function test_empty_search_is_not_recorded(): void
+    {
+        $this->mockDiscoveryRepository();
+
+        $this->actingAs($this->user())->get('/experiences')->assertOk();
+
+        $this->assertDatabaseCount('search_history', 0);
+    }
+
+    public function test_guest_search_and_view_do_not_create_persistent_history(): void
+    {
+        $this->mockDiscoveryRepository();
+
+        $this->get('/experiences?search=Batik')->assertOk();
+        $this->get('/experiences/1')->assertOk();
+
+        $this->assertDatabaseCount('search_history', 0);
+        $this->assertDatabaseCount('experience_view_history', 0);
+    }
+
+    private function mockDiscoveryRepository(): void
+    {
+        $repository = Mockery::mock(ExperienceRepositoryInterface::class);
+        $repository->shouldReceive('searchExperiences')
+            ->once()
+            ->andReturn(new LengthAwarePaginator([], 0, 9));
+        $repository->shouldReceive('getCategories')
+            ->once()
+            ->andReturn(new Collection);
+        $repository->shouldReceive('getExperienceTypes')
+            ->once()
+            ->andReturn(new Collection);
+        $this->app->instance(ExperienceRepositoryInterface::class, $repository);
+    }
+
+    private function user(): User
+    {
+        return (new User)->forceFill([
+            'user_id' => 'user-123',
+            'user_name' => 'Test User',
+            'user_email' => 'test@example.com',
+        ]);
+    }
+
+    private function createSchema(): void
+    {
+        Schema::create('users', function (Blueprint $table) {
+            $table->uuid('user_id')->primary();
+            $table->string('user_name')->nullable();
+            $table->string('user_email')->nullable();
+            $table->string('profile_photo')->nullable();
+        });
+        Schema::create('experience_type', function (Blueprint $table) {
+            $table->id('type_id');
+            $table->string('type_name');
+        });
+        Schema::create('category', function (Blueprint $table) {
+            $table->id('category_id');
+            $table->string('category_name');
+            $table->unsignedBigInteger('type_id')->nullable();
+        });
+        Schema::create('experiences', function (Blueprint $table) {
+            $table->id('experiences_id');
+            $table->string('experiences_name');
+            $table->text('description')->nullable();
+            $table->string('location_name')->nullable();
+            $table->string('image_url')->nullable();
+            $table->decimal('price', 10, 2)->nullable();
+            $table->string('duration')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->unsignedBigInteger('category_id');
+            $table->unsignedBigInteger('type_id');
+            $table->string('status')->nullable();
+            $table->timestamps();
+        });
+        Schema::create('notification', function (Blueprint $table) {
+            $table->uuid('user_id');
+            $table->boolean('is_read')->default(false);
+        });
+        Schema::create('experience_view_history', function (Blueprint $table) {
+            $table->id();
+            $table->uuid('user_id');
+            $table->unsignedBigInteger('experience_id');
+            $table->timestamp('viewed_at');
+            $table->unique(['user_id', 'experience_id']);
+        });
+        Schema::create('search_history', function (Blueprint $table) {
+            $table->id();
+            $table->uuid('user_id');
+            $table->string('keyword')->nullable();
+            $table->string('location')->nullable();
+            $table->unsignedBigInteger('category_id')->nullable();
+            $table->unsignedBigInteger('type_id')->nullable();
+            $table->timestamp('searched_at');
+        });
+    }
+
+    private function seedReferenceData(): void
+    {
+        DB::table('users')->insert([
+            'user_id' => 'user-123',
+            'user_name' => 'Test User',
+            'user_email' => 'test@example.com',
+        ]);
+        DB::table('experience_type')->insert([
+            'type_id' => 1,
+            'type_name' => 'Cultural Experience',
+        ]);
+        DB::table('category')->insert([
+            'category_id' => 1,
+            'category_name' => 'Arts & Crafts',
+            'type_id' => 1,
+        ]);
+        DB::table('experiences')->insert([
+            'experiences_id' => 1,
+            'experiences_name' => 'Batik Workshop',
+            'description' => 'Learn traditional batik making.',
+            'location_name' => 'Penang',
+            'category_id' => 1,
+            'type_id' => 1,
+            'status' => 'Available',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+}
