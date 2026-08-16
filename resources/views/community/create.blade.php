@@ -86,8 +86,7 @@
                                 name="content"
                                 rows="7"
                                 maxlength="2000"
-                                placeholder="Share your experience, stories, tips, or recommendations..."
-                                required>{{ old('content') }}</textarea>
+                                placeholder="Share your experience, stories, tips, or recommendations...">{{ old('content') }}</textarea>
 
 
                             <div class="character-counter">

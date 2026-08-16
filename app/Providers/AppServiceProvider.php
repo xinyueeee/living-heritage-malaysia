@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Repositories\Contracts\DiscoveryActivityRepositoryInterface;
 use App\Repositories\Contracts\ExperienceRepositoryInterface;
+use App\Repositories\Eloquent\EloquentDiscoveryActivityRepository;
 use App\Repositories\Eloquent\EloquentExperienceRepository;
 use Illuminate\Support\ServiceProvider;
 
@@ -13,6 +15,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind(
+            DiscoveryActivityRepositoryInterface::class,
+            EloquentDiscoveryActivityRepository::class
+        );
+
         $this->app->bind(
             ExperienceRepositoryInterface::class,
             EloquentExperienceRepository::class
