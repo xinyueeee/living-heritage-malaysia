@@ -55,9 +55,19 @@ Route::middleware('auth')->group(function () {
         ->name('engagement.history');
 });
 
-Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
-Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
-Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
+
+Route::get('/community', [CommunityController::class, 'index'])
+    ->name('community.index');
+
+Route::middleware('auth')->group(function () {
+
+    Route::get('/community/create', [CommunityController::class, 'create'])
+        ->name('community.create');
+
+    Route::post('/community', [CommunityController::class, 'store'])
+        ->name('community.store');
+
+});
 Route::get('/festival/calendar', [CalendarController::class, 'index'])->name('festival.calendar');
 Route::get('/calendar/events', [CalendarController::class, 'calendarEvents']);
 
