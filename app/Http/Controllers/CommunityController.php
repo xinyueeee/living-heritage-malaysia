@@ -15,7 +15,7 @@ class CommunityController extends Controller
      * Display Community Feed
      */
     public function index(): View
-    {
+    {   
         $posts = Post::query()
             ->with([
                 'experience.category',
@@ -230,4 +230,5 @@ class CommunityController extends Controller
                 'Post published successfully!'
             );
     }
+
 }

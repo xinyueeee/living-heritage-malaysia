@@ -25,6 +25,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 
 Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
 Route::get('/engagement', [EngagementController::class, 'index'])->name('engagement.index');
+Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile/personal-information', [PersonalInformationController::class, 'show'])
@@ -37,7 +38,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile/interests', [InterestController::class, 'update'])->name('profile.interests.update');
 
     Route::get('/profile/saved-experiences', [SavedExperienceController::class, 'index'])
-        ->name('profile.saved-experiences');
+        ->name('profile.saved-experiences'); 
+    Route::get('/profile/my-posts', [ProfileController::class, 'myPosts'])->name('profile.my-posts');
+
     Route::post('/experiences/{experience}/save', [SavedExperienceController::class, 'store'])
         ->name('experiences.saved.store');
     Route::delete('/experiences/{experience}/save', [SavedExperienceController::class, 'destroy'])
@@ -53,21 +56,13 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/engagement/history', [EngagementController::class, 'history'])
         ->name('engagement.history');
+
+    Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
+    Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
 });
 
 
-Route::get('/community', [CommunityController::class, 'index'])
-    ->name('community.index');
 
-Route::middleware('auth')->group(function () {
-
-    Route::get('/community/create', [CommunityController::class, 'create'])
-        ->name('community.create');
-
-    Route::post('/community', [CommunityController::class, 'store'])
-        ->name('community.store');
-
-});
 Route::get('/festival/calendar', [CalendarController::class, 'index'])->name('festival.calendar');
 Route::get('/calendar/events', [CalendarController::class, 'calendarEvents']);
 

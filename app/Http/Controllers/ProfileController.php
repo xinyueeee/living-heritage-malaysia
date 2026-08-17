@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -48,5 +48,22 @@ class ProfileController extends Controller
             'interests' => $interests,
             'achievements' => $achievements,
         ]);
+    }
+    public function myPosts(): View
+    {   
+        if (! Auth::check()){
+             return view('profile.guest');
+        }
+        $posts = Post::query()
+            ->with([
+                'experience.category',
+                'experience.type',
+                'user',
+            ])
+            ->where('user_id', Auth::id())
+            ->latest('created_at')
+            ->get();
+
+        return view('profile.my-posts', ['posts' => $posts,]);
     }
 }
