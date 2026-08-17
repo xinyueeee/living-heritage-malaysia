@@ -1,8 +1,11 @@
 <header class="site-header">
     <nav class="navbar container" aria-label="Main navigation">
-        <a class="brand" href="{{ route('home') }}" aria-label="Living Heritage Malaysia home">
-            <span class="brand-mark" aria-hidden="true">LH</span>
-            <span>Living Heritage<br><strong>Malaysia</strong></span>
+        <a class="site-logo" href="{{ route('home') }}">
+            <img src="{{ asset('images/home/logo-transparent.png') }}" alt="Living Heritage Malaysia">
+            <span class="site-logo-title" aria-hidden="true">
+                <span class="site-logo-title-main">Living Heritage</span>
+                <span class="site-logo-title-secondary">Malaysia</span>
+            </span>
         </a>
 
         <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-menu" aria-label="Open navigation menu">
