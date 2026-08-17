@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 use App\Models\Post;
+use App\Services\Community\SavedPostService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    public function __construct(
+        private SavedPostService $savedPostService
+    ) {}
+
     public function show(): View
     {
         if (! Auth::check()) {
@@ -64,6 +69,8 @@ class ProfileController extends Controller
             ->latest('created_at')
             ->get();
 
-        return view('profile.my-posts', ['posts' => $posts,]);
+        $savedPostIds = $this->savedPostService->getSavedPostIds(Auth::user());
+
+        return view('profile.my-posts', ['posts' => $posts, 'savedPostIds' => $savedPostIds]);
     }
 }

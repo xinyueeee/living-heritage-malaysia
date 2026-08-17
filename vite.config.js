@@ -13,6 +13,7 @@ export default defineConfig({
                 'resources/js/pages/personal-information.js',
                 'resources/js/pages/profile-photo.js',
                 'resources/js/pages/interests.js',
+                'resources/js/pages/community-save.js',
                 'resources/css/engagement.css',
                 'resources/js/pages/engagement.js',
                 'resources/js/pages/passport.js',

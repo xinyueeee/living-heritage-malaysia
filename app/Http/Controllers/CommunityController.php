@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\Experience;
+use App\Services\Community\SavedPostService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -11,11 +12,15 @@ use Illuminate\View\View;
 
 class CommunityController extends Controller
 {
+    public function __construct(
+        private SavedPostService $savedPostService
+    ) {}
+
     /**
      * Display Community Feed
      */
-    public function index(): View
-    {   
+    public function index(Request $request): View
+    {
         $posts = Post::query()
             ->with([
                 'experience.category',
@@ -24,9 +29,10 @@ class CommunityController extends Controller
             ])
             ->latest('created_at')
             ->get();
-      
 
-        return view('community.index', compact('posts'));
+        $savedPostIds = $this->savedPostService->getSavedPostIds($request->user());
+
+        return view('community.index', compact('posts', 'savedPostIds'));
     }
 
 

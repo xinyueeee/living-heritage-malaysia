@@ -17,6 +17,10 @@
 
         <div>
 
+            @if (session('status'))
+                <div class="alert alert-success">{{ session('status') }}</div>
+            @endif
+
             @if ($posts->isEmpty())
 
                 <div class="profile-card profile-saved-empty">
@@ -39,309 +43,10 @@
 
                     @foreach ($posts as $post)
 
-                                        <article class="post-card">
-
-
-                    <!-- ===================================================
-                         POST HEADER
-                    =================================================== -->
-
-                    <div class="post-header">
-
-
-                        <!-- Avatar -->
-
-                        <img
-                            src="{{ $post->user->profile_photo ?? asset('images/default-avatar.png') }}"
-                            class="avatar"
-                            alt="Avatar"
-                        >
-
-
-                        <!-- User Information -->
-
-                        <div class="post-user">
-
-                            <h4>
-                                {{ $post->user->user_name ?? 'Anonymous' }}
-                            </h4>
-
-
-                            <small>
-
-                                {{ \Carbon\Carbon::parse($post->created_at)->diffForHumans() }}
-
-                                <span class="post-separator">
-                                    ·
-                                </span>
-
-                                <span class="post-location">
-
-                                    {{ $post->experience?->location_name ?? 'Malaysia' }}
-
-                                </span>
-
-                            </small>
-
-                        </div>
-
-
-                        <!-- More Button -->
-
-                        <button
-                            type="button"
-                            class="post-more-btn"
-                            aria-label="More options"
-                        >
-                            ⋯
-                        </button>
-
-                    </div>
-
-
-
-                    <!-- ===================================================
-                         POST BODY
-                    =================================================== -->
-
-                    <div class="post-body">
-
-
-                        <!-- ===================================================
-                             EXPERIENCE INFORMATION
-                        =================================================== -->
-
-                        @if($post->experience)
-
-                            <div class="post-experience-info">
-
-
-                                <!-- Experience Title -->
-
-                                <h3 class="post-experience-name">
-
-                                    {{ $post->experience->experiences_name }}
-
-                                </h3>
-
-
-                                <!-- Experience Meta -->
-
-                                <div class="post-experience-meta">
-
-
-                                    @if($post->experience->location_name)
-
-                                        <span class="experience-meta-item">
-
-                                            📍
-                                            {{ $post->experience->location_name }}
-
-                                        </span>
-
-                                    @endif
-
-
-                                    @if($post->experience->type?->type_name)
-
-                                        <span class="experience-meta-item">
-
-                                            {{ $post->experience->type->type_name }}
-
-                                        </span>
-
-                                    @endif
-
-
-                                    @if($post->experience->category?->category_name)
-
-                                        <span class="experience-meta-item">
-
-                                            {{ $post->experience->category->category_name }}
-
-                                        </span>
-
-                                    @endif
-
-
-                                </div>
-
-                            </div>
-
-                        @endif
-
-
-
-                        <!-- ===================================================
-                             POST CAPTION
-                        =================================================== -->
-
-                        @if($post->content)
-
-                            <div class="post-caption">
-
-                                {{ $post->content }}
-
-                            </div>
-
-                        @endif
-
-
-
-                        <!-- ===================================================
-                             POST IMAGES
-                        =================================================== -->
-
-                        @if($post->post_images)
-
-                            @php
-
-                                $images = json_decode(
-                                    $post->post_images,
-                                    true
-                                );
-
-                            @endphp
-
-
-                            @if(is_array($images) && count($images) > 0)
-
-                                @php
-
-                                    $totalImages = count($images);
-
-                                    $displayImages = array_slice(
-                                        $images,
-                                        0,
-                                        3
-                                    );
-
-                                    $galleryImages = collect($images)
-                                        ->values()
-                                        ->toArray();
-
-                                @endphp
-
-
-                                <div
-                                    class="post-gallery post-gallery-{{ count($displayImages) }}"
-                                    data-images='@json($galleryImages)'
-                                >
-
-
-                                    @foreach($displayImages as $index => $image)
-
-                                        <div
-                                            class="gallery-item"
-                                            data-index="{{ $index }}"
-                                        >
-
-                                            <img
-                                                src="{{ $image }}"
-                                                alt="Community Post Image"
-                                            >
-
-
-                                            <!-- +X MORE -->
-
-                                            @if(
-                                                $index === 2
-                                                && $totalImages > 3
-                                            )
-
-                                                <div class="more-images">
-
-                                                    +{{ $totalImages - 3 }}
-
-                                                </div>
-
-                                            @endif
-
-                                        </div>
-
-                                    @endforeach
-
-
-                                </div>
-
-                            @endif
-
-                        @endif
-
-
-                    </div>
-
-
-
-                    <!-- ===================================================
-                         POST FOOTER
-                    =================================================== -->
-
-                    <div class="post-footer">
-
-
-                        <!-- Like -->
-
-                        <button
-                            type="button"
-                            class="post-action like-action"
-                        >
-
-                            <span class="action-icon">
-                                ♡
-                            </span>
-
-                            <span>
-                                {{ $post->like_count ?? 0 }}
-                            </span>
-
-                        </button>
-
-
-
-                        <!-- Comment -->
-
-                        <button
-                            type="button"
-                            class="post-action"
-                        >
-
-                            <span class="action-icon">
-                                ♡
-                            </span>
-
-                            <span>
-                                💬
-                            </span>
-
-                            <span>
-                                0
-                            </span>
-
-                        </button>
-
-
-
-                        <!-- Save -->
-
-                        <button
-                            type="button"
-                            class="post-action"
-                        >
-
-                            <span class="action-icon">
-                                🔖
-                            </span>
-
-                            <span>
-                                Save
-                            </span>
-
-                        </button>
-
-                    </div>
-
-                </article>
+                        @include('community.partials.post-card', [
+                            'post' => $post,
+                            'isSaved' => in_array($post->post_id, $savedPostIds ?? [], true),
+                        ])
 
                     @endforeach
 
@@ -353,4 +58,11 @@
 
     </div>
 
+    @include('community.partials.photo-viewer')
+
 @endsection
+
+@push('scripts')
+    @include('community.partials.photo-viewer-script')
+    @vite(['resources/js/pages/community-save.js'])
+@endpush
