@@ -48,6 +48,40 @@
 .profile-card-header-row h3 svg { width: 18px; height: 18px; color: var(--primary); }
 .profile-card-header-link { flex-shrink: 0; font-size: .85rem; font-weight: 700; color: var(--primary); }
 .profile-card-header-link[aria-disabled] { color: var(--muted); cursor: not-allowed; }
+.profile-card-header-row p { margin: 4px 0 0; color: var(--muted); font-size: .88rem; }
+.profile-card + .profile-card { margin-top: 20px; }
+
+.profile-passport-widget { display: grid; grid-template-columns: 1fr 260px; gap: 28px; align-items: center; margin-top: 6px; }
+.profile-passport-preview { position: relative; min-height: 220px; border-radius: 14px; overflow: hidden; display: grid; place-items: center; background: linear-gradient(135deg, #7B1E14, #A52A1A); }
+.profile-passport-preview img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .5; }
+.profile-passport-preview-text { position: relative; z-index: 1; padding: 20px; text-align: center; color: #fff; }
+.profile-passport-preview-text strong { display: block; margin-bottom: 6px; font-family: Georgia, serif; font-size: 1.3rem; letter-spacing: .03em; }
+.profile-passport-preview-text span { color: rgba(255, 255, 255, .85); font-size: .85rem; }
+
+.profile-passport-progress { display: grid; justify-items: center; gap: 16px; }
+.profile-passport-progress > p { margin: 0; color: var(--ink); font-weight: 700; }
+
+.profile-progress-ring { position: relative; display: grid; place-items: center; width: 130px; height: 130px; border-radius: 50%; background: conic-gradient(var(--primary) calc(var(--pct) * 1%), var(--border) 0); }
+.profile-progress-ring-inner { display: grid; place-items: center; width: 96px; height: 96px; border-radius: 50%; background: var(--surface); text-align: center; }
+.profile-progress-ring-inner strong { display: block; font-family: Georgia, serif; font-size: 1.5rem; color: var(--ink); }
+.profile-progress-ring-inner span { color: var(--muted); font-size: .68rem; }
+
+.profile-progress-stats { display: grid; width: 100%; gap: 10px; }
+.profile-progress-stat { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: .85rem; }
+.profile-progress-stat-label { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+.profile-progress-stat-label svg { width: 16px; height: 16px; color: var(--primary); flex-shrink: 0; }
+.profile-progress-stat b { color: var(--ink); }
+
+.profile-badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 18px; margin-top: 6px; }
+.profile-badge-card { padding: 20px 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); text-align: center; }
+.profile-badge-card.is-locked { opacity: .6; }
+.profile-badge-card img { display: block; width: 64px; height: 64px; margin: 0 auto 12px; object-fit: contain; }
+.profile-badge-card h4 { margin: 0 0 4px; color: var(--ink); font-size: .92rem; }
+.profile-badge-card p { min-height: 33px; margin: 0 0 10px; color: var(--muted); font-size: .78rem; line-height: 1.4; }
+.profile-badge-date { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #f4e6d6; color: var(--primary-dark); font-size: .72rem; font-weight: 700; }
+.profile-badge-progress-bar { height: 6px; margin-bottom: 6px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.profile-badge-progress-bar > span { display: block; height: 100%; background: var(--primary); }
+.profile-badge-progress-text { color: var(--muted); font-size: .75rem; }
 .profile-interest-chips { display: flex; flex-wrap: wrap; gap: 10px; }
 .profile-interest-chip { padding: 8px 14px; border-radius: 999px; background: #f8e6cf; color: var(--primary-dark); font-size: .85rem; font-weight: 600; }
 .profile-achievement-list { display: grid; gap: 16px; }
@@ -94,6 +128,27 @@
 .profile-field-cancel:hover { background: var(--cream); }
 .profile-field-error { margin: 8px 0 0; color: #762a20; font-size: .85rem; }
 
+.feedback-form-group { margin-bottom: 22px; }
+.feedback-form-group > label { display: block; margin-bottom: 10px; color: var(--ink); font-size: .85rem; font-weight: 700; }
+.feedback-required { color: var(--primary); }
+
+.feedback-char-count { margin-top: 6px; text-align: right; color: var(--muted); font-size: .82rem; }
+
+.feedback-preview-item { position: relative; display: inline-block; border-radius: 7px; overflow: hidden; background: #f5f5f5; box-shadow: 0 5px 15px rgba(0, 0, 0, .1); border: 1px solid var(--border); }
+.feedback-preview-item img { display: block; max-width: 130px; max-height: 130px; width: auto; height: auto; }
+
+.feedback-history-table-wrap { overflow-x: auto; }
+.feedback-history-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.feedback-history-table th { padding: 10px 14px; border-bottom: 2px solid var(--border); color: var(--muted); font-size: .78rem; font-weight: 700; text-align: left; text-transform: uppercase; letter-spacing: .03em; }
+.feedback-history-table td { padding: 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.feedback-history-table td.feedback-history-desc { max-width: 320px; color: var(--muted); }
+.feedback-history-count { margin-top: 12px; color: var(--muted); font-size: .82rem; }
+
+.feedback-history-no-attachments { color: var(--muted); }
+.feedback-history-attachments { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; background: #f4e6d6; color: var(--primary-dark); font-size: .78rem; font-weight: 700; cursor: default; }
+.feedback-history-attachments-popup { display: none; position: fixed; z-index: 500; flex-wrap: wrap; gap: 6px; max-width: 280px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); box-shadow: var(--shadow); }
+.feedback-history-attachments-popup img { display: block; max-width: 100px; max-height: 100px; width: auto; height: auto; border-radius: 6px; }
+
 .interest-picker { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
 .interest-picker-chip { position: relative; display: inline-flex; align-items: center; padding: 10px 18px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--ink); font-size: .9rem; font-weight: 600; cursor: pointer; transition: background .15s ease, border-color .15s ease, color .15s ease; }
 .interest-picker-chip input { position: absolute; opacity: 0; pointer-events: none; }
@@ -105,6 +160,7 @@
     .profile-sidebar { display: flex; overflow-x: auto; gap: 6px; }
     .profile-sidebar .profile-sidebar-divider { display: none; }
     .profile-columns { grid-template-columns: 1fr; }
+    .profile-passport-widget { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 760px) {

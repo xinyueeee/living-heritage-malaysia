@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Services\Community\SavedPostService;
+use App\Services\Profile\ProfileAchievementsService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -10,7 +11,8 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     public function __construct(
-        private SavedPostService $savedPostService
+        private SavedPostService $savedPostService,
+        private ProfileAchievementsService $achievementsService
     ) {}
 
     public function show(): View
@@ -72,5 +74,19 @@ class ProfileController extends Controller
         $savedPostIds = $this->savedPostService->getSavedPostIds(Auth::user());
 
         return view('profile.my-posts', ['posts' => $posts, 'savedPostIds' => $savedPostIds]);
+    }
+
+    public function achievements(): View
+    {
+        if (! Auth::check()) {
+            return view('profile.guest');
+        }
+
+        $userId = Auth::id();
+
+        return view('profile.achievements', [
+            'stats' => $this->achievementsService->getStats($userId),
+            'badges' => $this->achievementsService->getTopBadges($userId),
+        ]);
     }
 }

@@ -120,7 +120,7 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/></svg>
                             Recent Achievements
                         </h3>
-                        <span class="profile-card-header-link" aria-disabled="true">View All</span>
+                        <a href="{{ route('profile.achievements') }}" class="profile-card-header-link">View All</a>
                     </div>
 
                     @if ($achievements->isEmpty())
@@ -151,7 +151,7 @@
                     <h3>Have feedback or need help?</h3>
                     <p>We'd love to hear from you!</p>
                 </div>
-                <button type="button" class="button button-primary" aria-disabled="true">Go to Feedback &amp; Support →</button>
+                <a href="{{ route('profile.feedback') }}" class="button button-primary">Go to Feedback &amp; Support →</a>
             </div>
         </div>
     </div>
