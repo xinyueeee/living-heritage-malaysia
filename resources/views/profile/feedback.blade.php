@@ -112,7 +112,7 @@
                             <tbody>
                                 @foreach ($history as $entry)
                                     <tr>
-                                        <td>{{ $entry->submitted_at->format('j M Y, h:i A') }}</td>
+                                        <td>{{ $entry->submitted_at->timezone('Asia/Kuala_Lumpur')->format('j M Y, h:i A') }}</td>
                                         <td>{{ $entry->subject }}</td>
                                         <td class="feedback-history-desc">{{ \Illuminate\Support\Str::limit($entry->description, 80) }}</td>
                                         <td>
