@@ -53,16 +53,19 @@ Route::middleware('auth')->group(function () {
     Route::delete('/community/posts/{post}/save', [SavedPostController::class, 'destroy'])
         ->name('community.posts.saved.destroy');
 
-    Route::get('/engagement/passport', [EngagementController::class, 'passport'])
-        ->name('engagement.passport');
+    Route::get('/engagement/passport',[EngagementController::class, 'passport'])->name('engagement.passport');
+
+    Route::patch('/engagement/passport/notifications/read',[EngagementController::class, 'acknowledgeStampNotifications'])->name('engagement.passport.notifications.read');
+
     Route::get('/engagement/passport/customize',[EngagementController::class, 'customizePassport'])->name('engagement.passport.customize');
+
     Route::put('/engagement/passport/customize',[EngagementController::class, 'updatePassportCustomization'])->name('engagement.passport.customization.update');
 
-    Route::get('/engagement/achievements', [EngagementController::class, 'achievements'])
-        ->name('engagement.achievements');
+    Route::get('/engagement/achievements',[EngagementController::class, 'achievements'])->name('engagement.achievements');
 
-    Route::get('/engagement/history', [EngagementController::class, 'history'])
-        ->name('engagement.history');
+    Route::patch('/engagement/achievements/notifications/read',[EngagementController::class, 'acknowledgeAchievementNotifications'])->name('engagement.achievements.notifications.read');
+
+    Route::get('/engagement/history',[EngagementController::class, 'history'])->name('engagement.history');
 
     Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
     Route::post('/community', [CommunityController::class, 'store'])->name('community.store');

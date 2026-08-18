@@ -10,10 +10,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 
+use App\Services\Engagement\CommunityEngagementService;
+use Illuminate\Support\Facades\DB;
+
 class CommunityController extends Controller
 {
     public function __construct(
-        private SavedPostService $savedPostService
+        private SavedPostService $savedPostService,
+        private CommunityEngagementService $communityEngagementService
     ) {}
 
     /**
@@ -208,19 +212,28 @@ class CommunityController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        Post::create([
-            'user_id' =>
-                Auth::user()->user_id,
+        $userId = Auth::user()->user_id;
 
-            'experience_id' =>
-                $experienceId,
+        DB::transaction(function () use (
+            $userId,
+            $experienceId,
+            $request,
+            $imagePaths
+        ) {
+            Post::create([
+                'user_id' => $userId,
+                'experience_id' => $experienceId,
+                'content' => $request->input('content'),
+                'post_images' => json_encode($imagePaths),
+            ]);
 
-            'content' =>
-                $request->input('content'),
-
-            'post_images' =>
-                json_encode($imagePaths),
-        ]);
+            if ($experienceId !== null) {
+                $this->communityEngagementService->recordCompletion(
+                    $userId,
+                    (int) $experienceId
+                );
+            }
+        });
 
 
         /*
