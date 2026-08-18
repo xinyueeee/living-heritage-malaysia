@@ -16,6 +16,8 @@ interface ExperienceRepositoryInterface
 
     public function searchExperiences(array $filters, int $perPage): LengthAwarePaginator;
 
+    public function getMappableExperiences(array $filters): Collection;
+
     public function getCategories(): Collection;
 
     public function getExperienceTypes(): Collection;

@@ -1,4 +1,5 @@
 import './bootstrap';
+import './pages/experience-map';
 
 document.addEventListener('DOMContentLoaded', () => {
     const menuButton = document.querySelector('.menu-toggle');
