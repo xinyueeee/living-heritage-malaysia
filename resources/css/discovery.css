@@ -554,15 +554,24 @@
 .button-disabled { cursor: default; }
 
 .discovery-hero {
+    position: relative;
     display: flex;
     min-height: 450px;
     align-items: center;
+    overflow: hidden;
     padding: 70px 0;
-    background:
-        linear-gradient(90deg, rgba(15, 10, 7, .94) 0%, rgba(24, 14, 9, .78) 42%, rgba(24, 14, 9, .16) 78%),
-        var(--discovery-hero-image) 62% center / cover no-repeat;
+    background: var(--discovery-hero-image) 55% center / cover no-repeat;
 }
-.discovery-hero-content { width: min(1120px, calc(100% - 40px)); }
+.discovery-hero::before {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(62, 44, 33, .34) 0%, rgba(80, 58, 44, .18) 40%, rgba(244, 234, 218, .04) 76%, rgba(244, 234, 218, 0) 100%);
+    backdrop-filter: brightness(1.03) saturate(.9) contrast(.96);
+    -webkit-backdrop-filter: brightness(1.03) saturate(.9) contrast(.96);
+    content: '';
+    pointer-events: none;
+}
+.discovery-hero-content { position: relative; z-index: 1; width: min(1120px, calc(100% - 40px)); }
 .discovery-hero-content h1 { max-width: 650px; margin: 0; color: #fff; font-size: clamp(2.9rem, 4.4vw, 3.7rem); line-height: 1.07; text-shadow: 0 2px 14px rgba(0, 0, 0, .28); }
 .discovery-hero-content > p:not(.eyebrow) { max-width: 500px; margin: 20px 0 0; color: rgba(255, 255, 255, .9); font-size: 1.04rem; line-height: 1.75; }
 .discovery-search-wrap { padding-top: 24px; }

@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="discovery-page">
-        <section class="discovery-hero" style="--discovery-hero-image: url('{{ asset('images/discovery/discovery-hero.webp') }}')">
+        <section class="discovery-hero" style="--discovery-hero-image: url('{{ asset('images/discovery/discover-hero.png') }}')">
             <div class="container discovery-hero-content">
                 <p class="eyebrow">Discover. Experience. Preserve.</p>
                 <h1>Discover Malaysia's<br>Living Heritage</h1>
