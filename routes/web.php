@@ -9,6 +9,7 @@ use App\Http\Controllers\ProfilePhotoController;
 use App\Http\Controllers\SavedExperienceController;
 use App\Http\Controllers\SavedPostController;
 use App\Http\Controllers\EngagementController;
+use App\Http\Controllers\FeedbackController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CalendarController;
@@ -42,6 +43,9 @@ Route::middleware('auth')->group(function () {
         ->name('profile.saved-experiences');
     Route::get('/profile/my-posts', [ProfileController::class, 'myPosts'])->name('profile.my-posts');
     Route::get('/profile/saved-posts', [SavedPostController::class, 'index'])->name('profile.saved-posts');
+    Route::get('/profile/achievements', [ProfileController::class, 'achievements'])->name('profile.achievements');
+    Route::get('/profile/feedback', [FeedbackController::class, 'index'])->name('profile.feedback');
+    Route::post('/profile/feedback', [FeedbackController::class, 'store'])->name('profile.feedback.store');
 
     Route::post('/experiences/{experience}/save', [SavedExperienceController::class, 'store'])
         ->name('experiences.saved.store');
