@@ -24,6 +24,7 @@ class UserPassportStamp extends Model
         'rotation',
         'scale',
         'z_index',
+        'notified_at',
     ];
 
     protected function casts(): array
@@ -36,6 +37,7 @@ class UserPassportStamp extends Model
             'rotation' => 'float',
             'scale' => 'float',
             'z_index' => 'integer',
+            'notified_at' => 'datetime',
         ];
     }
 

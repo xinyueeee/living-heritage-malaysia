@@ -17,12 +17,14 @@ class UserAchievement extends Model
         'current_progress',
         'is_unlocked',
         'unlocked_date',
+        'notified_at',
     ];
 
     protected $casts = [
         'current_progress' => 'integer',
         'is_unlocked' => 'boolean',
         'unlocked_date' => 'datetime',
+        'notified_at' => 'datetime',
     ];
 
     public function badge(): BelongsTo

@@ -66,7 +66,7 @@
         <div class="section-top">
             <div>
                 <h2>Digital Cultural Passport</h2>
-                <p>Collect stamps from every cultural experience.</p>
+                <p>Your 8 most recently collected cultural stamps.</p>
             </div>
 
             <a href="{{ route('engagement.passport') }}" class="outline-btn">
@@ -82,7 +82,7 @@
             >
 
             <div class="passport-stamps">
-                @forelse($passportStamps as $userStamp)
+                @forelse($latestPassportStamps as $userStamp)
                     <div class="passport-stamp">
                         <img
                             src="{{ $userStamp->stamp?->stamp_image

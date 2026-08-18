@@ -8,6 +8,82 @@
 
 @section('content')
 <div class="engagement-page">
+    @if ($newAchievements->isNotEmpty())
+        <div
+            class="reward-unlock-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="newAchievementTitle"
+        >
+            <div class="reward-unlock-modal">
+                <span class="reward-unlock-eyebrow">
+                    Achievement unlocked
+                </span>
+
+                <h2 id="newAchievementTitle">
+                    {{ $newAchievements->count() === 1
+                        ? 'You Earned a New Badge!'
+                        : 'You Earned New Badges!' }}
+                </h2>
+
+                <p>
+                    Congratulations! Your cultural journey has reached
+                    a new milestone.
+                </p>
+
+                <div class="reward-unlock-list">
+                    @foreach ($newAchievements as $userAchievement)
+                        <div class="reward-unlock-item">
+                            @if ($userAchievement->badge?->badge_image)
+                                <img
+                                    src="{{ asset(
+                                        $userAchievement
+                                            ->badge
+                                            ->badge_image
+                                    ) }}"
+                                    alt="{{ $userAchievement
+                                        ->badge
+                                        ->badge_name }} badge"
+                                >
+                            @endif
+
+                            <div>
+                                <strong>
+                                    {{ $userAchievement
+                                        ->badge
+                                        ?->badge_name
+                                        ?? 'Achievement Badge' }}
+                                </strong>
+
+                                <span>
+                                    {{ $userAchievement
+                                        ->badge
+                                        ?->description }}
+                                </span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <form
+                    method="POST"
+                    action="{{ route(
+                        'engagement.achievements.notifications.read'
+                    ) }}"
+                >
+                    @csrf
+                    @method('PATCH')
+
+                    <button
+                        type="submit"
+                        class="reward-unlock-button"
+                    >
+                        View My Achievements
+                    </button>
+                </form>
+            </div>
+        </div>
+    @endif
 
     @php
         $unlockedAchievements = $achievements
