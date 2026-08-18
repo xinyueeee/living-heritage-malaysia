@@ -17,6 +17,7 @@ use App\Http\Controllers\NotificationController;
 
 Route::get('/', [ExperienceController::class, 'home'])->name('home');
 Route::get('/experiences', [ExperienceController::class, 'index'])->name('experiences.index');
+Route::get('/experiences/map', [ExperienceController::class, 'map'])->name('experiences.map');
 Route::get('/experiences/{experience}', [ExperienceController::class, 'show'])->name('experiences.show');
 Route::get('/recommendations', [ExperienceController::class, 'recommendations'])->name('recommendations.index');
 

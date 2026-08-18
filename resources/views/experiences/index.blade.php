@@ -93,6 +93,27 @@
                 <div class="form-error" role="alert">Please check your search and filter values.</div>
             @endif
 
+            <section class="map-preview-section" aria-labelledby="map-preview-heading">
+                <div class="map-preview-content">
+                    <p class="eyebrow">Discover by Location</p>
+                    <h2 id="map-preview-heading">Explore Nearby on Interactive Map</h2>
+                    <p>Discover cultural experiences and festivals across Malaysia, or use your location to find what is nearby.</p>
+                    <a class="button button-primary" href="{{ route('experiences.map', request()->query()) }}">
+                        Open Interactive Map <span aria-hidden="true">&rarr;</span>
+                    </a>
+                </div>
+                <div
+                    id="experience-map-preview"
+                    class="map-preview-visual"
+                    role="region"
+                    aria-label="Preview map of experiences matching the current filters"
+                ></div>
+            </section>
+
+            @push('scripts')
+                <x-experience-map-data :experiences="$mapExperiences" />
+            @endpush
+
             <div class="results-heading">
                 <div>
                     <p class="eyebrow">Explore Malaysia</p>

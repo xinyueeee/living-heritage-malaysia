@@ -37,8 +37,18 @@ class ExperienceDiscoveryService
         return [
             'experiences' => $this->experienceRepository
                 ->searchExperiences($filters, self::DISCOVERY_PAGE_SIZE),
+            'mapExperiences' => $this->experienceRepository
+                ->getMappableExperiences($filters),
             'categories' => $this->experienceRepository->getCategories(),
             'types' => $this->experienceRepository->getExperienceTypes(),
+        ];
+    }
+
+    public function getMapPageData(array $filters): array
+    {
+        return [
+            'mapExperiences' => $this->experienceRepository
+                ->getMappableExperiences($filters),
         ];
     }
 
