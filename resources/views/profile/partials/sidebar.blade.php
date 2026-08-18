@@ -22,15 +22,15 @@
         </svg>
         My Posts
     </a>
-    <a href="#" aria-disabled="true">
+    <a href="{{ route('profile.saved-posts') }}" @class(['active' => $active === 'saved-posts'])>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
         Saved Posts
     </a>
-    <a href="#" aria-disabled="true">
+    <a href="{{ route('profile.achievements') }}" @class(['active' => $active === 'achievements'])>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a1 1 0 0 0-1 1 4 4 0 0 0 4 4"/><path d="M17 6h3a1 1 0 0 1 1 1 4 4 0 0 1-4 4"/></svg>
         Achievements &amp; Stats
     </a>
-    <a href="#" aria-disabled="true">
+    <a href="{{ route('profile.feedback') }}" @class(['active' => $active === 'feedback'])>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
         Feedback &amp; Support
     </a>

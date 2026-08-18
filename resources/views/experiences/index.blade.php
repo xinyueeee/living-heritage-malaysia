@@ -4,13 +4,16 @@
 
 @section('content')
     <div class="discovery-page">
-        <section class="discovery-hero">
+        <section class="discovery-hero" style="--discovery-hero-image: url('{{ asset('images/discovery/discover-hero.png') }}')">
             <div class="container discovery-hero-content">
                 <p class="eyebrow">Discover. Experience. Preserve.</p>
                 <h1>Discover Malaysia's<br>Living Heritage</h1>
                 <p>Find authentic cultural experiences and festivals that connect you to our rich heritage.</p>
+            </div>
+        </section>
 
-                <form class="discovery-search" action="{{ route('experiences.index') }}" method="get">
+        <div class="container discovery-search-wrap">
+            <form class="discovery-search" action="{{ route('experiences.index') }}" method="get">
                     @if (request()->filled('type'))
                         <input type="hidden" name="type" value="{{ request('type') }}">
                     @endif
@@ -40,9 +43,8 @@
                     </div>
 
                     <button type="submit">Search</button>
-                </form>
-            </div>
-        </section>
+            </form>
+        </div>
 
         <div class="container discovery-content">
             <nav class="experience-type-tabs" aria-label="Experience type">
@@ -92,6 +94,27 @@
             @if ($errors->any())
                 <div class="form-error" role="alert">Please check your search and filter values.</div>
             @endif
+
+            <section class="map-preview-section" aria-labelledby="map-preview-heading">
+                <div class="map-preview-content">
+                    <p class="eyebrow">Discover by Location</p>
+                    <h2 id="map-preview-heading">Explore Nearby on Interactive Map</h2>
+                    <p>Discover cultural experiences and festivals across Malaysia, or use your location to find what is nearby.</p>
+                    <a class="button button-primary" href="{{ route('experiences.map', request()->query()) }}">
+                        Open Interactive Map <span aria-hidden="true">&rarr;</span>
+                    </a>
+                </div>
+                <div
+                    id="experience-map-preview"
+                    class="map-preview-visual"
+                    role="region"
+                    aria-label="Preview map of experiences matching the current filters"
+                ></div>
+            </section>
+
+            @push('scripts')
+                <x-experience-map-data :experiences="$mapExperiences" />
+            @endpush
 
             <div class="results-heading">
                 <div>

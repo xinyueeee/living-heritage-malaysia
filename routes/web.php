@@ -7,7 +7,9 @@ use App\Http\Controllers\PersonalInformationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilePhotoController;
 use App\Http\Controllers\SavedExperienceController;
+use App\Http\Controllers\SavedPostController;
 use App\Http\Controllers\EngagementController;
+use App\Http\Controllers\FeedbackController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CalendarController;
@@ -15,6 +17,7 @@ use App\Http\Controllers\NotificationController;
 
 Route::get('/', [ExperienceController::class, 'home'])->name('home');
 Route::get('/experiences', [ExperienceController::class, 'index'])->name('experiences.index');
+Route::get('/experiences/map', [ExperienceController::class, 'map'])->name('experiences.map');
 Route::get('/experiences/{experience}', [ExperienceController::class, 'show'])->name('experiences.show');
 Route::get('/recommendations', [ExperienceController::class, 'recommendations'])->name('recommendations.index');
 
@@ -38,13 +41,22 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile/interests', [InterestController::class, 'update'])->name('profile.interests.update');
 
     Route::get('/profile/saved-experiences', [SavedExperienceController::class, 'index'])
-        ->name('profile.saved-experiences'); 
+        ->name('profile.saved-experiences');
     Route::get('/profile/my-posts', [ProfileController::class, 'myPosts'])->name('profile.my-posts');
+    Route::get('/profile/saved-posts', [SavedPostController::class, 'index'])->name('profile.saved-posts');
+    Route::get('/profile/achievements', [ProfileController::class, 'achievements'])->name('profile.achievements');
+    Route::get('/profile/feedback', [FeedbackController::class, 'index'])->name('profile.feedback');
+    Route::post('/profile/feedback', [FeedbackController::class, 'store'])->name('profile.feedback.store');
 
     Route::post('/experiences/{experience}/save', [SavedExperienceController::class, 'store'])
         ->name('experiences.saved.store');
     Route::delete('/experiences/{experience}/save', [SavedExperienceController::class, 'destroy'])
         ->name('experiences.saved.destroy');
+
+    Route::post('/community/posts/{post}/save', [SavedPostController::class, 'store'])
+        ->name('community.posts.saved.store');
+    Route::delete('/community/posts/{post}/save', [SavedPostController::class, 'destroy'])
+        ->name('community.posts.saved.destroy');
 
     Route::get('/engagement/passport', [EngagementController::class, 'passport'])
         ->name('engagement.passport');
