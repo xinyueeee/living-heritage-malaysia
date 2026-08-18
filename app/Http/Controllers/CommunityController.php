@@ -166,14 +166,14 @@ class CommunityController extends Controller
 
 
                 $response = Http::withHeaders([
-                    'Authorization' =>
-                        "Bearer {$serviceRoleKey}",
+                    //'Authorization' =>
+                        //"Bearer {$serviceRoleKey}",
 
                     'apikey' =>
                         $serviceRoleKey,
 
-                    'Content-Type' =>
-                        $image->getMimeType(),
+                    //'Content-Type' =>
+                        //$image->getMimeType(),
 
                 ])
                     ->withBody(
