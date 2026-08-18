@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PostLikeController;
 
 Route::get('/', [ExperienceController::class, 'home'])->name('home');
 Route::get('/experiences', [ExperienceController::class, 'index'])->name('experiences.index');
@@ -57,6 +58,11 @@ Route::middleware('auth')->group(function () {
         ->name('community.posts.saved.store');
     Route::delete('/community/posts/{post}/save', [SavedPostController::class, 'destroy'])
         ->name('community.posts.saved.destroy');
+    
+    Route::post('/community/posts/{post}/like', [PostLikeController::class, 'like'])
+        ->name('community.posts.like');
+    Route::delete('/community/posts/{post}/like', [PostLikeController::class, 'unlike'])
+        ->name('community.posts.unlike');
 
     Route::get('/engagement/passport',[EngagementController::class, 'passport'])->name('engagement.passport');
 

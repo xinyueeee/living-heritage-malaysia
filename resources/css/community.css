@@ -2092,3 +2092,10 @@
     }
 
 }
+.like-action.is-liked {
+    color: #e53935;
+}
+
+.like-action.is-liked .action-icon {
+    color: #e53935;
+}

@@ -63,6 +63,17 @@ class User extends Authenticatable
             'experiences_id',
         )->withPivot('saved_date');
     }
+    /**
+     * A post has many likes.
+     */
+    public function likes(): HasMany
+    {
+        return $this->hasMany(
+            PostLike::class,
+            'post_id',
+            'post_id'
+        );
+    }
 
     public function savedPosts(): BelongsToMany
     {
@@ -75,4 +86,5 @@ class User extends Authenticatable
             'post_id',
         )->withPivot('saved_at');
     }
+    
 }
