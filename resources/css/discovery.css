@@ -554,19 +554,32 @@
 .button-disabled { cursor: default; }
 
 .discovery-hero {
-    min-height: 445px;
-    padding: 66px 0 84px;
-    background:
-        linear-gradient(90deg, rgba(255, 250, 241, .98) 0%, rgba(255, 250, 241, .78) 37%, rgba(255, 250, 241, .06) 67%),
-        url('/images/discovery/discovery-hero.webp') center / cover no-repeat;
+    position: relative;
+    display: flex;
+    min-height: 450px;
+    align-items: center;
+    overflow: hidden;
+    padding: 70px 0;
+    background: var(--discovery-hero-image) 55% center / cover no-repeat;
 }
-.discovery-hero-content h1 { margin: 0; font-size: clamp(2.8rem, 5vw, 4.25rem); line-height: 1.05; }
-.discovery-hero-content > p:not(.eyebrow) { max-width: 510px; margin: 18px 0 0; color: #493b33; font-size: 1.04rem; }
+.discovery-hero::before {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(62, 44, 33, .34) 0%, rgba(80, 58, 44, .18) 40%, rgba(244, 234, 218, .04) 76%, rgba(244, 234, 218, 0) 100%);
+    backdrop-filter: brightness(1.03) saturate(.9) contrast(.96);
+    -webkit-backdrop-filter: brightness(1.03) saturate(.9) contrast(.96);
+    content: '';
+    pointer-events: none;
+}
+.discovery-hero-content { position: relative; z-index: 1; width: min(1120px, calc(100% - 40px)); }
+.discovery-hero-content h1 { max-width: 650px; margin: 0; color: #fff; font-size: clamp(2.9rem, 4.4vw, 3.7rem); line-height: 1.07; text-shadow: 0 2px 14px rgba(0, 0, 0, .28); }
+.discovery-hero-content > p:not(.eyebrow) { max-width: 500px; margin: 20px 0 0; color: rgba(255, 255, 255, .9); font-size: 1.04rem; line-height: 1.75; }
+.discovery-search-wrap { padding-top: 24px; }
 .discovery-search {
     display: grid;
     grid-template-columns: 2.2fr 1.1fr 1.1fr auto;
     max-width: 1120px;
-    margin-top: 34px;
+    margin-top: 0;
     overflow: hidden;
     border: 1px solid #eadfd3;
     border-radius: 12px;
@@ -582,7 +595,7 @@
 .experience-type-tabs {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    margin-top: -45px;
+    margin-top: 24px;
     overflow: hidden;
     border: 1px solid #eadfd3;
     border-radius: 12px;
@@ -703,9 +716,9 @@
     .festival-card .card-image { height: 235px; }
     .passport-preview { grid-template-columns: 130px 1fr; }
     .badges-preview { grid-column: 1 / -1; }
-    .experience-type-tabs { grid-template-columns: 1fr; margin-top: -28px; }
+    .experience-type-tabs { grid-template-columns: 1fr; margin-top: 24px; }
     .experience-type-tabs a + a { border-left: 0; border-top: 1px solid #eadfd3; }
-    .discovery-hero { padding: 54px 0 68px; background-position: 60% center; }
+    .discovery-hero { min-height: 400px; padding: 58px 0; background-position: 68% center; }
     .discovery-search { grid-template-columns: 1fr; }
     .discovery-search-field { border-right: 0; border-bottom: 1px solid #eadfd3; }
     .discovery-search-field:nth-of-type(3) { border-top: 0; }
@@ -727,6 +740,9 @@
 @media (max-width: 480px) {
     .home-page .hero-content h1,
     .discovery-hero-content h1 { font-size: 2.55rem; }
+    .discovery-hero { min-height: 350px; padding: 46px 0; background-position: 70% center; }
+    .discovery-hero-content { width: min(100% - 32px, 1120px); }
+    .discovery-hero-content > p:not(.eyebrow) { max-width: 92%; font-size: .95rem; line-height: 1.6; }
     .shortcut-grid { grid-template-columns: 1fr; }
     .shortcut-item { border-right: 0; }
     .shortcut-item:nth-child(2) { border-top: 1px solid #eadfd3; }

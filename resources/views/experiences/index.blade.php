@@ -4,13 +4,16 @@
 
 @section('content')
     <div class="discovery-page">
-        <section class="discovery-hero">
+        <section class="discovery-hero" style="--discovery-hero-image: url('{{ asset('images/discovery/discover-hero.png') }}')">
             <div class="container discovery-hero-content">
                 <p class="eyebrow">Discover. Experience. Preserve.</p>
                 <h1>Discover Malaysia's<br>Living Heritage</h1>
                 <p>Find authentic cultural experiences and festivals that connect you to our rich heritage.</p>
+            </div>
+        </section>
 
-                <form class="discovery-search" action="{{ route('experiences.index') }}" method="get">
+        <div class="container discovery-search-wrap">
+            <form class="discovery-search" action="{{ route('experiences.index') }}" method="get">
                     @if (request()->filled('type'))
                         <input type="hidden" name="type" value="{{ request('type') }}">
                     @endif
@@ -40,9 +43,8 @@
                     </div>
 
                     <button type="submit">Search</button>
-                </form>
-            </div>
-        </section>
+            </form>
+        </div>
 
         <div class="container discovery-content">
             <nav class="experience-type-tabs" aria-label="Experience type">
