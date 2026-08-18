@@ -182,7 +182,7 @@
                 <div class="passport-book-empty">
                     <img
                         src="{{ asset(
-                            'images/engagement/passport-book.png'
+                            'images/engagement/passport-book.webp'
                         ) }}"
                         alt="Empty Digital Cultural Passport"
                     >
@@ -236,7 +236,7 @@
                     >
                         <img
                             src="{{ asset(
-                                'images/engagement/passport-book.png'
+                                'images/engagement/passport-book.webp'
                             ) }}"
                             class="passport-book-background"
                             alt="Digital Cultural Passport"
@@ -405,6 +405,7 @@
                                     ?? $stamp->category
                                     ?? 'Category stamp'
                                 }}"
+                                loading="lazy"
                             >
 
                             @if (! $isCollected)

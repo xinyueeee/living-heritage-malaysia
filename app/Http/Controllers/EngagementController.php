@@ -22,6 +22,9 @@ class EngagementController extends Controller
 
         $userId = Auth::id();
 
+        /*
+        * Retrieve the user's badge progress.
+        */
         $userProgress = UserAchievement::where(
                 'user_id',
                 $userId
@@ -29,7 +32,12 @@ class EngagementController extends Controller
             ->get()
             ->keyBy('badge_id');
 
-        $achievements = AchievementBadge::orderBy('badge_id')
+        /*
+        * Badge definitions are a small fixed collection.
+        */
+        $achievements = AchievementBadge::orderBy(
+                'badge_id'
+            )
             ->get()
             ->map(function ($badge) use ($userProgress) {
                 $progress = $userProgress->get(
@@ -61,10 +69,19 @@ class EngagementController extends Controller
                 return $badge;
             });
 
-        $passportStamps = UserPassportStamp::with([
-                'stamp.categoryDetails',
-                'completedExperience.experience',
-            ])
+        /*
+        * Load only the latest eight stamps needed by the
+        * home-page preview.
+        *
+        * COUNT(*) OVER() also returns the total stamp count
+        * without loading every collected stamp.
+        */
+        $latestPassportStamps = UserPassportStamp::query()
+            ->select('user_passport_stamp.*')
+            ->selectRaw(
+                'COUNT(*) OVER() AS total_stamp_count'
+            )
+            ->with('stamp')
             ->whereHas(
                 'passport',
                 function ($query) use ($userId) {
@@ -75,24 +92,58 @@ class EngagementController extends Controller
                 }
             )
             ->latest('collected_date')
+            ->limit(8)
             ->get();
 
-        $experienceHistory = CompletedExperience::with([
+        $passportStampCount = (int) (
+            $latestPassportStamps
+                ->first()
+                ?->total_stamp_count
+            ?? 0
+        );
+
+        /*
+        * Load only the latest completed experience needed by
+        * the home-page preview.
+        *
+        * The window count provides the total without loading
+        * the complete history collection.
+        */
+        $recentExperienceHistory = CompletedExperience::query()
+            ->select('completed_experience.*')
+            ->selectRaw(
+                'COUNT(*) OVER() AS total_experience_count'
+            )
+            ->with([
                 'experience.category',
             ])
             ->where('user_id', $userId)
             ->latest('completed_date')
+            ->limit(1)
             ->get();
 
-        $latestPassportStamps = $passportStamps
-            ->take(8)
-            ->values();
+        $completedExperienceCount = (int) (
+            $recentExperienceHistory
+                ->first()
+                ?->total_experience_count
+            ?? 0
+        );
 
         return view('engagement.index', [
-            'passportStamps' => $passportStamps,
-            'latestPassportStamps' => $latestPassportStamps,
-            'achievements' => $achievements,
-            'experienceHistory' => $experienceHistory,
+            'latestPassportStamps' =>
+                $latestPassportStamps,
+
+            'passportStampCount' =>
+                $passportStampCount,
+
+            'achievements' =>
+                $achievements,
+
+            'recentExperienceHistory' =>
+                $recentExperienceHistory,
+
+            'completedExperienceCount' =>
+                $completedExperienceCount,
         ]);
     }
 
@@ -105,11 +156,27 @@ class EngagementController extends Controller
         ]);
 
         /*
-         * All stamps collected by this user.
-         */
+        * Load every available stamp definition once.
+        *
+        * The Passport Blade uses categoryDetails, but it does
+        * not currently use categoryDetails.type.
+        */
+        $allStamps = PassportStamp::with(
+                'categoryDetails'
+            )
+            ->orderBy('category_id')
+            ->get();
+
+        $stampDefinitions = $allStamps->keyBy(
+            'stamp_id'
+        );
+
+        /*
+        * Load user stamp records without querying the same
+        * stamp definitions and categories again.
+        */
         $passportStamps = UserPassportStamp::with([
-                'stamp.categoryDetails.type',
-                'completedExperience.experience.category',
+                'completedExperience.experience',
             ])
             ->where(
                 'passport_id',
@@ -120,25 +187,28 @@ class EngagementController extends Controller
             ->get();
 
         /*
-         * Stamps that have not yet been shown in the
-         * "new stamp unlocked" pop-up.
-         */
+        * Attach the already loaded stamp definitions to each
+        * user stamp. This avoids duplicate database queries.
+        */
+        $passportStamps->each(
+            function ($userStamp) use ($stampDefinitions) {
+                $stamp = $stampDefinitions->get(
+                    $userStamp->stamp_id
+                );
+
+                if ($stamp) {
+                    $userStamp->setRelation(
+                        'stamp',
+                        $stamp
+                    );
+                }
+            }
+        );
+
         $newStamps = $passportStamps
             ->whereNull('notified_at')
             ->values();
 
-        /*
-         * Every stamp that can be collected.
-         */
-        $allStamps = PassportStamp::with([
-                'categoryDetails.type',
-            ])
-            ->orderBy('category_id')
-            ->get();
-
-        /*
-         * Quickly check whether each stamp is collected.
-         */
         $collectedStamps = $passportStamps->keyBy(
             'stamp_id'
         );
