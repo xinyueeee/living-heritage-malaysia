@@ -27,6 +27,7 @@ class CommunityController extends Controller
                 'experience.type',
                 'user',
             ])
+            ->withCount('likes')
             ->latest('created_at')
             ->get();
 
@@ -166,14 +167,14 @@ class CommunityController extends Controller
 
 
                 $response = Http::withHeaders([
-                    //'Authorization' =>
-                        //"Bearer {$serviceRoleKey}",
+                    'Authorization' =>
+                        "Bearer {$serviceRoleKey}",
 
                     'apikey' =>
                         $serviceRoleKey,
 
-                    //'Content-Type' =>
-                        //$image->getMimeType(),
+                    'Content-Type' =>
+                        $image->getMimeType(),
 
                 ])
                     ->withBody(
