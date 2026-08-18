@@ -7,6 +7,7 @@ use App\Models\Experience;
 use App\Models\ExperienceType;
 use App\Repositories\Contracts\ExperienceRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
@@ -51,8 +52,41 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
     {
         $sort = $filters['sort'] ?? 'newest';
 
-        return Experience::query()
-            ->with(['category', 'type'])
+        return $this->applyDiscoveryFilters(
+            Experience::query()->with(['category', 'type']),
+            $filters,
+        )
+            ->when(
+                $sort === 'oldest',
+                fn ($query) => $query->oldest('created_at')->oldest('experiences_id'),
+                fn ($query) => $query->latest('created_at')->latest('experiences_id'),
+            )
+            ->paginate($perPage)
+            ->withQueryString();
+    }
+
+    public function getMappableExperiences(array $filters): Collection
+    {
+        return $this->applyDiscoveryFilters(Experience::query(), $filters)
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->orderBy('experiences_id')
+            ->get([
+                'experiences_id',
+                'experiences_name',
+                'short_description',
+                'location_name',
+                'image_url',
+                'start_date',
+                'end_date',
+                'latitude',
+                'longitude',
+            ]);
+    }
+
+    private function applyDiscoveryFilters(Builder $query, array $filters): Builder
+    {
+        return $query
             ->when($filters['search'] ?? null, function ($query, string $search) {
                 $query->where(function ($query) use ($search) {
                     $query->where('experiences_name', 'ilike', "%{$search}%")
@@ -73,14 +107,7 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
             })
             ->when($filters['type'] ?? null, function ($query, int $typeId) {
                 $query->where('type_id', $typeId);
-            })
-            ->when(
-                $sort === 'oldest',
-                fn ($query) => $query->oldest('created_at')->oldest('experiences_id'),
-                fn ($query) => $query->latest('created_at')->latest('experiences_id'),
-            )
-            ->paginate($perPage)
-            ->withQueryString();
+            });
     }
 
     public function getCategories(): Collection
