@@ -93,59 +93,25 @@
                 <div class="form-error" role="alert">Please check your search and filter values.</div>
             @endif
 
-            @php
-                $mapMarkers = $mapExperiences->map(function ($experience) {
-                    $imagePath = is_string($experience->image_url)
-                        ? ltrim(str_replace('\\', '/', trim($experience->image_url)), '/')
-                        : null;
-                    $isExternalImage = filled($imagePath)
-                        && (str_starts_with(strtolower($imagePath), 'http://')
-                            || str_starts_with(strtolower($imagePath), 'https://'));
-                    $isSafeRelativePath = filled($imagePath)
-                        && !str_contains($imagePath, '../')
-                        && !$isExternalImage;
-                    $imageSource = $isExternalImage
-                        ? $imagePath
-                        : ($isSafeRelativePath && is_file(public_path($imagePath)) ? asset($imagePath) : null);
-
-                    return [
-                        'name' => $experience->experiences_name,
-                        'latitude' => (float) $experience->latitude,
-                        'longitude' => (float) $experience->longitude,
-                        'startDate' => $experience->start_date?->format('d M Y'),
-                        'endDate' => $experience->end_date?->format('d M Y'),
-                        'location' => $experience->location_name,
-                        'shortDescription' => $experience->short_description,
-                        'imageUrl' => $imageSource,
-                        'externalImage' => $isExternalImage,
-                        'detailsUrl' => route('experiences.show', $experience),
-                    ];
-                })->values();
-            @endphp
-
-            <section class="experience-map-section" aria-labelledby="experience-map-heading">
-                <div class="experience-map-heading">
-                    <div>
-                        <p class="eyebrow">Across Malaysia</p>
-                        <h2 id="experience-map-heading">Explore on Map</h2>
-                    </div>
-                    <p>{{ $mapMarkers->count() }} {{ Str::plural('mapped experience', $mapMarkers->count()) }}</p>
+            <section class="map-preview-section" aria-labelledby="map-preview-heading">
+                <div class="map-preview-content">
+                    <p class="eyebrow">Discover by Location</p>
+                    <h2 id="map-preview-heading">Explore Nearby on Interactive Map</h2>
+                    <p>Discover cultural experiences and festivals across Malaysia, or use your location to find what is nearby.</p>
+                    <a class="button button-primary" href="{{ route('experiences.map', request()->query()) }}">
+                        Open Interactive Map <span aria-hidden="true">&rarr;</span>
+                    </a>
                 </div>
                 <div
-                    id="experience-map"
-                    class="experience-map"
+                    id="experience-map-preview"
+                    class="map-preview-visual"
                     role="region"
-                    aria-label="Map of cultural experiences matching the current filters"
+                    aria-label="Preview map of experiences matching the current filters"
                 ></div>
-                <noscript>
-                    <p class="experience-map-fallback">Enable JavaScript to view the map. The Experience List remains available below.</p>
-                </noscript>
             </section>
 
             @push('scripts')
-                <script>
-                    window.livingHeritageExperienceMarkers = {{ Illuminate\Support\Js::from($mapMarkers) }};
-                </script>
+                <x-experience-map-data :experiences="$mapExperiences" />
             @endpush
 
             <div class="results-heading">
