@@ -2,7 +2,9 @@
 
 namespace App\Services\Experience;
 
+use App\Models\Experience;
 use App\Repositories\Contracts\ExperienceRepositoryInterface;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 class ExperienceDiscoveryService
 {
@@ -12,21 +14,10 @@ class ExperienceDiscoveryService
 
     private const DISCOVERY_PAGE_SIZE = 9;
 
-    private const RECOMMENDATION_CANDIDATE_LIMIT = 6;
-
-    private const INTEREST_PLACEHOLDERS = [
-        ['name' => 'Museums', 'icon' => 'museum'],
-        ['name' => 'Culinary', 'icon' => 'culinary'],
-        ['name' => 'Traditional Performances', 'icon' => 'performance'],
-    ];
-
-    private const RECENT_ACTIVITY_PLACEHOLDERS = [
-        'searched' => ['Batik Workshop', 'George Town'],
-        'viewed' => ['National Museum', 'Baba Nyonya Heritage Museum'],
-    ];
-
     public function __construct(
-        private ExperienceRepositoryInterface $experienceRepository
+        private ExperienceRepositoryInterface $experienceRepository,
+        private PersonalizedRecommendationService $personalizedRecommendationService,
+        private UserDiscoveryActivityService $userDiscoveryActivityService,
     ) {}
 
     public function getHomePageData(): array
@@ -53,13 +44,21 @@ class ExperienceDiscoveryService
         ];
     }
 
-    public function getRecommendationsPageData(): array
+    /** @param array<string, mixed> $filters */
+    public function recordSearch(?Authenticatable $user, array $filters): void
     {
-        return [
-            'recommendedExperiences' => $this->experienceRepository
-                ->getFeaturedExperiences(self::RECOMMENDATION_CANDIDATE_LIMIT),
-            'interestPlaceholders' => self::INTEREST_PLACEHOLDERS,
-            'recentActivityPlaceholders' => self::RECENT_ACTIVITY_PLACEHOLDERS,
-        ];
+        $this->userDiscoveryActivityService->recordSearch($user, $filters);
+    }
+
+    public function recordExperienceView(
+        ?Authenticatable $user,
+        Experience $experience,
+    ): void {
+        $this->userDiscoveryActivityService->recordExperienceView($user, $experience);
+    }
+
+    public function getRecommendationsPageData(?string $userId): array
+    {
+        return $this->personalizedRecommendationService->getRecommendations($userId);
     }
 }

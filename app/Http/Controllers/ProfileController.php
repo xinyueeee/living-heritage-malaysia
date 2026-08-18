@@ -1,13 +1,18 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Post;
+use App\Services\Community\SavedPostService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    public function __construct(
+        private SavedPostService $savedPostService
+    ) {}
+
     public function show(): View
     {
         if (! Auth::check()) {
@@ -48,5 +53,24 @@ class ProfileController extends Controller
             'interests' => $interests,
             'achievements' => $achievements,
         ]);
+    }
+    public function myPosts(): View
+    {   
+        if (! Auth::check()){
+             return view('profile.guest');
+        }
+        $posts = Post::query()
+            ->with([
+                'experience.category',
+                'experience.type',
+                'user',
+            ])
+            ->where('user_id', Auth::id())
+            ->latest('created_at')
+            ->get();
+
+        $savedPostIds = $this->savedPostService->getSavedPostIds(Auth::user());
+
+        return view('profile.my-posts', ['posts' => $posts, 'savedPostIds' => $savedPostIds]);
     }
 }

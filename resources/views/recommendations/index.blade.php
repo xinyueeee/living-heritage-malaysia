@@ -17,7 +17,11 @@
                     <x-home-icon name="sparkles" />
                     <h1>Personalized Recommendations</h1>
                 </div>
-                <p>Based on your cultural interests and recent activity.</p>
+                <p>
+                    {{ $isPersonalized
+                        ? 'Based on your cultural interests and recent activity.'
+                        : 'Explore a diverse selection of available cultural experiences.' }}
+                </p>
                 <a class="recommendations-refresh" href="{{ route('recommendations.index') }}">
                     <x-home-icon name="refresh" />
                     <span>Refresh Recommendations</span>
@@ -33,12 +37,22 @@
                 </div>
 
                 <div class="recommendations-interest-grid">
-                    @foreach ($interestPlaceholders as $interest)
+                    @forelse ($interests as $interest)
                         <article class="recommendations-interest-card">
-                            <span class="recommendations-interest-icon"><x-home-icon :name="$interest['icon']" /></span>
-                            <h3>{{ $interest['name'] }}</h3>
+                            <span class="recommendations-interest-icon"><x-home-icon name="discover" /></span>
+                            <h3>{{ $interest->category_name }}</h3>
                         </article>
-                    @endforeach
+                    @empty
+                        <div class="recommendations-empty-state recommendations-empty-state-wide">
+                            @auth
+                                <p>Add cultural interests to your profile to make these recommendations more personal.</p>
+                                <a href="{{ route('profile.interests') }}">Choose interests</a>
+                            @else
+                                <p>Log in and choose your cultural interests for more personalized recommendations.</p>
+                                <a href="{{ route('login') }}">Log in</a>
+                            @endauth
+                        </div>
+                    @endforelse
                 </div>
             </section>
 
@@ -49,22 +63,28 @@
                 </div>
 
                 <div class="recommendations-activity-panel">
-                    <div class="recommendations-activity-column">
-                        <h3>Recently searched:</h3>
-                        <ul>
-                            @foreach ($recentActivityPlaceholders['searched'] as $search)
-                                <li>{{ $search }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    <div class="recommendations-activity-column">
-                        <h3>Recently viewed:</h3>
-                        <ul>
-                            @foreach ($recentActivityPlaceholders['viewed'] as $experienceName)
-                                <li>{{ $experienceName }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
+                    @forelse ($recentActivity as $activityType => $activityItems)
+                        <div class="recommendations-activity-column">
+                            <h3>
+                                @if ($activityType === 'searched')
+                                    Recently searched:
+                                @elseif ($activityType === 'viewed')
+                                    Recently viewed:
+                                @else
+                                    Recent activity:
+                                @endif
+                            </h3>
+                            <ul>
+                                @foreach ($activityItems as $activity)
+                                    <li>{{ $activity->display_text }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @empty
+                        <div class="recommendations-empty-state recommendations-activity-empty">
+                            <p>Your recommendations will become more personalized as you explore more cultural experiences.</p>
+                        </div>
+                    @endforelse
                     <div class="recommendations-activity-decoration" aria-hidden="true">
                         <span></span><span></span><span></span><span></span>
                     </div>
@@ -81,8 +101,12 @@
                     <div class="no-data"><p>No experiences are available at the moment.</p></div>
                 @else
                     <div class="recommendations-grid">
-                        @foreach ($recommendedExperiences as $experience)
-                            @include('components.experience-card', ['experience' => $experience, 'variant' => 'recommendation'])
+                        @foreach ($recommendedExperiences as $recommendation)
+                            @include('components.experience-card', [
+                                'experience' => $recommendation['experience'],
+                                'variant' => 'recommendation',
+                                'recommendationReason' => $recommendation['reason'],
+                            ])
                         @endforeach
                     </div>
                 @endif

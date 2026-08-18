@@ -1,8 +1,11 @@
 <header class="site-header">
     <nav class="navbar container" aria-label="Main navigation">
-        <a class="brand" href="{{ route('home') }}" aria-label="Living Heritage Malaysia home">
-            <span class="brand-mark" aria-hidden="true">LH</span>
-            <span>Living Heritage<br><strong>Malaysia</strong></span>
+        <a class="site-logo" href="{{ route('home') }}">
+            <img src="{{ asset('images/home/logo-transparent.png') }}" alt="Living Heritage Malaysia">
+            <span class="site-logo-title" aria-hidden="true">
+                <span class="site-logo-title-main">Living Heritage</span>
+                <span class="site-logo-title-secondary">Malaysia</span>
+            </span>
         </a>
 
         <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-menu" aria-label="Open navigation menu">
@@ -19,7 +22,7 @@
 
             <li class="nav-auth">
                 @auth
-                    @php($unreadCount = \Illuminate\Support\Facades\DB::table('notification')->where('user_id', auth()->id())->where('is_read', 'Unseen')->count())
+                    @php($unreadCount = \Illuminate\Support\Facades\DB::table('notification')->where('user_id', auth()->id())->where('is_read', 'false')->count())
                     <a class="nav-bell" href="#" aria-disabled="true" aria-label="Notifications">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                         @if ($unreadCount > 0)

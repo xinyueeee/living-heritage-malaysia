@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Post extends Model
 {
@@ -20,5 +21,30 @@ class Post extends Model
         'comments',
         'saved_users',
         'created_at',
+        'experience_id',
     ];
+
+    /**
+     * A post belongs to a user.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(
+            User::class,
+            'user_id',
+            'user_id'
+        );
+    }
+
+    /**
+     * A post belongs to an experience.
+     */
+    public function experience(): BelongsTo
+    {
+        return $this->belongsTo(
+            Experience::class,
+            'experience_id',
+            'experiences_id'
+        );
+    }
 }
