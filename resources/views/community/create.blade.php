@@ -8,13 +8,19 @@
 
     <div class="container create-post-page">
 
-        <!-- Back Button -->
+        <!-- ===================================================
+             BACK BUTTON
+        =================================================== -->
+
         <a href="{{ route('community.index') }}" class="back-link">
             ← Back to Community
         </a>
 
 
-        <!-- Header -->
+        <!-- ===================================================
+             HEADER
+        =================================================== -->
+
         <div class="create-header">
 
             <h1>Create Post</h1>
@@ -26,7 +32,10 @@
         </div>
 
 
-        <!-- Validation Errors -->
+        <!-- ===================================================
+             VALIDATION ERRORS
+        =================================================== -->
+
         @if ($errors->any())
 
             <div class="alert alert-danger">
@@ -46,7 +55,10 @@
         @endif
 
 
-        <!-- Create Post Card -->
+        <!-- ===================================================
+             CREATE POST CARD
+        =================================================== -->
+
         <div class="create-card">
 
             <form
@@ -58,94 +70,101 @@
 
 
                 <!-- ===================================================
-                     DYNAMIC FORM LAYOUT
-                     =================================================== -->
+                     CULTURAL EXPERIENCE
+                     OPTIONAL
+                =================================================== -->
 
-                <div
-                    id="postFormLayout"
-                    class="create-form-layout">
+                <div class="form-group experience-selector">
+
+                    <div class="form-label-row">
+
+                        <label for="experienceSearch">
+                            Cultural Experience
+                        </label>
+
+                        <span class="optional">
+                            (Optional)
+                        </span>
+
+                    </div>
+
+
+                    <p class="form-help">
+                        Link your post to a cultural experience or festival.
+                    </p>
 
 
                     <!-- ===================================================
-                         LEFT SIDE
-                         =================================================== -->
+                         SEARCH + SELECT
+                    =================================================== -->
 
-                    <div class="post-form-left">
+                    <div class="experience-select-row">
 
+                        <!-- SEARCH -->
 
-                        <!-- Caption -->
-                        <div class="form-group">
+                        <div class="experience-search-box">
 
-                            <label for="content">
-                                What's on your mind?
-                            </label>
+                            <span class="search-icon">
+                                🔍
+                            </span>
 
-
-                            <textarea
-                                id="content"
-                                name="content"
-                                rows="7"
-                                maxlength="2000"
-                                placeholder="Share your experience, stories, tips, or recommendations...">{{ old('content') }}</textarea>
-
-
-                            <div class="character-counter">
-
-                                <span id="charCount">
-                                    {{ strlen(old('content')) }}
-                                </span>
-
-                                / 2000
-
-                            </div>
+                            <input
+                                type="search"
+                                id="experienceSearch"
+                                placeholder="Search experiences..."
+                                autocomplete="off">
 
                         </div>
 
 
-                        <!-- Upload -->
-                        <div class="form-group">
+                        <!-- SELECT -->
 
-                            <label>
+                        <div class="experience-dropdown">
 
-                                Upload Photos
+                            <select
+                                id="experience_id"
+                                name="experience_id">
 
-                                <span class="optional">
-                                    (Optional)
-                                </span>
-
-                            </label>
-
-
-                            <div class="upload-box">
-
-                                <div class="upload-icon">
-                                    +
-                                </div>
+                                <option value="">
+                                    No experience selected
+                                </option>
 
 
-                                <h3>
-                                    Add Photos
-                                </h3>
+                                @foreach ($experiences as $experience)
 
+                                    <option
+                                        value="{{ $experience->experiences_id }}"
 
-                                <p>
-                                    Click or drag files here
-                                </p>
+                                        data-name="{{ $experience->experiences_name }}"
 
+                                        data-location="{{ $experience->location_name ?? '' }}"
 
-                                <small>
-                                    (Maximum 10 photos)
-                                </small>
+                                        data-type="{{ $experience->type?->type_name ?? '' }}"
 
+                                        data-category="{{ $experience->category?->category_name ?? '' }}"
 
-                                <input
-                                    type="file"
-                                    id="imageInput"
-                                    name="images[]"
-                                    multiple
-                                    accept="image/*">
+                                        data-search="{{ strtolower(
+                                            $experience->experiences_name
+                                            . ' '
+                                            . ($experience->location_name ?? '')
+                                            . ' '
+                                            . ($experience->type?->type_name ?? '')
+                                            . ' '
+                                            . ($experience->category?->category_name ?? '')
+                                        ) }}"
 
-                            </div>
+                                        @selected(
+                                            old('experience_id') == $experience->experiences_id
+                                        )
+                                    >
+
+                                        {{ $experience->experiences_name }}
+
+                                    </option>
+
+                                @endforeach
+
+                            </select>
 
                         </div>
 
@@ -153,34 +172,146 @@
 
 
                     <!-- ===================================================
-                         RIGHT SIDE - PHOTO PREVIEW
-                         =================================================== -->
+                         SEARCH RESULT MESSAGE
+                    =================================================== -->
+
+                    <small
+                        id="experienceSearchMessage"
+                        class="experience-search-message">
+                    </small>
+
+
+                    <!-- ===================================================
+                         SEARCH RESULTS
+                    =================================================== -->
 
                     <div
-                        id="photoPreviewPanel"
-                        class="photo-preview-panel">
+                        id="experienceSearchResults"
+                        class="experience-search-results">
+                    </div>
+
+                </div>
 
 
-                        <!-- Photo Preview Header -->
-                        <div class="photo-preview-header">
+                <!-- ===================================================
+                     WHAT'S ON YOUR MIND
+                =================================================== -->
 
-                            <strong>
-                                Photo Preview
-                            </strong>
+                <div class="form-group">
 
-                            <span id="photoCount">
-                                (0/10)
-                            </span>
+                    <label for="content">
+                        What's on your mind?
+                    </label>
+
+
+                    <textarea
+                        id="content"
+                        name="content"
+                        rows="7"
+                        maxlength="2000"
+                        placeholder="Share your experience, stories, tips, or recommendations...">{{ old('content') }}</textarea>
+
+
+                    <div class="character-counter">
+
+                        <span id="charCount">
+                            {{ strlen(old('content')) }}
+                        </span>
+
+                        / 2000
+
+                    </div>
+
+                </div>
+
+
+                <!-- ===================================================
+                     UPLOAD PHOTOS
+                =================================================== -->
+
+                <div class="form-group">
+
+                    <div class="form-label-row">
+
+                        <label>
+                            Upload Photos
+                        </label>
+
+                        <span class="optional">
+                            (Optional)
+                        </span>
+
+                    </div>
+
+
+                    <!-- ===================================================
+                         UPLOAD BOX + PHOTO PREVIEW
+                    =================================================== -->
+
+                    <div class="photo-upload-row">
+
+
+                        <!-- ===================================================
+                             ADD PHOTOS
+                        =================================================== -->
+
+                        <div class="upload-box">
+
+                            <div class="upload-icon">
+                                +
+                            </div>
+
+                            <h3>
+                                Add Photos
+                            </h3>
+
+                            <p>
+                                Click or drag files here
+                            </p>
+
+                            <small>
+                                Maximum 10 photos
+                            </small>
+
+
+                            <input
+                                type="file"
+                                id="imageInput"
+                                name="images[]"
+                                multiple
+                                accept="image/jpeg,image/png,image/webp">
 
                         </div>
 
 
-                        <!-- Selected Images -->
+                        <!-- ===================================================
+                             PHOTO PREVIEW
+                        =================================================== -->
+
                         <div
-                            id="imagePreview"
-                            class="image-preview">
-                        </div>
+                            id="photoPreviewPanel"
+                            class="photo-preview-panel">
 
+
+                            <div class="photo-preview-header">
+
+                                <strong>
+                                    Photo Preview
+                                </strong>
+
+                                <span id="photoCount">
+                                    (0/10)
+                                </span>
+
+                            </div>
+
+
+                            <div
+                                id="imagePreview"
+                                class="image-preview">
+                            </div>
+
+                        </div>
 
                     </div>
 
@@ -189,13 +320,16 @@
 
                 <!-- ===================================================
                      UPLOAD NOTE
-                     =================================================== -->
+                =================================================== -->
 
                 <div class="upload-note">
 
                     Supported formats:
                     JPG, PNG, WEBP
-                    • Maximum size:
+
+                    •
+
+                    Maximum size:
                     10MB per photo
 
                 </div>
@@ -203,10 +337,9 @@
 
                 <!-- ===================================================
                      BUTTONS
-                     =================================================== -->
+                =================================================== -->
 
                 <div class="button-group">
-
 
                     <a
                         href="{{ route('community.index') }}"
@@ -225,7 +358,6 @@
 
                     </button>
 
-
                 </div>
 
 
@@ -242,204 +374,663 @@
 
 <!-- ===================================================
      JAVASCRIPT
-     =================================================== -->
+=================================================== -->
 
 @push('scripts')
 
 <script>
 
-
-// ===================================================
-// CHARACTER COUNTER
-// ===================================================
-
-const textarea = document.getElementById('content');
-const counter = document.getElementById('charCount');
+document.addEventListener('DOMContentLoaded', function () {
 
 
-textarea.addEventListener('input', () => {
+    /* ===================================================
+       CHARACTER COUNTER
+    =================================================== */
 
-    counter.textContent = textarea.value.length;
+    const textarea =
+        document.getElementById('content');
 
-});
-
-
-// ===================================================
-// IMAGE UPLOAD
-// ===================================================
-
-const imageInput = document.getElementById('imageInput');
-
-const preview = document.getElementById('imagePreview');
-
-const formLayout = document.getElementById('postFormLayout');
-
-const photoCount = document.getElementById('photoCount');
+    const counter =
+        document.getElementById('charCount');
 
 
-// Store selected files
+    if (textarea && counter) {
 
-let selectedFiles = [];
+        textarea.addEventListener(
+            'input',
+            function () {
 
+                counter.textContent =
+                    this.value.length;
 
-// ===================================================
-// IMAGE SELECTION
-// ===================================================
-
-imageInput.addEventListener('change', function () {
-
-    const newFiles = Array.from(this.files);
-
-
-    // Check maximum 10 photos
-
-    if (selectedFiles.length + newFiles.length > 10) {
-
-        alert("You can upload a maximum of 10 photos.");
-
-        this.value = "";
-
-        return;
+            }
+        );
 
     }
 
 
-    // Add new files
 
-    selectedFiles.push(...newFiles);
+    /* ===================================================
+       EXPERIENCE SEARCH ELEMENTS
+    =================================================== */
 
+    const experienceSearch =
+        document.getElementById('experienceSearch');
 
-    // Update UI
+    const experienceSelect =
+        document.getElementById('experience_id');
 
-    renderPreview();
+    const experienceMessage =
+        document.getElementById('experienceSearchMessage');
 
-    updateFileInput();
-
-});
-
-
-// ===================================================
-// RENDER IMAGE PREVIEW
-// ===================================================
-
-function renderPreview() {
-
-    // Clear existing preview
-
-    preview.innerHTML = "";
+    const experienceResults =
+        document.getElementById('experienceSearchResults');
 
 
-    // Update layout
 
-    if (selectedFiles.length > 0) {
+    /* ===================================================
+       EXPERIENCE SEARCH
+    =================================================== */
 
-        formLayout.classList.add('has-photos');
-
-    } else {
-
-        formLayout.classList.remove('has-photos');
-
-    }
-
-
-    // Update photo counter
-
-    photoCount.textContent =
-        `(${selectedFiles.length}/10)`;
+    if (
+        experienceSearch &&
+        experienceSelect &&
+        experienceResults
+    ) {
 
 
-    // Render each image
-
-    selectedFiles.forEach((file, index) => {
-
-        const reader = new FileReader();
+        experienceSearch.addEventListener(
+            'input',
+            function () {
 
 
-        reader.onload = function (e) {
-
-            const div = document.createElement("div");
-
-            div.className = "preview-item";
-
-
-            div.innerHTML = `
-
-                <img
-                    src="${e.target.result}"
-                    alt="Selected photo">
-
-                <button
-                    type="button"
-                    class="remove-image"
-                    data-index="${index}">
-
-                    ×
-
-                </button>
-
-            `;
+                const keyword =
+                    this.value
+                        .trim()
+                        .toLowerCase();
 
 
-            preview.appendChild(div);
-
-        };
+                let visibleCount = 0;
 
 
-        reader.readAsDataURL(file);
-
-    });
-
-}
+                experienceResults.innerHTML = '';
 
 
-// ===================================================
-// REMOVE IMAGE
-// ===================================================
+                if (keyword === '') {
 
-preview.addEventListener("click", function (e) {
+                    experienceMessage.textContent = '';
 
-    if (e.target.classList.contains("remove-image")) {
+                    experienceResults.classList.remove(
+                        'active'
+                    );
 
-        const index = parseInt(
-            e.target.dataset.index
+                    return;
+
+                }
+
+
+
+                /* ===================================================
+                   LOOP THROUGH EXPERIENCES
+                =================================================== */
+
+                Array.from(
+                    experienceSelect.options
+                ).forEach(
+                    function (option, index) {
+
+
+                        if (index === 0) {
+
+                            return;
+
+                        }
+
+
+                        const searchText =
+                            option.dataset.search || '';
+
+
+                        const matched =
+                            searchText.includes(keyword);
+
+
+                        if (!matched) {
+
+                            return;
+
+                        }
+
+
+                        visibleCount++;
+
+
+
+                        /* ===================================================
+                           GET EXPERIENCE DATA
+                        =================================================== */
+
+                        const name =
+                            option.dataset.name || '';
+
+                        const location =
+                            option.dataset.location || '';
+
+                        const type =
+                            option.dataset.type || '';
+
+                        const category =
+                            option.dataset.category || '';
+
+
+
+                        /* ===================================================
+                           CREATE RESULT ITEM
+                        =================================================== */
+
+                        const resultItem =
+                            document.createElement('button');
+
+
+                        resultItem.type = 'button';
+
+                        resultItem.className =
+                            'experience-result-item';
+
+
+
+                        /* ===================================================
+                           RESULT CONTENT
+                        =================================================== */
+
+                        let metaParts = [];
+
+
+                        if (location) {
+
+                            metaParts.push(
+                                '📍 ' + location
+                            );
+
+                        }
+
+
+                        if (type) {
+
+                            metaParts.push(
+                                type
+                            );
+
+                        }
+
+
+                        if (category) {
+
+                            metaParts.push(
+                                category
+                            );
+
+                        }
+
+
+                        resultItem.innerHTML = `
+
+                            <div class="experience-result-name">
+
+                                ${name}
+
+                            </div>
+
+
+                            ${
+                                metaParts.length > 0
+                                ?
+                                `
+                                <div class="experience-result-meta">
+
+                                    ${metaParts.join(' · ')}
+
+                                </div>
+                                `
+                                :
+                                ''
+                            }
+
+                        `;
+
+
+
+                        /* ===================================================
+                           CLICK RESULT
+                        =================================================== */
+
+                        resultItem.addEventListener(
+                            'click',
+                            function () {
+
+
+                                experienceSelect.value =
+                                    option.value;
+
+
+                                experienceSearch.value =
+                                    name;
+
+
+                                experienceResults.innerHTML =
+                                    '';
+
+
+                                experienceResults.classList.remove(
+                                    'active'
+                                );
+
+
+                                experienceMessage.textContent =
+                                    'Experience selected.';
+
+                            }
+                        );
+
+
+                        experienceResults.appendChild(
+                            resultItem
+                        );
+
+                    }
+                );
+
+
+
+                /* ===================================================
+                   SEARCH MESSAGE
+                =================================================== */
+
+                if (visibleCount === 0) {
+
+                    experienceMessage.textContent =
+                        'No matching experiences found.';
+
+                    experienceResults.classList.remove(
+                        'active'
+                    );
+
+                }
+                else {
+
+                    experienceMessage.textContent =
+                        visibleCount
+                        + ' experience'
+                        + (
+                            visibleCount === 1
+                            ? ''
+                            : 's'
+                        )
+                        + ' found.';
+
+
+                    experienceResults.classList.add(
+                        'active'
+                    );
+
+                }
+
+            }
         );
 
 
-        // Remove selected file
 
-        selectedFiles.splice(index, 1);
+        /* ===================================================
+           SELECT CHANGE
+        =================================================== */
+
+        experienceSelect.addEventListener(
+            'change',
+            function () {
 
 
-        // Re-render preview
+                const selectedOption =
+                    this.options[
+                        this.selectedIndex
+                    ];
 
-        renderPreview();
 
-        updateFileInput();
+                if (!this.value) {
+
+                    experienceSearch.value = '';
+
+                    experienceMessage.textContent = '';
+
+                    experienceResults.innerHTML = '';
+
+                    experienceResults.classList.remove(
+                        'active'
+                    );
+
+                    return;
+
+                }
+
+
+                const selectedName =
+                    selectedOption.dataset.name || '';
+
+
+                experienceSearch.value =
+                    selectedName;
+
+
+                experienceMessage.textContent =
+                    'Experience selected.';
+
+
+                experienceResults.innerHTML = '';
+
+                experienceResults.classList.remove(
+                    'active'
+                );
+
+            }
+        );
+
+
+
+        /* ===================================================
+           OLD SELECTED EXPERIENCE
+        =================================================== */
+
+        const initiallySelected =
+            experienceSelect.options[
+                experienceSelect.selectedIndex
+            ];
+
+
+        if (
+            initiallySelected &&
+            experienceSelect.value
+        ) {
+
+            experienceSearch.value =
+                initiallySelected.dataset.name || '';
+
+
+            experienceMessage.textContent =
+                'Experience selected.';
+
+        }
 
     }
 
+
+
+    /* ===================================================
+       IMAGE UPLOAD
+    =================================================== */
+
+    const imageInput =
+        document.getElementById('imageInput');
+
+    const preview =
+        document.getElementById('imagePreview');
+
+    const photoPreviewPanel =
+        document.getElementById('photoPreviewPanel');
+
+    const photoCount =
+        document.getElementById('photoCount');
+
+
+    let selectedFiles = [];
+
+
+
+    /* ===================================================
+       IMAGE SELECTION
+    =================================================== */
+
+    if (imageInput) {
+
+        imageInput.addEventListener(
+            'change',
+            function () {
+
+
+                const newFiles =
+                    Array.from(this.files);
+
+
+                /* ===================================================
+                   MAXIMUM 10 PHOTOS
+                =================================================== */
+
+                if (
+                    selectedFiles.length
+                    + newFiles.length
+                    > 10
+                ) {
+
+                    alert(
+                        'You can upload a maximum of 10 photos.'
+                    );
+
+                    this.value = '';
+
+                    return;
+
+                }
+
+
+                /* ===================================================
+                   ADD NEW FILES
+                =================================================== */
+
+                selectedFiles.push(
+                    ...newFiles
+                );
+
+
+                renderPreview();
+
+                updateFileInput();
+
+            }
+        );
+
+    }
+
+
+
+    /* ===================================================
+       RENDER IMAGE PREVIEW
+    =================================================== */
+
+    function renderPreview() {
+
+
+        if (!preview) {
+
+            return;
+
+        }
+
+
+        preview.innerHTML = '';
+
+
+
+        /* ===================================================
+           SHOW / HIDE PREVIEW PANEL
+        =================================================== */
+
+        if (photoPreviewPanel) {
+
+            if (selectedFiles.length > 0) {
+
+                photoPreviewPanel.classList.add(
+                    'has-photos'
+                );
+
+            }
+            else {
+
+                photoPreviewPanel.classList.remove(
+                    'has-photos'
+                );
+
+            }
+
+        }
+
+
+
+        /* ===================================================
+           UPDATE PHOTO COUNT
+        =================================================== */
+
+        if (photoCount) {
+
+            photoCount.textContent =
+                `(${selectedFiles.length}/10)`;
+
+        }
+
+
+
+        /* ===================================================
+           RENDER EACH IMAGE
+        =================================================== */
+
+        selectedFiles.forEach(
+            function (file, index) {
+
+
+                const reader =
+                    new FileReader();
+
+
+                reader.onload =
+                    function (event) {
+
+
+                        const div =
+                            document.createElement('div');
+
+
+                        div.className =
+                            'preview-item';
+
+
+                        div.innerHTML = `
+
+                            <img
+                                src="${event.target.result}"
+                                alt="Selected photo">
+
+
+                            <button
+                                type="button"
+                                class="remove-image"
+                                data-index="${index}"
+                                aria-label="Remove photo">
+
+                                ×
+
+                            </button>
+
+                        `;
+
+
+                        preview.appendChild(div);
+
+                    };
+
+
+                reader.readAsDataURL(file);
+
+            }
+        );
+
+    }
+
+
+
+    /* ===================================================
+       REMOVE IMAGE
+    =================================================== */
+
+    if (preview) {
+
+        preview.addEventListener(
+            'click',
+            function (event) {
+
+
+                if (
+                    event.target.classList.contains(
+                        'remove-image'
+                    )
+                ) {
+
+
+                    const index =
+                        parseInt(
+                            event.target.dataset.index
+                        );
+
+
+                    selectedFiles.splice(
+                        index,
+                        1
+                    );
+
+
+                    renderPreview();
+
+                    updateFileInput();
+
+                }
+
+            }
+        );
+
+    }
+
+
+
+    /* ===================================================
+       UPDATE FILE INPUT
+    =================================================== */
+
+    function updateFileInput() {
+
+
+        if (!imageInput) {
+
+            return;
+
+        }
+
+
+        const dataTransfer =
+            new DataTransfer();
+
+
+        selectedFiles.forEach(
+            function (file) {
+
+                dataTransfer.items.add(file);
+
+            }
+        );
+
+
+        imageInput.files =
+            dataTransfer.files;
+
+    }
+
+
 });
-
-
-// ===================================================
-// UPDATE FILE INPUT
-// ===================================================
-
-function updateFileInput() {
-
-    const dataTransfer = new DataTransfer();
-
-
-    selectedFiles.forEach(file => {
-
-        dataTransfer.items.add(file);
-
-    });
-
-
-    imageInput.files = dataTransfer.files;
-
-}
 
 </script>
 

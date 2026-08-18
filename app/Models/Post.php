@@ -21,6 +21,7 @@ class Post extends Model
         'comments',
         'saved_users',
         'created_at',
+        'experience_id',
     ];
 
     /**
@@ -28,6 +29,22 @@ class Post extends Model
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'user_id');
+        return $this->belongsTo(
+            User::class,
+            'user_id',
+            'user_id'
+        );
+    }
+
+    /**
+     * A post belongs to an experience.
+     */
+    public function experience(): BelongsTo
+    {
+        return $this->belongsTo(
+            Experience::class,
+            'experience_id',
+            'experiences_id'
+        );
     }
 }

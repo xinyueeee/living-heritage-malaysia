@@ -63,4 +63,16 @@ class User extends Authenticatable
             'experiences_id',
         )->withPivot('saved_date');
     }
+
+    public function savedPosts(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Post::class,
+            'post_save',
+            'user_id',
+            'post_id',
+            'user_id',
+            'post_id',
+        )->withPivot('saved_at');
+    }
 }

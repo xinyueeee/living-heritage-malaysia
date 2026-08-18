@@ -33,6 +33,15 @@ class Experience extends Model
         return $this->belongsTo(ExperienceType::class, 'type_id', 'type_id');
     }
 
+    public function posts()
+    {
+        return $this->hasMany(
+            Post::class,
+            'experience_id',
+            'experiences_id'
+        );
+    }
+
     public function savedByUsers(): BelongsToMany
     {
         return $this->belongsToMany(

@@ -1,9 +1,8 @@
 <footer class="site-footer" id="footer">
     <div class="container footer-grid">
         <div class="footer-about">
-            <a class="brand footer-brand" href="{{ route('home') }}">
-                <span class="brand-mark" aria-hidden="true">LH</span>
-                <span>Living Heritage<br><strong>Malaysia</strong></span>
+            <a class="site-logo footer-logo" href="{{ route('home') }}">
+                <img src="{{ asset('images/home/logo-transparent.png') }}" alt="Living Heritage Malaysia">
             </a>
             <p>A community-driven platform celebrating and preserving Malaysia's living heritage.</p>
             <div class="footer-socials" aria-label="Social media links">
