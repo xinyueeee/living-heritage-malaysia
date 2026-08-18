@@ -108,6 +108,36 @@
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 
+.engagement-hero-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 28px;
+}
+
+.engagement-hero-actions .hero-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin: 0;
+}
+
+.engagement-hero-actions .hero-btn span {
+    transition: transform 0.2s ease;
+}
+
+.engagement-hero-actions .hero-btn:hover span {
+    transform: translateX(4px);
+}
+
+@media (max-width: 560px) {
+    .engagement-hero-actions .hero-btn {
+        width: 100%;
+    }
+}
+
 
 /* ================= PROGRESS DASHBOARD ================= */
 .progress-section {

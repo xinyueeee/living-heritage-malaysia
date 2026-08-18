@@ -121,6 +121,47 @@
                     $categoryStamp = $categoryStamps->get(
                         $experience?->category_id
                     );
+
+                    /*
+                    * Prepare both external URLs and local image paths.
+                    */
+                    $imagePath = is_string($experience?->image_url)
+                        ? ltrim(
+                            str_replace(
+                                '\\',
+                                '/',
+                                trim($experience->image_url)
+                            ),
+                            '/'
+                        )
+                        : null;
+
+                    $isExternalImage = filled($imagePath)
+                        && (
+                            str_starts_with(
+                                strtolower($imagePath),
+                                'http://'
+                            )
+                            || str_starts_with(
+                                strtolower($imagePath),
+                                'https://'
+                            )
+                        );
+
+                    $isSafeLocalImage = filled($imagePath)
+                        && ! $isExternalImage
+                        && ! str_contains($imagePath, '../')
+                        && is_file(public_path($imagePath));
+
+                    $imageSource = $isExternalImage
+                        ? $imagePath
+                        : (
+                            $isSafeLocalImage
+                                ? asset($imagePath)
+                                : asset(
+                                    'images/default-experience.png'
+                                )
+                        );
                 @endphp
 
                 <article class="history-timeline-item">
@@ -179,16 +220,19 @@
                         {{-- Experience image --}}
                         <div class="history-timeline-image">
                             <img
-                                src="{{ $experience?->image_url
-                                    ? asset(
-                                        $experience->image_url
-                                    )
-                                    : asset(
-                                        'images/default-experience.png'
-                                    ) }}"
+                                src="{{ $imageSource }}"
                                 alt="{{ $experience
                                     ?->experiences_name
                                     ?? 'Cultural experience' }}"
+                                @if ($isExternalImage)
+                                    referrerpolicy="no-referrer"
+                                @endif
+                                onerror="
+                                    this.onerror = null;
+                                    this.src = '{{ asset(
+                                        'images/default-experience.png'
+                                    ) }}';
+                                "
                             >
 
                             <span>
