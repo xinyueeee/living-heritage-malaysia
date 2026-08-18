@@ -55,6 +55,7 @@ class FeedbackService
     public function paginateFor(User $user, int $perPage = 10): LengthAwarePaginator
     {
         return Feedback::where('user_id', $user->user_id)
+            ->with('photos')
             ->latest('submitted_at')
             ->paginate($perPage);
     }

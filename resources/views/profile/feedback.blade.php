@@ -106,6 +106,7 @@
                                     <th>Date</th>
                                     <th>Subject</th>
                                     <th>Description</th>
+                                    <th>Attachments</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -114,6 +115,15 @@
                                         <td>{{ $entry->submitted_at->format('j M Y, h:i A') }}</td>
                                         <td>{{ $entry->subject }}</td>
                                         <td class="feedback-history-desc">{{ \Illuminate\Support\Str::limit($entry->description, 80) }}</td>
+                                        <td>
+                                            @if ($entry->photos->isNotEmpty())
+                                                <span class="feedback-history-attachments" data-images="{{ $entry->photos->pluck('file_path')->toJson() }}">
+                                                    📷 {{ $entry->photos->count() }}
+                                                </span>
+                                            @else
+                                                <span class="feedback-history-no-attachments">—</span>
+                                            @endif
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -163,7 +173,7 @@
 
                         reader.onload = function (event) {
                             const div = document.createElement('div');
-                            div.className = 'preview-item';
+                            div.className = 'feedback-preview-item';
                             div.innerHTML = `
                                 <img src="${event.target.result}" alt="Selected image">
                                 <button type="button" class="remove-image" data-index="${index}" aria-label="Remove image">×</button>
@@ -206,6 +216,56 @@
                         renderPreview();
                         updateFileInput();
                     }
+                });
+
+                const attachmentsPopup = document.createElement('div');
+                attachmentsPopup.className = 'feedback-history-attachments-popup';
+                document.body.appendChild(attachmentsPopup);
+
+                const attachmentBadges = document.querySelectorAll('.feedback-history-attachments');
+
+                // Preload attachment images so the popup already knows their size on first hover.
+                attachmentBadges.forEach(function (badge) {
+                    JSON.parse(badge.dataset.images || '[]').forEach((src) => {
+                        const preloadImg = new Image();
+                        preloadImg.src = src;
+                    });
+                });
+
+                function positionAttachmentsPopup(badge) {
+                    const rect = badge.getBoundingClientRect();
+                    const popupRect = attachmentsPopup.getBoundingClientRect();
+
+                    let left = Math.min(rect.left, window.innerWidth - popupRect.width - 12);
+                    left = Math.max(left, 12);
+
+                    let top = rect.top - popupRect.height - 8;
+                    if (top < 8) {
+                        top = rect.bottom + 8;
+                    }
+
+                    attachmentsPopup.style.left = `${left}px`;
+                    attachmentsPopup.style.top = `${top}px`;
+                }
+
+                attachmentBadges.forEach(function (badge) {
+                    badge.addEventListener('mouseenter', function () {
+                        const images = JSON.parse(badge.dataset.images || '[]');
+                        attachmentsPopup.innerHTML = images.map((src) => `<img src="${src}" alt="Attached image">`).join('');
+                        attachmentsPopup.style.display = 'flex';
+
+                        positionAttachmentsPopup(badge);
+
+                        attachmentsPopup.querySelectorAll('img').forEach((img) => {
+                            if (!img.complete) {
+                                img.addEventListener('load', () => positionAttachmentsPopup(badge), { once: true });
+                            }
+                        });
+                    });
+
+                    badge.addEventListener('mouseleave', function () {
+                        attachmentsPopup.style.display = 'none';
+                    });
                 });
             });
         </script>

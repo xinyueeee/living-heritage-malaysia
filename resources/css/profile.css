@@ -134,12 +134,20 @@
 
 .feedback-char-count { margin-top: 6px; text-align: right; color: var(--muted); font-size: .82rem; }
 
+.feedback-preview-item { position: relative; display: inline-block; border-radius: 7px; overflow: hidden; background: #f5f5f5; box-shadow: 0 5px 15px rgba(0, 0, 0, .1); border: 1px solid var(--border); }
+.feedback-preview-item img { display: block; max-width: 130px; max-height: 130px; width: auto; height: auto; }
+
 .feedback-history-table-wrap { overflow-x: auto; }
 .feedback-history-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
 .feedback-history-table th { padding: 10px 14px; border-bottom: 2px solid var(--border); color: var(--muted); font-size: .78rem; font-weight: 700; text-align: left; text-transform: uppercase; letter-spacing: .03em; }
 .feedback-history-table td { padding: 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
 .feedback-history-table td.feedback-history-desc { max-width: 320px; color: var(--muted); }
 .feedback-history-count { margin-top: 12px; color: var(--muted); font-size: .82rem; }
+
+.feedback-history-no-attachments { color: var(--muted); }
+.feedback-history-attachments { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; background: #f4e6d6; color: var(--primary-dark); font-size: .78rem; font-weight: 700; cursor: default; }
+.feedback-history-attachments-popup { display: none; position: fixed; z-index: 500; flex-wrap: wrap; gap: 6px; max-width: 280px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); box-shadow: var(--shadow); }
+.feedback-history-attachments-popup img { display: block; max-width: 100px; max-height: 100px; width: auto; height: auto; border-radius: 6px; }
 
 .interest-picker { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
 .interest-picker-chip { position: relative; display: inline-flex; align-items: center; padding: 10px 18px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--ink); font-size: .9rem; font-weight: 600; cursor: pointer; transition: background .15s ease, border-color .15s ease, color .15s ease; }
