@@ -6,6 +6,8 @@ use App\Repositories\Contracts\DiscoveryActivityRepositoryInterface;
 use App\Repositories\Contracts\ExperienceRepositoryInterface;
 use App\Repositories\Eloquent\EloquentDiscoveryActivityRepository;
 use App\Repositories\Eloquent\EloquentExperienceRepository;
+use App\Services\Experience\Contracts\DiscoveryIntentParserInterface;
+use App\Services\Experience\FallbackDiscoveryIntentParser;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             ExperienceRepositoryInterface::class,
             EloquentExperienceRepository::class
+        );
+
+        $this->app->bind(
+            DiscoveryIntentParserInterface::class,
+            FallbackDiscoveryIntentParser::class,
         );
     }
 

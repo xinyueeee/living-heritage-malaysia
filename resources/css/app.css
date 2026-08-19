@@ -4,6 +4,7 @@
 @import './profile.css';
 @import './auth.css';
 @import './festival.css';
+@import './discovery-assistant.css';
 
 :root {
     --primary: #A52A1A;

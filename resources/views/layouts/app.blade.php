@@ -20,6 +20,10 @@
 
     @include('partials.footer')
 
+    @if (request()->routeIs('home', 'experiences.*', 'recommendations.*'))
+        <x-discovery-assistant />
+    @endif
+
     @stack('styles')
     @stack('scripts')
 </body>

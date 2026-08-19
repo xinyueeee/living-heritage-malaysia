@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class EloquentExperienceRepository implements ExperienceRepositoryInterface
 {
@@ -112,6 +113,12 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
             })
             ->when($filters['type'] ?? null, function ($query, int $typeId) {
                 $query->where('type_id', $typeId);
+            })
+            ->when($filters['excluded_categories'] ?? [], function ($query, array $categoryIds) {
+                $query->whereNotIn('category_id', $categoryIds);
+            })
+            ->when($filters['excluded_ids'] ?? [], function ($query, array $experienceIds) {
+                $query->whereNotIn('experiences_id', $experienceIds);
             });
     }
 
@@ -129,6 +136,52 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
             ->withCount('experiences')
             ->orderBy('type_id')
             ->get();
+    }
+
+    public function getCulturalExperienceLocations(): SupportCollection
+    {
+        return Experience::query()
+            ->whereHas('type', fn ($query) => $query->where('type_name', 'Cultural Experience'))
+            ->whereNotNull('location_name')
+            ->where('location_name', '<>', '')
+            ->distinct()
+            ->orderBy('location_name')
+            ->pluck('location_name');
+    }
+
+    public function findCulturalExperienceByName(string $name): ?Experience
+    {
+        $matches = Experience::query()
+            ->with(['category', 'type'])
+            ->whereHas('type', fn ($query) => $query->where('type_name', 'Cultural Experience'))
+            ->where('experiences_name', 'ilike', '%'.trim($name).'%')
+            ->orderByRaw('CASE WHEN LOWER(experiences_name) = LOWER(?) THEN 0 ELSE 1 END', [trim($name)])
+            ->orderBy('experiences_id')
+            ->limit(2)
+            ->get();
+        $exact = $matches->first(fn (Experience $experience) => Str::lower($experience->experiences_name) === Str::lower(trim($name)));
+
+        return $exact ?? ($matches->count() === 1 ? $matches->first() : null);
+    }
+
+    public function getCulturalExperiencesByIds(array $ids): Collection
+    {
+        if ($ids === []) {
+            return new Collection;
+        }
+
+        $experiences = Experience::query()
+            ->with(['category', 'type'])
+            ->whereHas('type', fn ($query) => $query->where('type_name', 'Cultural Experience'))
+            ->whereIn('experiences_id', $ids)
+            ->get()
+            ->keyBy('experiences_id');
+
+        return new Collection(collect($ids)
+            ->map(fn (int $id) => $experiences->get($id))
+            ->filter()
+            ->values()
+            ->all());
     }
 
     public function getRecommendationCandidates(int $limit): Collection

@@ -109,6 +109,9 @@ class DiscoveryActivityTrackingTest extends TestCase
         $repository->shouldReceive('getExperienceTypes')
             ->once()
             ->andReturn(new Collection);
+        $repository->shouldReceive('getMappableExperiences')
+            ->once()
+            ->andReturn(new Collection);
         $this->app->instance(ExperienceRepositoryInterface::class, $repository);
     }
 

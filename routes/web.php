@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExperienceController;
+use App\Http\Controllers\DiscoveryAssistantController;
 use App\Http\Controllers\InterestController;
 use App\Http\Controllers\PersonalInformationController;
 use App\Http\Controllers\ProfileController;
@@ -21,6 +22,10 @@ Route::get('/experiences', [ExperienceController::class, 'index'])->name('experi
 Route::get('/experiences/map', [ExperienceController::class, 'map'])->name('experiences.map');
 Route::get('/experiences/{experience}', [ExperienceController::class, 'show'])->name('experiences.show');
 Route::get('/recommendations', [ExperienceController::class, 'recommendations'])->name('recommendations.index');
+Route::post('/discover-assistant/message', DiscoveryAssistantController::class)
+    ->name('discover-assistant.message');
+Route::delete('/discover-assistant/context', [DiscoveryAssistantController::class, 'reset'])
+    ->name('discover-assistant.reset');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login')->middleware('guest');
 Route::get('/auth/callback', [AuthController::class, 'callback'])->name('auth.callback');

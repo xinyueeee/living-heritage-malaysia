@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Contracts;
 
+use App\Models\Experience;
 use App\Models\ExperienceType;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -22,6 +23,14 @@ interface ExperienceRepositoryInterface
     public function getCategories(): Collection;
 
     public function getExperienceTypes(): Collection;
+
+    /** @return SupportCollection<int, string> */
+    public function getCulturalExperienceLocations(): SupportCollection;
+
+    public function findCulturalExperienceByName(string $name): ?Experience;
+
+    /** @param list<int> $ids */
+    public function getCulturalExperiencesByIds(array $ids): Collection;
 
     public function getRecommendationCandidates(int $limit): Collection;
 
