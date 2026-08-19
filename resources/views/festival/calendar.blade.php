@@ -6,6 +6,20 @@
 
 <div class="calendar-container">
 
+    <!-- Personalized Alert -->
+    <div class="personalized-alert-box">
+        <div>
+            <h3>Personalized Alerts</h3>
+            <p>
+                Select your favourite categories and get notified about upcoming events.
+            </p>
+        </div>
+
+        <a href="{{ route('alerts.create') }}" class="personalized-alert-btn">
+            Create Personalized Alert
+        </a>
+    </div>
+
     <!-- Calendar Header -->
     <div class="calendar-header">
 

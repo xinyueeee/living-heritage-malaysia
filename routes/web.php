@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\AlertController;
 
 Route::get('/', [ExperienceController::class, 'home'])->name('home');
 Route::get('/experiences', [ExperienceController::class, 'index'])->name('experiences.index');
@@ -37,6 +38,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/photo', [ProfilePhotoController::class, 'store'])->name('profile.photo.store');
     Route::get('/profile/interests', [InterestController::class, 'show'])->name('profile.interests');
     Route::put('/profile/interests', [InterestController::class, 'update'])->name('profile.interests.update');
+
+    Route::get('/alerts/personalize', [AlertController::class, 'create'])
+    ->name('alerts.create');
+
+Route::post('/alerts/personalize', [AlertController::class, 'store'])
+    ->name('alerts.store');
+    Route::get('/alerts/test-matching', [AlertController::class, 'testMatchingEvents'])
+    ->name('alerts.test-matching');
+    Route::get('/alerts/test-email', [AlertController::class, 'testEmail'])
+    ->name('alerts.test-email');
 
 
 #Route::get('/engagement', [EngagementController::class, 'index'])->name('engagement.index');

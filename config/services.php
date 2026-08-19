@@ -42,4 +42,8 @@ return [
         'service_role_key' => env('SUPABASE_SERVICE_ROLE_KEY'),
     ],
 
+    'resend' => [
+    'key' => env('RESEND_API_KEY'),
+],
+
 ];
