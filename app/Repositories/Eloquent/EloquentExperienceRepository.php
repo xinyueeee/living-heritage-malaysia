@@ -67,12 +67,17 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
 
     public function getMappableExperiences(array $filters): Collection
     {
-        return $this->applyDiscoveryFilters(Experience::query(), $filters)
+        return $this->applyDiscoveryFilters(
+            Experience::query()->with(['category', 'type']),
+            $filters,
+        )
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->orderBy('experiences_id')
             ->get([
                 'experiences_id',
+                'type_id',
+                'category_id',
                 'experiences_name',
                 'short_description',
                 'location_name',

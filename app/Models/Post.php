@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\PostLike;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Post extends Model
 {
@@ -24,9 +26,6 @@ class Post extends Model
         'experience_id',
     ];
 
-    /**
-     * A post belongs to a user.
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(
@@ -36,9 +35,6 @@ class Post extends Model
         );
     }
 
-    /**
-     * A post belongs to an experience.
-     */
     public function experience(): BelongsTo
     {
         return $this->belongsTo(
@@ -46,5 +42,25 @@ class Post extends Model
             'experience_id',
             'experiences_id'
         );
+    }
+
+    public function likes(): HasMany
+    {
+        return $this->hasMany(
+            PostLike::class,
+            'post_id',
+            'post_id'
+        );
+    }
+
+    public function isLikedBy($user): bool
+    {
+        if (!$user) {
+            return false;
+        }
+
+        return $this->likes()
+            ->where('user_id', $user->user_id)
+            ->exists();
     }
 }

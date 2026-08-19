@@ -49,6 +49,12 @@ class ExperienceController extends Controller
         ]);
     }
 
+    public function map(ExperienceIndexRequest $request): View
+    {
+        return view('experiences.map', $this->experienceDiscoveryService
+            ->getMapPageData($request->validated()));
+    }
+
     public function show(Request $request, Experience $experience): View
     {
         $this->experienceDiscoveryService->recordExperienceView($request->user(), $experience);

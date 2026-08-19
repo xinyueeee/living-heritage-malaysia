@@ -266,47 +266,87 @@
                     </label>
                 </fieldset>
 
-                {{-- Collected stamp preview --}}
+                {{-- Collected stamp arrangement --}}
                 <section class="passport-setting-card">
-                    <h2>Your Collected Stamps</h2>
+                    <div class="passport-arrangement-heading">
+                        <div>
+                            <h2>Your Collected Stamps</h2>
 
-                    <p>
-                        Drag-and-drop arrangement will be added to
-                        this section next.
-                    </p>
+                            <p>
+                                Drag and drop your stamps to change their order
+                                inside the Passport Book.
+                            </p>
+                        </div>
+
+                        @if ($passportStamps->isNotEmpty())
+                            <span class="passport-drag-hint">
+                                ↕ Drag to arrange
+                            </span>
+                        @endif
+                    </div>
 
                     @if ($passportStamps->isEmpty())
                         <div class="passport-customize-empty">
-                            No collected stamps are available to
-                            arrange yet.
+                            No collected stamps are available to arrange yet.
                         </div>
                     @else
-                        <div class="passport-customize-stamps">
+                        <div
+                            class="passport-customize-stamps"
+                            data-stamp-sort-list
+                        >
                             @foreach ($passportStamps as $userStamp)
-                                <div class="passport-customize-stamp">
-                                    <img
-                                        src="{{ asset(
-                                            $userStamp
-                                                ->stamp
-                                                ->stamp_image
-                                        ) }}"
-                                        alt="{{
-                                            $userStamp
-                                                ->stamp
-                                                ->category
-                                        }}"
+                                <div
+                                    class="passport-customize-stamp"
+                                    draggable="true"
+                                    data-sortable-stamp
+                                    data-user-stamp-id="{{
+                                        $userStamp->user_stamp_id
+                                    }}"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="stamp_order[]"
+                                        value="{{ $userStamp->user_stamp_id }}"
                                     >
 
-                                    <span>
-                                        {{
-                                            $userStamp
-                                                ->stamp
-                                                ->category
-                                        }}
+                                    <span
+                                        class="passport-drag-handle"
+                                        aria-hidden="true"
+                                    >
+                                        ⋮⋮
+                                    </span>
+
+                                    <img
+                                        src="{{ $userStamp->stamp?->stamp_image
+                                            ? asset(
+                                                $userStamp
+                                                    ->stamp
+                                                    ->stamp_image
+                                            )
+                                            : asset(
+                                                'images/default-stamp.png'
+                                            ) }}"
+                                        alt="{{ $userStamp
+                                            ->stamp
+                                            ?->category
+                                            ?? 'Passport stamp' }}"
+                                    >
+
+                                    <span class="passport-customize-stamp-name">
+                                        {{ $userStamp
+                                            ->stamp
+                                            ?->category
+                                            ?? 'Category Stamp' }}
                                     </span>
                                 </div>
                             @endforeach
                         </div>
+
+                        <p class="passport-arrangement-note">
+                            The first four stamps appear on page 1, the next
+                            four on page 2, and so on. Click Save Changes when
+                            you are finished.
+                        </p>
                     @endif
                 </section>
 
@@ -330,3 +370,7 @@
     </section>
 </div>
 @endsection
+
+@push('scripts')
+    @vite('resources/js/pages/passport.js')
+@endpush

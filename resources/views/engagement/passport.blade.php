@@ -19,6 +19,79 @@
     "
     data-passport-page
 >
+    @if ($newStamps->isNotEmpty())
+        <div
+            class="reward-unlock-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="newStampTitle"
+        >
+            <div class="reward-unlock-modal">
+                <span class="reward-unlock-eyebrow">
+                    New reward
+                </span>
+
+                <h2 id="newStampTitle">
+                    {{ $newStamps->count() === 1
+                        ? 'New Stamp Collected!'
+                        : 'New Stamps Collected!' }}
+                </h2>
+
+                <p>
+                    Your cultural journey has earned you
+                    {{ $newStamps->count() }}
+                    new
+                    {{ Str::plural('stamp', $newStamps->count()) }}.
+                </p>
+
+                <div class="reward-unlock-list">
+                    @foreach ($newStamps as $userStamp)
+                        <div class="reward-unlock-item">
+                            @if ($userStamp->stamp?->stamp_image)
+                                <img
+                                    src="{{ asset(
+                                        $userStamp->stamp->stamp_image
+                                    ) }}"
+                                    alt="{{ $userStamp->stamp->category }} stamp"
+                                >
+                            @endif
+
+                            <div>
+                                <strong>
+                                    {{ $userStamp->stamp?->category
+                                        ?? 'Category Stamp' }}
+                                </strong>
+
+                                <span>
+                                    Collected
+                                    {{ $userStamp->collected_date
+                                        ?->format('d M Y') }}
+                                </span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <form
+                    method="POST"
+                    action="{{ route(
+                        'engagement.passport.notifications.read'
+                    ) }}"
+                >
+                    @csrf
+                    @method('PATCH')
+
+                    <button
+                        type="submit"
+                        class="reward-unlock-button"
+                    >
+                        Add to My Passport
+                    </button>
+                </form>
+            </div>
+        </div>
+    @endif
+
     @if (session('success'))
         <div class="container">
             <div
@@ -109,7 +182,7 @@
                 <div class="passport-book-empty">
                     <img
                         src="{{ asset(
-                            'images/engagement/passport-book.png'
+                            'images/engagement/passport-book.webp'
                         ) }}"
                         alt="Empty Digital Cultural Passport"
                     >
@@ -130,13 +203,29 @@
                         </a>
                     </div>
                 </div>
+
             @else
-                <div class="passport-viewer">
+                @php
+                    /*
+                    * Each book spread contains eight stamps:
+                    * four on the left and four on the right.
+                    */
+                    $passportSpreads = $passportStamps
+                        ->chunk(8)
+                        ->values();
+                @endphp
+
+                <div
+                    class="passport-viewer"
+                    data-passport-viewer
+                    data-spread-count="{{ $passportSpreads->count() }}"
+                >
                     <button
                         type="button"
                         class="passport-page-button previous"
                         data-passport-previous
-                        aria-label="Previous passport page"
+                        aria-label="Previous passport pages"
+                        disabled
                     >
                         &lsaquo;
                     </button>
@@ -147,199 +236,88 @@
                     >
                         <img
                             src="{{ asset(
-                                'images/engagement/passport-book.png'
+                                'images/engagement/passport-book.webp'
                             ) }}"
                             class="passport-book-background"
                             alt="Digital Cultural Passport"
                         >
 
-                        {{-- Left passport page --}}
-                        <div
-                            class="
-                                passport-book-page
-                                passport-book-page-left
-                            "
-                            data-book-page="1"
-                        >
-                            <span class="passport-book-page-title">
-                                Cultural Collection
-                            </span>
+                        @foreach (
+                            $passportSpreads as $spreadIndex => $spread
+                        )
+                            <div
+                                class="passport-book-spread"
+                                data-book-spread="{{ $spreadIndex }}"
+                                @if (! $loop->first) hidden @endif
+                            >
+                                {{-- Left passport page --}}
+                                <div
+                                    class="
+                                        passport-book-page
+                                        passport-book-page-left
+                                    "
+                                >
+                                    <span class="passport-book-page-title">
+                                        Cultural Collection
+                                    </span>
 
-                            <div class="passport-book-stamp-grid">
-                                @foreach (
-                                    $passportStamps->take(4)
-                                    as $userStamp
-                                )
-                                    <button
-                                        type="button"
-                                        class="passport-book-stamp"
-                                        data-user-stamp-id="{{
-                                            $userStamp->user_stamp_id
-                                        }}"
-                                        title="{{
-                                            $userStamp->stamp
-                                                ?->category
-                                        }}"
-                                    >
-                                        <img
-                                            src="{{ $userStamp
-                                                ->stamp
-                                                ?->stamp_image
-                                                    ? asset(
-                                                        $userStamp
-                                                            ->stamp
-                                                            ->stamp_image
-                                                    )
-                                                    : asset(
-                                                        'images/default-stamp.png'
-                                                    ) }}"
-                                            alt="{{
-                                                $userStamp
-                                                    ->stamp
-                                                    ?->category
-                                                ?? 'Passport stamp'
-                                            }}"
-                                        >
-
-                                        <span>
-                                            {{
-                                                $userStamp
-                                                    ->stamp
-                                                    ?->category
-                                                ?? 'Category'
-                                            }}
-                                        </span>
-
-                                        <small class="passport-book-stamp-details">
-                                            @if (
-                                                $userStamp
-                                                    ->completedExperience
-                                                    ?->experience
+                                    <div class="passport-book-stamp-grid">
+                                        @foreach (
+                                            $spread->take(4) as $userStamp
+                                        )
+                                            @include(
+                                                'engagement.partials.passport-book-stamp',
+                                                ['userStamp' => $userStamp]
                                             )
-                                                <strong>
-                                                    {{
-                                                        $userStamp
-                                                            ->completedExperience
-                                                            ->experience
-                                                            ->experiences_name
-                                                    }}
-                                                </strong>
-                                            @endif
+                                        @endforeach
+                                    </div>
+                                </div>
 
-                                            <time>
-                                                {{
-                                                    $userStamp
-                                                        ->collected_date
-                                                        ?->format('d M Y')
-                                                    ?? 'Unknown date'
-                                                }}
-                                            </time>
-                                        </small>
-                                    </button>
-                                @endforeach
-                            </div>
-                        </div>
+                                {{-- Right passport page --}}
+                                <div
+                                    class="
+                                        passport-book-page
+                                        passport-book-page-right
+                                    "
+                                >
+                                    <span class="passport-book-page-title">
+                                        Cultural Collection
+                                    </span>
 
-                        {{-- Right passport page --}}
-                        <div
-                            class="
-                                passport-book-page
-                                passport-book-page-right
-                            "
-                            data-book-page="2"
-                        >
-                            <span class="passport-book-page-title">
-                                Cultural Collection
-                            </span>
-
-                            <div class="passport-book-stamp-grid">
-                                @foreach (
-                                    $passportStamps->slice(4, 4)
-                                    as $userStamp
-                                )
-                                    <button
-                                        type="button"
-                                        class="passport-book-stamp"
-                                        data-user-stamp-id="{{
-                                            $userStamp->user_stamp_id
-                                        }}"
-                                        title="{{
-                                            $userStamp->stamp
-                                                ?->category
-                                        }}"
-                                    >
-                                        <img
-                                            src="{{ $userStamp
-                                                ->stamp
-                                                ?->stamp_image
-                                                    ? asset(
-                                                        $userStamp
-                                                            ->stamp
-                                                            ->stamp_image
-                                                    )
-                                                    : asset(
-                                                        'images/default-stamp.png'
-                                                    ) }}"
-                                            alt="{{
-                                                $userStamp
-                                                    ->stamp
-                                                    ?->category
-                                                ?? 'Passport stamp'
-                                            }}"
-                                        >
-
-                                        <span>
-                                            {{
-                                                $userStamp
-                                                    ->stamp
-                                                    ?->category
-                                                ?? 'Category'
-                                            }}
-                                        </span>
-
-                                        <small class="passport-book-stamp-details">
-                                            @if (
-                                                $userStamp
-                                                    ->completedExperience
-                                                    ?->experience
+                                    <div class="passport-book-stamp-grid">
+                                        @foreach (
+                                            $spread->slice(4, 4) as $userStamp
+                                        )
+                                            @include(
+                                                'engagement.partials.passport-book-stamp',
+                                                ['userStamp' => $userStamp]
                                             )
-                                                <strong>
-                                                    {{
-                                                        $userStamp
-                                                            ->completedExperience
-                                                            ->experience
-                                                            ->experiences_name
-                                                    }}
-                                                </strong>
-                                            @endif
-
-                                            <time>
-                                                {{
-                                                    $userStamp
-                                                        ->collected_date
-                                                        ?->format('d M Y')
-                                                    ?? 'Unknown date'
-                                                }}
-                                            </time>
-                                        </small>
-                                    </button>
-                                @endforeach
+                                        @endforeach
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        @endforeach
                     </div>
 
                     <button
                         type="button"
                         class="passport-page-button next"
                         data-passport-next
-                        aria-label="Next passport page"
+                        aria-label="Next passport pages"
+                        @if ($passportSpreads->count() <= 1)
+                            disabled
+                        @endif
                     >
                         &rsaquo;
                     </button>
                 </div>
 
-                <p class="passport-page-indicator">
-                    Pages 1&ndash;2
+                <p
+                    class="passport-page-indicator"
+                    data-passport-page-indicator
+                >
+                    Pages 1&ndash;2 of
+                    {{ $passportSpreads->count() * 2 }}
                 </p>
             @endif
         </div>
@@ -427,6 +405,7 @@
                                     ?? $stamp->category
                                     ?? 'Category stamp'
                                 }}"
+                                loading="lazy"
                             >
 
                             @if (! $isCollected)

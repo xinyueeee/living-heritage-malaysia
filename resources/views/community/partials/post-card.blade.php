@@ -222,21 +222,33 @@
     <div class="post-footer">
 
         <!-- Like -->
+              <!-- Like -->
+        @auth
+            @php
+                $isLiked = $post->isLikedBy(Auth::user());
+            @endphp
 
-        <button
-            type="button"
-            class="post-action like-action"
-        >
+            <form method="POST" action="{{ route('community.posts.like', $post) }}" class="post-like-form" data-liked="{{ $isLiked ? '1' : '0' }}">
+                @csrf
 
-            <span class="action-icon">
-                ♡
-            </span>
+                @if($isLiked)
+                    @method('DELETE')
+                @endif
 
-            <span>
-                {{ $post->like_count ?? 0 }}
-            </span>
+                <button type="submit" class="post-action like-action {{ $isLiked ? 'is-liked' : '' }}">
+                    <span class="action-icon like-icon">{{ $isLiked ? '♥' : '♡' }}</span>
+                    <span class="like-count">{{ $post->like_count ?? 0 }}</span>
+                </button>
+            </form>
+        @else
+            <a href="{{ route('login') }}" class="post-action like-action">
+                <span class="action-icon like-icon">♡</span>
+                <span class="like-count">{{ $post->like_count ?? 0 }}</span>
+             </a>
+         @endauth
+         
 
-        </button>
+
 
         <!-- Comment -->
 
@@ -245,18 +257,13 @@
             class="post-action"
         >
 
-            <span class="action-icon">
-                ♡
-            </span>
+            
 
             <span>
                 💬
             </span>
 
-            <span>
-                0
-            </span>
-
+           
         </button>
 
         <!-- Save -->

@@ -44,6 +44,14 @@ class ExperienceDiscoveryService
         ];
     }
 
+    public function getMapPageData(array $filters): array
+    {
+        return [
+            'mapExperiences' => $this->experienceRepository
+                ->getMappableExperiences($filters),
+        ];
+    }
+
     /** @param array<string, mixed> $filters */
     public function recordSearch(?Authenticatable $user, array $filters): void
     {

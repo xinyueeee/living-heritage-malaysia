@@ -15,8 +15,22 @@
             <div class="hero-content">
                 <span class="hero-subtitle">ENGAGEMENT & REWARDS</span>
                 <h1>Collect stamps <br>across Malaysia</h1>
-                <p class="hero-text">Every completed cultural experience earns you a beautiful digital passport stamp.</p>
-                <a href="#achievement" class="hero-btn">View Achievements</a>
+                <p class="hero-text">
+                    Completed a cultural experience? Share your journey
+                    in the Community and select the experience you joined
+                    to collect its category stamp and grow your achievement
+                    progress.
+                </p>
+
+                <div class="engagement-hero-actions">
+                    <a
+                        href="{{ route('community.index') }}"
+                        class="hero-btn"
+                    >
+                        Share an Experience
+                        <span aria-hidden="true">→</span>
+                    </a>
+                </div>
             </div>
         </div>
     </section>
@@ -39,7 +53,7 @@
             <div class="stat-card">
                 <div class="stat-icon">🎨</div>
                 <div>
-                    <h3>{{ $experienceHistory->count() }}</h3>
+                    <h3>{{ $completedExperienceCount }}</h3>
                     <p>Experiences Completed</p>
                 </div>
             </div>
@@ -47,7 +61,7 @@
             <div class="stat-card">
                 <div class="stat-icon">📖</div>
                 <div>
-                    <h3>{{ $passportStamps->count() }}</h3>
+                    <h3>{{ $passportStampCount }}</h3>
                     <p>Stamps Collected</p>
                 </div>
             </div>
@@ -66,7 +80,7 @@
         <div class="section-top">
             <div>
                 <h2>Digital Cultural Passport</h2>
-                <p>Collect stamps from every cultural experience.</p>
+                <p>Your 8 most recently collected cultural stamps.</p>
             </div>
 
             <a href="{{ route('engagement.passport') }}" class="outline-btn">
@@ -76,13 +90,13 @@
 
         <div class="passport-book">
             <img
-                src="{{ asset('images/engagement/passport-book.png') }}"
+                src="{{ asset('images/engagement/passport-book.webp') }}"
                 class="passport-background"
                 alt="Digital Cultural Passport"
             >
 
             <div class="passport-stamps">
-                @forelse($passportStamps as $userStamp)
+                @forelse($latestPassportStamps as $userStamp)
                     <div class="passport-stamp">
                         <img
                             src="{{ $userStamp->stamp?->stamp_image
@@ -153,7 +167,7 @@
             </a>
         </div>
 
-        @forelse($experienceHistory->take(1) as $history)
+        @forelse($recentExperienceHistory as $history)
             <div class="recent-card">
                 <div>
                     <h3>

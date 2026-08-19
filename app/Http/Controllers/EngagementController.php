@@ -9,65 +9,141 @@ use App\Models\DigitalCulturalPassport;
 use App\Models\PassportStamp;
 use App\Models\UserAchievement;
 use App\Models\UserPassportStamp;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class EngagementController extends Controller
 {
-    public function index(){
-        if (!Auth::check()) {
+    public function index()
+    {
+        if (! Auth::check()) {
             return view('engagement.login');
         }
 
         $userId = Auth::id();
 
-        $userProgress = UserAchievement::where('user_id', $userId)
+        /*
+        * Retrieve the user's badge progress.
+        */
+        $userProgress = UserAchievement::where(
+                'user_id',
+                $userId
+            )
             ->get()
             ->keyBy('badge_id');
 
-        $achievements = AchievementBadge::orderBy('badge_id')
+        /*
+        * Badge definitions are a small fixed collection.
+        */
+        $achievements = AchievementBadge::orderBy(
+                'badge_id'
+            )
             ->get()
             ->map(function ($badge) use ($userProgress) {
-                $progress = $userProgress->get($badge->badge_id);
+                $progress = $userProgress->get(
+                    $badge->badge_id
+                );
 
-                $badge->current_progress = $progress?->current_progress ?? 0;
-                $badge->is_unlocked = $progress?->is_unlocked ?? false;
-                $badge->unlocked_date = $progress?->unlocked_date;
+                $badge->current_progress =
+                    $progress?->current_progress ?? 0;
 
-                $badge->progress_percentage = $badge->target_count > 0
-                    ? min(
-                        100,
-                        round(
-                            ($badge->current_progress / $badge->target_count) * 100
+                $badge->is_unlocked =
+                    $progress?->is_unlocked ?? false;
+
+                $badge->unlocked_date =
+                    $progress?->unlocked_date;
+
+                $badge->progress_percentage =
+                    $badge->target_count > 0
+                        ? min(
+                            100,
+                            round(
+                                (
+                                    $badge->current_progress
+                                    / $badge->target_count
+                                ) * 100
+                            )
                         )
-                    )
-                    : 0;
+                        : 0;
 
                 return $badge;
             });
 
-        $passportStamps = UserPassportStamp::with([
-                'stamp.categoryDetails',
-                'completedExperience.experience',
-            ])
-            ->whereHas('passport', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })
+        /*
+        * Load only the latest eight stamps needed by the
+        * home-page preview.
+        *
+        * COUNT(*) OVER() also returns the total stamp count
+        * without loading every collected stamp.
+        */
+        $latestPassportStamps = UserPassportStamp::query()
+            ->select('user_passport_stamp.*')
+            ->selectRaw(
+                'COUNT(*) OVER() AS total_stamp_count'
+            )
+            ->with('stamp')
+            ->whereHas(
+                'passport',
+                function ($query) use ($userId) {
+                    $query->where(
+                        'user_id',
+                        $userId
+                    );
+                }
+            )
             ->latest('collected_date')
+            ->limit(8)
             ->get();
 
-        $experienceHistory = CompletedExperience::with([
+        $passportStampCount = (int) (
+            $latestPassportStamps
+                ->first()
+                ?->total_stamp_count
+            ?? 0
+        );
+
+        /*
+        * Load only the latest completed experience needed by
+        * the home-page preview.
+        *
+        * The window count provides the total without loading
+        * the complete history collection.
+        */
+        $recentExperienceHistory = CompletedExperience::query()
+            ->select('completed_experience.*')
+            ->selectRaw(
+                'COUNT(*) OVER() AS total_experience_count'
+            )
+            ->with([
                 'experience.category',
             ])
             ->where('user_id', $userId)
             ->latest('completed_date')
+            ->limit(1)
             ->get();
 
+        $completedExperienceCount = (int) (
+            $recentExperienceHistory
+                ->first()
+                ?->total_experience_count
+            ?? 0
+        );
+
         return view('engagement.index', [
-            'passportStamps' => $passportStamps,
-            'achievements' => $achievements,
-            'experienceHistory' => $experienceHistory,
+            'latestPassportStamps' =>
+                $latestPassportStamps,
+
+            'passportStampCount' =>
+                $passportStampCount,
+
+            'achievements' =>
+                $achievements,
+
+            'recentExperienceHistory' =>
+                $recentExperienceHistory,
+
+            'completedExperienceCount' =>
+                $completedExperienceCount,
         ]);
     }
 
@@ -80,47 +156,107 @@ class EngagementController extends Controller
         ]);
 
         /*
-        * Stamps collected by this user.
+        * Load every available stamp definition once.
+        *
+        * The Passport Blade uses categoryDetails, but it does
+        * not currently use categoryDetails.type.
+        */
+        $allStamps = PassportStamp::with(
+                'categoryDetails'
+            )
+            ->orderBy('category_id')
+            ->get();
+
+        $stampDefinitions = $allStamps->keyBy(
+            'stamp_id'
+        );
+
+        /*
+        * Load user stamp records without querying the same
+        * stamp definitions and categories again.
         */
         $passportStamps = UserPassportStamp::with([
-                'stamp.categoryDetails.type',
-                'completedExperience.experience.category',
+                'completedExperience.experience',
             ])
-            ->where('passport_id', $passport->passport_id)
+            ->where(
+                'passport_id',
+                $passport->passport_id
+            )
             ->orderBy('page_number')
             ->orderBy('z_index')
             ->get();
 
         /*
-        * Every stamp that can be collected.
+        * Attach the already loaded stamp definitions to each
+        * user stamp. This avoids duplicate database queries.
         */
-        $allStamps = PassportStamp::with([
-                'categoryDetails.type',
-            ])
-            ->orderBy('category_id')
-            ->get();
+        $passportStamps->each(
+            function ($userStamp) use ($stampDefinitions) {
+                $stamp = $stampDefinitions->get(
+                    $userStamp->stamp_id
+                );
 
-        /*
-        * Quickly check whether a stamp is collected.
-        */
-        $collectedStamps = $passportStamps->keyBy('stamp_id');
+                if ($stamp) {
+                    $userStamp->setRelation(
+                        'stamp',
+                        $stamp
+                    );
+                }
+            }
+        );
+
+        $newStamps = $passportStamps
+            ->whereNull('notified_at')
+            ->values();
+
+        $collectedStamps = $passportStamps->keyBy(
+            'stamp_id'
+        );
 
         $collectedCount = $passportStamps->count();
         $totalCount = $allStamps->count();
 
         $collectionPercentage = $totalCount > 0
-            ? round(($collectedCount / $totalCount) * 100)
+            ? round(
+                ($collectedCount / $totalCount) * 100
+            )
             : 0;
 
-        return view('engagement.passport', compact(
-            'passport',
-            'passportStamps',
-            'allStamps',
-            'collectedStamps',
-            'collectedCount',
-            'totalCount',
-            'collectionPercentage'
-        ));
+        return view(
+            'engagement.passport',
+            compact(
+                'passport',
+                'passportStamps',
+                'newStamps',
+                'allStamps',
+                'collectedStamps',
+                'collectedCount',
+                'totalCount',
+                'collectionPercentage'
+            )
+        );
+    }
+
+    public function acknowledgeStampNotifications()
+    {
+        $userId = Auth::id();
+
+        UserPassportStamp::whereHas(
+                'passport',
+                function ($query) use ($userId) {
+                    $query->where(
+                        'user_id',
+                        $userId
+                    );
+                }
+            )
+            ->whereNull('notified_at')
+            ->update([
+                'notified_at' => now(),
+            ]);
+
+        return redirect()
+            ->route('engagement.passport');
     }
 
     public function customizePassport()
@@ -134,7 +270,10 @@ class EngagementController extends Controller
         $passportStamps = UserPassportStamp::with([
                 'stamp.categoryDetails',
             ])
-            ->where('passport_id', $passport->passport_id)
+            ->where(
+                'passport_id',
+                $passport->passport_id
+            )
             ->orderBy('page_number')
             ->orderBy('z_index')
             ->get();
@@ -166,6 +305,16 @@ class EngagementController extends Controller
                 'nullable',
                 'boolean',
             ],
+
+            'stamp_order' => [
+                'nullable',
+                'array',
+            ],
+
+            'stamp_order.*' => [
+                'integer',
+                'distinct',
+            ],
         ]);
 
         $passport = DigitalCulturalPassport::where(
@@ -174,12 +323,46 @@ class EngagementController extends Controller
             )
             ->firstOrFail();
 
+        /*
+        * Save the Passport theme and display preferences.
+        */
         $passport->update([
-            'display_theme' => $validated['display_theme'],
-            'display_layout' => $validated['display_layout'],
-            'show_stamp_details'
-                => $request->boolean('show_stamp_details'),
+            'display_theme' =>
+                $validated['display_theme'],
+
+            'display_layout' =>
+                $validated['display_layout'],
+
+            'show_stamp_details' =>
+                $request->boolean(
+                    'show_stamp_details'
+                ),
         ]);
+        /*
+        * Save the dragged stamp arrangement.
+        *
+        * Every passport page contains four stamps.
+        */
+        foreach (
+            $validated['stamp_order'] ?? []
+            as $index => $userStampId
+        ) {
+            $pageNumber = intdiv($index, 4) + 1;
+            $positionOnPage = ($index % 4) + 1;
+
+            UserPassportStamp::where(
+                    'user_stamp_id',
+                    $userStampId
+                )
+                ->where(
+                    'passport_id',
+                    $passport->passport_id
+                )
+                ->update([
+                    'page_number' => $pageNumber,
+                    'z_index' => $positionOnPage,
+                ]);
+        }
 
         return redirect()
             ->route('engagement.passport')
@@ -193,52 +376,102 @@ class EngagementController extends Controller
     {
         $userId = Auth::id();
 
-        $userProgress = UserAchievement::where('user_id', $userId)
+        $userProgress = UserAchievement::where(
+                'user_id',
+                $userId
+            )
             ->get()
             ->keyBy('badge_id');
+
+        /*
+         * Unlocked badges that have not yet been shown in
+         * the "new achievement unlocked" pop-up.
+         */
+        $newAchievements = UserAchievement::with('badge')
+            ->where('user_id', $userId)
+            ->where('is_unlocked', true)
+            ->whereNull('notified_at')
+            ->orderBy('unlocked_date')
+            ->get();
 
         $achievements = AchievementBadge::orderBy('badge_id')
             ->get()
             ->map(function ($badge) use ($userProgress) {
-                $progress = $userProgress->get($badge->badge_id);
+                $progress = $userProgress->get(
+                    $badge->badge_id
+                );
 
-                $badge->current_progress = $progress?->current_progress ?? 0;
-                $badge->is_unlocked = $progress?->is_unlocked ?? false;
-                $badge->unlocked_date = $progress?->unlocked_date;
+                $badge->current_progress =
+                    $progress?->current_progress ?? 0;
 
-                $badge->progress_percentage = $badge->target_count > 0
-                    ? min(
-                        100,
-                        round(
-                            ($badge->current_progress / $badge->target_count) * 100
+                $badge->is_unlocked =
+                    $progress?->is_unlocked ?? false;
+
+                $badge->unlocked_date =
+                    $progress?->unlocked_date;
+
+                $badge->progress_percentage =
+                    $badge->target_count > 0
+                        ? min(
+                            100,
+                            round(
+                                (
+                                    $badge->current_progress
+                                    / $badge->target_count
+                                ) * 100
+                            )
                         )
-                    )
-                    : 0;
+                        : 0;
 
                 return $badge;
             });
 
         return view(
             'engagement.achievements',
-            compact('achievements')
+            compact(
+                'achievements',
+                'newAchievements'
+            )
         );
     }
 
-    public function history(Request $request){
+    public function acknowledgeAchievementNotifications()
+    {
+        UserAchievement::where(
+                'user_id',
+                Auth::id()
+            )
+            ->where('is_unlocked', true)
+            ->whereNull('notified_at')
+            ->update([
+                'notified_at' => now(),
+            ]);
 
+        return redirect()
+            ->route('engagement.achievements');
+    }
+
+    public function history(Request $request)
+    {
         $query = CompletedExperience::with([
                 'experience.category',
             ])
-            ->where('user_id', Auth::id())
+            ->where(
+                'user_id',
+                Auth::id()
+            )
             ->latest('completed_date');
 
         if ($request->filled('category')) {
-            $query->whereHas('experience', function ($experienceQuery) use ($request) {
-                $experienceQuery->where(
-                    'category_id',
-                    $request->category
-                );
-            });
+            $query->whereHas(
+                'experience',
+                function ($experienceQuery) use ($request) {
+                    $experienceQuery->where(
+                        'category_id',
+                        $request->category
+                    );
+                }
+            );
         }
 
         if ($request->filled('search')) {
@@ -263,14 +496,27 @@ class EngagementController extends Controller
         }
 
         $experienceHistory = $query
-            ->paginate(9)
+            ->paginate(6)
             ->withQueryString();
 
-        $categories = Category::orderBy('category_name')->get();
+        $categories = Category::orderBy(
+                'category_name'
+            )
+            ->get();
 
-        return view('engagement.history', compact(
-            'experienceHistory',
-            'categories'
-        ));
+        $categoryStamps = PassportStamp::whereNotNull(
+                'category_id'
+            )
+            ->get()
+            ->keyBy('category_id');
+
+        return view(
+            'engagement.history',
+            compact(
+                'experienceHistory',
+                'categories',
+                'categoryStamps'
+            )
+        );
     }
 }
