@@ -72,10 +72,11 @@ class ProfileService
     /**
      * @return Collection<int, ProfilePhoto>
      */
-    public function getPhotoHistory(string $userId): Collection
+    public function getPhotoHistory(string $userId, int $limit = 20): Collection
     {
         return ProfilePhoto::where('user_id', $userId)
             ->orderByDesc('uploaded_at')
+            ->limit($limit)
             ->get();
     }
 
@@ -148,6 +149,7 @@ class ProfileService
             'apikey' => $serviceRoleKey,
             'Content-Type' => $file->getMimeType(),
         ])
+            ->timeout(10)
             ->withBody(file_get_contents($file->getRealPath()), $file->getMimeType())
             ->post("{$baseUrl}/storage/v1/object/".self::PHOTO_BUCKET."/{$path}");
 

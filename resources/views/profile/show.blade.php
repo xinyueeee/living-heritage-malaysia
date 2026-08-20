@@ -60,8 +60,9 @@
                     <button type="button" class="profile-avatar-camera" aria-label="Change profile photo" data-action="edit">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                     </button>
-                    <input type="file" accept="image/jpeg,image/png,image/webp" hidden data-photo-input>
+                    <input type="file" accept="image/jpeg,image/png,image/webp" hidden data-photo-input aria-label="Upload profile photo">
                     <p class="profile-avatar-error" data-avatar-error hidden></p>
+                    <p class="profile-avatar-success" data-avatar-success role="status" hidden>Photo updated</p>
                 </div>
 
                 <div class="profile-header-info">
@@ -181,6 +182,7 @@
                 <span id="profilePhotoModalDate"></span>
                 <button type="button" class="button button-primary" id="profilePhotoModalSetCurrent" hidden>Set as current photo</button>
             </div>
+            <p id="profilePhotoModalError" class="profile-avatar-error profile-photo-modal-error" role="alert" hidden></p>
 
             <div class="profile-photo-modal-thumbs" id="profilePhotoModalThumbs"></div>
         </div>

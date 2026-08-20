@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalPrev = document.getElementById('profilePhotoModalPrev');
     const modalNext = document.getElementById('profilePhotoModalNext');
     const modalSetCurrent = document.getElementById('profilePhotoModalSetCurrent');
+    const modalError = document.getElementById('profilePhotoModalError');
 
     let photos = [];
     let currentIndex = 0;
@@ -33,6 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!photo) {
             return;
+        }
+
+        if (modalError) {
+            modalError.hidden = true;
         }
 
         modalImage.src = photo.url;
@@ -131,7 +136,11 @@ document.addEventListener('DOMContentLoaded', () => {
             renderThumbs();
             renderMain();
         } catch (error) {
-            // Keep the modal open so the user can retry.
+            if (modalError) {
+                modalError.textContent = error.response?.data?.message
+                    ?? 'Could not update your profile photo. Please try again.';
+                modalError.hidden = false;
+            }
         } finally {
             modalSetCurrent.disabled = false;
         }

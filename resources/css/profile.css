@@ -45,6 +45,8 @@
 .profile-photo-modal-thumb.is-active { border-color: var(--primary); }
 .profile-photo-modal-thumb.is-current-photo::after { content: '✓'; position: absolute; top: 2px; right: 2px; display: grid; place-items: center; width: 14px; height: 14px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 9px; }
 .profile-avatar-error { position: absolute; top: 100%; left: 0; width: 200px; margin: 6px 0 0; padding: 6px 10px; border: 1px solid #d88e82; border-radius: 6px; background: #fff0ed; color: #762a20; font-size: .78rem; }
+.profile-avatar-success { position: absolute; top: 100%; left: 0; width: 200px; margin: 6px 0 0; padding: 6px 10px; border: 1px solid #b9d8c4; border-radius: 6px; background: #effaf2; color: #195b33; font-size: .78rem; }
+.profile-photo-modal-error { position: static; width: 100%; margin: -6px 0 14px; }
 .profile-header-info { flex: 1; min-width: 0; }
 .profile-header-info h2 { margin: 0 0 8px; font-family: Georgia, serif; font-size: 1.6rem; }
 .profile-meta { display: flex; align-items: center; gap: 8px; margin: 4px 0; color: var(--muted); font-size: .9rem; }
