@@ -10,7 +10,6 @@ use App\Http\Controllers\ProfilePhotoController;
 use App\Http\Controllers\SavedExperienceController;
 use App\Http\Controllers\SavedPostController;
 use App\Http\Controllers\EngagementController;
-use App\Http\Controllers\FeedbackController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CalendarController;
@@ -43,6 +42,7 @@ Route::middleware('auth')->group(function () {
         ->whereIn('field', ['user_name', 'user_email', 'bio', 'gender', 'birthday'])
         ->name('profile.personal-information.update');
     Route::post('/profile/photo', [ProfilePhotoController::class, 'store'])->name('profile.photo.store');
+    Route::patch('/profile/photo/{photo}/restore', [ProfilePhotoController::class, 'restore'])->name('profile.photo.restore');
     Route::get('/profile/interests', [InterestController::class, 'show'])->name('profile.interests');
     Route::put('/profile/interests', [InterestController::class, 'update'])->name('profile.interests.update');
 
@@ -51,8 +51,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/my-posts', [ProfileController::class, 'myPosts'])->name('profile.my-posts');
     Route::get('/profile/saved-posts', [SavedPostController::class, 'index'])->name('profile.saved-posts');
     Route::get('/profile/achievements', [ProfileController::class, 'achievements'])->name('profile.achievements');
-    Route::get('/profile/feedback', [FeedbackController::class, 'index'])->name('profile.feedback');
-    Route::post('/profile/feedback', [FeedbackController::class, 'store'])->name('profile.feedback.store');
 
     Route::post('/experiences/{experience}/save', [SavedExperienceController::class, 'store'])
         ->name('experiences.saved.store');

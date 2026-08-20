@@ -70,6 +70,38 @@ class ProfileService
     }
 
     /**
+     * @return Collection<int, ProfilePhoto>
+     */
+    public function getPhotoHistory(string $userId): Collection
+    {
+        return ProfilePhoto::where('user_id', $userId)
+            ->orderByDesc('uploaded_at')
+            ->get();
+    }
+
+    public function setCurrentPhoto(string $userId, int $photoId): User
+    {
+        $user = User::findOrFail($userId);
+
+        $photo = ProfilePhoto::where('profile_photo_id', $photoId)
+            ->where('user_id', $userId)
+            ->firstOrFail();
+
+        // Restoring an older photo counts as a new change, so it becomes
+        // the latest history entry and shows up first again.
+        ProfilePhoto::create([
+            'user_id' => $userId,
+            'photo_url' => $photo->photo_url,
+            'uploaded_at' => now(),
+        ]);
+
+        $user->profile_photo = $photo->photo_url;
+        $user->save();
+
+        return $user;
+    }
+
+    /**
      * @return Collection<int, Category>
      */
     public function getAllCategories(): Collection

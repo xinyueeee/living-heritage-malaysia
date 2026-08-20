@@ -43,43 +43,50 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /* ===================================================
        OPEN PHOTO VIEWER
+
+       Uses delegation on document.body (instead of binding
+       to each .gallery-item at load time) so it also works
+       for galleries added later, e.g. cloned into the post
+       detail modal on the Saved Posts page.
     =================================================== */
 
-    document
-        .querySelectorAll('.post-gallery')
-        .forEach(function (gallery) {
+    document.body.addEventListener(
+        'click',
+        function (event) {
 
 
-            gallery
-                .querySelectorAll('.gallery-item')
-                .forEach(function (item) {
+            const item =
+                event.target.closest('.gallery-item');
+
+            if (!item) {
+                return;
+            }
 
 
-                    item.addEventListener(
-                        'click',
-                        function () {
+            const gallery =
+                item.closest('.post-gallery');
+
+            if (!gallery) {
+                return;
+            }
 
 
-                            currentImages =
-                                JSON.parse(
-                                    gallery.dataset.images
-                                );
+            currentImages =
+                JSON.parse(
+                    gallery.dataset.images
+                );
 
 
-                            currentIndex =
-                                parseInt(
-                                    item.dataset.index
-                                );
+            currentIndex =
+                parseInt(
+                    item.dataset.index
+                );
 
 
-                            openPhotoViewer();
+            openPhotoViewer();
 
-                        }
-                    );
-
-                });
-
-        });
+        }
+    );
 
 
 

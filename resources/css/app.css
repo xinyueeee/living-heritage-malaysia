@@ -155,7 +155,7 @@ a { color: inherit; text-decoration: none; }
     .site-logo img { width: 64px; }
     .footer-logo { min-width: 86px; }
     .footer-logo img { width: 86px; }
-    .menu-toggle { display: block; }
+    .menu-toggle { display: block; margin-left: auto; }
     .nav-menu { position: absolute; top: 68px; right: 0; left: 0; display: none; flex-direction: column; align-items: stretch; gap: 0; margin-left: 0; padding: 10px 20px 18px; background: var(--surface); box-shadow: 0 8px 12px rgba(46, 39, 34, .08); }
     .nav-menu.open { display: flex; }
     .nav-menu li a { display: block; padding: 12px 0; }

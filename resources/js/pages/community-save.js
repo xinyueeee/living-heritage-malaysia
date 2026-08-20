@@ -62,9 +62,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const savedGrid = document.getElementById('saved-posts-grid');
 
             if (savedGrid && !nowSaved) {
-                form.closest('.post-card')?.remove();
+                const postId = form.dataset.postId;
+                const tile = postId ? savedGrid.querySelector(`.saved-posts-grid-item[data-post-id="${postId}"]`) : null;
+                tile?.remove();
 
-                if (!savedGrid.querySelector('.post-card')) {
+                document.getElementById(`post-detail-${postId}`)?.remove();
+
+                const modal = document.getElementById('postDetailModal');
+                if (modal?.classList.contains('active')) {
+                    modal.classList.remove('active');
+                    const modalBody = document.getElementById('postDetailModalBody');
+                    if (modalBody) {
+                        modalBody.innerHTML = '';
+                    }
+                    document.body.style.overflow = '';
+                }
+
+                if (!savedGrid.querySelector('.saved-posts-grid-item')) {
                     savedGrid.hidden = true;
                     document.getElementById('saved-posts-empty')?.removeAttribute('hidden');
                 }
