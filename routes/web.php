@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExperienceController;
+use App\Http\Controllers\DiscoveryAssistantController;
 use App\Http\Controllers\InterestController;
 use App\Http\Controllers\PersonalInformationController;
 use App\Http\Controllers\ProfileController;
@@ -9,7 +10,6 @@ use App\Http\Controllers\ProfilePhotoController;
 use App\Http\Controllers\SavedExperienceController;
 use App\Http\Controllers\SavedPostController;
 use App\Http\Controllers\EngagementController;
-use App\Http\Controllers\FeedbackController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CalendarController;
@@ -25,6 +25,10 @@ Route::get('/experiences', [ExperienceController::class, 'index'])->name('experi
 Route::get('/experiences/map', [ExperienceController::class, 'map'])->name('experiences.map');
 Route::get('/experiences/{experience}', [ExperienceController::class, 'show'])->name('experiences.show');
 Route::get('/recommendations', [ExperienceController::class, 'recommendations'])->name('recommendations.index');
+Route::post('/discover-assistant/message', DiscoveryAssistantController::class)
+    ->name('discover-assistant.message');
+Route::delete('/discover-assistant/context', [DiscoveryAssistantController::class, 'reset'])
+    ->name('discover-assistant.reset');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login')->middleware('guest');
 Route::get('/auth/callback', [AuthController::class, 'callback'])->name('auth.callback');
@@ -42,6 +46,7 @@ Route::middleware('auth')->group(function () {
         ->whereIn('field', ['user_name', 'user_email', 'bio', 'gender', 'birthday'])
         ->name('profile.personal-information.update');
     Route::post('/profile/photo', [ProfilePhotoController::class, 'store'])->name('profile.photo.store');
+    Route::patch('/profile/photo/{photo}/restore', [ProfilePhotoController::class, 'restore'])->name('profile.photo.restore');
     Route::get('/profile/interests', [InterestController::class, 'show'])->name('profile.interests');
     Route::put('/profile/interests', [InterestController::class, 'update'])->name('profile.interests.update');
 
@@ -67,8 +72,6 @@ Route::post('/alerts/personalize', [AlertController::class, 'store'])
     Route::get('/profile/my-posts', [ProfileController::class, 'myPosts'])->name('profile.my-posts');
     Route::get('/profile/saved-posts', [SavedPostController::class, 'index'])->name('profile.saved-posts');
     Route::get('/profile/achievements', [ProfileController::class, 'achievements'])->name('profile.achievements');
-    Route::get('/profile/feedback', [FeedbackController::class, 'index'])->name('profile.feedback');
-    Route::post('/profile/feedback', [FeedbackController::class, 'store'])->name('profile.feedback.store');
 
     Route::post('/experiences/{experience}/save', [SavedExperienceController::class, 'store'])
         ->name('experiences.saved.store');

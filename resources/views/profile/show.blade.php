@@ -32,17 +32,37 @@
 
         <div>
             <div class="profile-card profile-header-card">
-                <div class="profile-avatar-wrap" data-photo-upload>
+                @php
+                    $photoItems = $photoHistory->map(fn ($photo) => [
+                        'id' => $photo->profile_photo_id,
+                        'url' => $photo->photo_url,
+                        'uploaded_at' => optional($photo->uploaded_at)->format('j M Y'),
+                        'is_current' => $photo->photo_url === $user->profile_photo,
+                    ])->values();
+
+                    if ($photoItems->isEmpty() && $user->profile_photo) {
+                        $photoItems = collect([[
+                            'id' => null,
+                            'url' => $user->profile_photo,
+                            'uploaded_at' => null,
+                            'is_current' => true,
+                        ]]);
+                    }
+                @endphp
+                <div class="profile-avatar-wrap" data-photo-upload data-photo-history='@json($photoItems)'>
                     @if ($user->profile_photo)
-                        <img class="profile-avatar-lg" src="{{ $user->profile_photo }}" alt="" data-avatar-image>
+                        <button type="button" class="profile-avatar-view-trigger" data-action="view" aria-label="View profile photo">
+                            <img class="profile-avatar-lg" src="{{ $user->profile_photo }}" alt="" data-avatar-image>
+                        </button>
                     @else
                         <span class="profile-avatar-lg profile-avatar-lg-fallback" data-avatar-fallback>{{ \Illuminate\Support\Str::substr($user->user_name ?? '?', 0, 1) }}</span>
                     @endif
                     <button type="button" class="profile-avatar-camera" aria-label="Change profile photo" data-action="edit">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                     </button>
-                    <input type="file" accept="image/jpeg,image/png,image/webp" hidden data-photo-input>
+                    <input type="file" accept="image/jpeg,image/png,image/webp" hidden data-photo-input aria-label="Upload profile photo">
                     <p class="profile-avatar-error" data-avatar-error hidden></p>
+                    <p class="profile-avatar-success" data-avatar-success role="status" hidden>Photo updated</p>
                 </div>
 
                 <div class="profile-header-info">
@@ -145,18 +165,30 @@
                     @endif
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="profile-feedback-banner">
-                <div>
-                    <h3>Have feedback or need help?</h3>
-                    <p>We'd love to hear from you!</p>
-                </div>
-                <a href="{{ route('profile.feedback') }}" class="button button-primary">Go to Feedback &amp; Support →</a>
+    <div id="profilePhotoModal" class="profile-photo-modal">
+        <div class="profile-photo-modal-content">
+            <button type="button" class="profile-photo-modal-close" id="profilePhotoModalClose" aria-label="Close">&times;</button>
+
+            <div class="profile-photo-modal-main">
+                <button type="button" class="profile-photo-modal-nav profile-photo-modal-prev" id="profilePhotoModalPrev" aria-label="Previous photo">‹</button>
+                <img id="profilePhotoModalImage" src="" alt="Profile photo">
+                <button type="button" class="profile-photo-modal-nav profile-photo-modal-next" id="profilePhotoModalNext" aria-label="Next photo">›</button>
             </div>
+
+            <div class="profile-photo-modal-meta">
+                <span id="profilePhotoModalDate"></span>
+                <button type="button" class="button button-primary" id="profilePhotoModalSetCurrent" hidden>Set as current photo</button>
+            </div>
+            <p id="profilePhotoModalError" class="profile-avatar-error profile-photo-modal-error" role="alert" hidden></p>
+
+            <div class="profile-photo-modal-thumbs" id="profilePhotoModalThumbs"></div>
         </div>
     </div>
 
     @push('scripts')
-        @vite(['resources/js/pages/profile-photo.js'])
+        @vite(['resources/js/pages/profile-photo.js', 'resources/js/pages/profile-photo-history.js'])
     @endpush
 @endsection

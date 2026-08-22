@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const editBtn = wrap.querySelector('[data-action="edit"]');
     const fileInput = wrap.querySelector('[data-photo-input]');
     const errorEl = wrap.querySelector('[data-avatar-error]');
+    const successEl = wrap.querySelector('[data-avatar-success]');
+    let successTimeout;
 
     editBtn?.addEventListener('click', () => fileInput.click());
 
@@ -21,6 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         errorEl.hidden = true;
+        if (successEl) {
+            successEl.hidden = true;
+        }
         editBtn.disabled = true;
 
         const formData = new FormData();
@@ -44,6 +49,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             img.src = `${photoUrl}?t=${Date.now()}`;
+
+            if (successEl) {
+                successEl.hidden = false;
+                clearTimeout(successTimeout);
+                successTimeout = setTimeout(() => {
+                    successEl.hidden = true;
+                }, 2000);
+            }
         } catch (error) {
             const message = error.response?.data?.errors?.photo?.[0]
                 ?? error.response?.data?.message

@@ -26,12 +26,29 @@
             </div>
 
             <div id="saved-posts-grid" @if ($posts->isEmpty()) hidden @endif>
-                <div class="community-posts">
+                <div class="saved-posts-grid-tiles">
                     @foreach ($posts as $post)
-                        @include('community.partials.post-card', [
-                            'post' => $post,
-                            'isSaved' => true,
-                        ])
+                        @php
+                            $postImages = $post->post_images ? json_decode($post->post_images, true) : null;
+                            $firstImage = is_array($postImages) && count($postImages) > 0 ? $postImages[0] : null;
+                        @endphp
+                        <button
+                            type="button"
+                            class="saved-posts-grid-item"
+                            data-post-id="{{ $post->post_id }}"
+                            data-detail-target="post-detail-{{ $post->post_id }}"
+                            aria-label="View post"
+                        >
+                            @if ($firstImage)
+                                <img src="{{ $firstImage }}" alt="">
+                            @else
+                                <span class="saved-posts-grid-textonly">{{ \Illuminate\Support\Str::limit($post->content, 90) }}</span>
+                            @endif
+
+                            <span class="saved-posts-grid-overlay">
+                                <span>♥ {{ $post->like_count ?? 0 }}</span>
+                            </span>
+                        </button>
                     @endforeach
                 </div>
 
@@ -40,10 +57,26 @@
         </div>
     </div>
 
+    @foreach ($posts as $post)
+        <template id="post-detail-{{ $post->post_id }}">
+            @include('community.partials.post-card', [
+                'post' => $post,
+                'isSaved' => true,
+            ])
+        </template>
+    @endforeach
+
+    <div id="postDetailModal" class="post-detail-modal">
+        <div class="post-detail-modal-content">
+            <button type="button" class="post-detail-modal-close" id="postDetailModalClose" aria-label="Close">&times;</button>
+            <div id="postDetailModalBody"></div>
+        </div>
+    </div>
+
     @include('community.partials.photo-viewer')
 @endsection
 
 @push('scripts')
     @include('community.partials.photo-viewer-script')
-    @vite(['resources/js/pages/community-save.js'])
+    @vite(['resources/js/pages/community-save.js', 'resources/js/pages/community-like.js', 'resources/js/pages/post-detail-modal.js'])
 @endpush

@@ -25,7 +25,7 @@
                         <span class="profile-field-success" hidden>Saved</span>
                     </div>
                     <div class="profile-field-form" hidden>
-                        <input type="text" class="profile-field-input" maxlength="100" value="{{ $user->user_name }}">
+                        <input type="text" class="profile-field-input" maxlength="100" value="{{ $user->user_name }}" aria-label="Full Name">
                         <div class="profile-field-actions">
                             <button type="button" class="button button-primary" data-action="save">Save</button>
                             <button type="button" class="profile-field-cancel" data-action="cancel">Cancel</button>
@@ -44,7 +44,7 @@
                         <span class="profile-field-success" hidden>Saved</span>
                     </div>
                     <div class="profile-field-form" hidden>
-                        <input type="email" class="profile-field-input" maxlength="100" value="{{ $user->user_email }}">
+                        <input type="email" class="profile-field-input" maxlength="100" value="{{ $user->user_email }}" aria-label="Email Address">
                         <div class="profile-field-actions">
                             <button type="button" class="button button-primary" data-action="save">Save</button>
                             <button type="button" class="profile-field-cancel" data-action="cancel">Cancel</button>
@@ -63,7 +63,7 @@
                         <span class="profile-field-success" hidden>Saved</span>
                     </div>
                     <div class="profile-field-form" hidden>
-                        <textarea class="profile-field-input profile-field-textarea" maxlength="500" rows="4">{{ $user->bio }}</textarea>
+                        <textarea class="profile-field-input profile-field-textarea" maxlength="500" rows="4" aria-label="Bio">{{ $user->bio }}</textarea>
                         <div class="profile-field-actions">
                             <button type="button" class="button button-primary" data-action="save">Save</button>
                             <button type="button" class="profile-field-cancel" data-action="cancel">Cancel</button>
@@ -82,7 +82,7 @@
                         <span class="profile-field-success" hidden>Saved</span>
                     </div>
                     <div class="profile-field-form" hidden>
-                        <select class="profile-field-input">
+                        <select class="profile-field-input" aria-label="Gender">
                             <option value="" @selected(! $user->gender)>Not set</option>
                             @foreach (['Male', 'Female', 'Other', 'Prefer not to say'] as $option)
                                 <option value="{{ $option }}" @selected($user->gender === $option)>{{ $option }}</option>
@@ -106,7 +106,7 @@
                         <span class="profile-field-success" hidden>Saved</span>
                     </div>
                     <div class="profile-field-form" hidden>
-                        <input type="date" class="profile-field-input" value="{{ $user->birthday?->format('Y-m-d') }}">
+                        <input type="date" class="profile-field-input" value="{{ $user->birthday?->format('Y-m-d') }}" aria-label="Birthday">
                         <div class="profile-field-actions">
                             <button type="button" class="button button-primary" data-action="save">Save</button>
                             <button type="button" class="profile-field-cancel" data-action="cancel">Cancel</button>

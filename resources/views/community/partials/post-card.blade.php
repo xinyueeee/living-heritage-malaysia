@@ -274,6 +274,7 @@
                 action="{{ route('community.posts.saved.store', $post) }}"
                 class="post-save-form"
                 data-saved="{{ $isSaved ? '1' : '0' }}"
+                data-post-id="{{ $post->post_id }}"
             >
                 @csrf
                 @if ($isSaved)

@@ -1,47 +1,43 @@
 @php($active = $active ?? 'overview')
 
 <nav class="profile-sidebar" aria-label="Profile navigation">
-    <a href="{{ route('profile') }}" @class(['active' => $active === 'overview'])>
+    <a href="{{ route('profile') }}" @class(['active' => $active === 'overview']) title="Overview" aria-label="Overview">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
-        Overview
+        <span class="profile-sidebar-label">Overview</span>
     </a>
-    <a href="{{ route('profile.personal-information') }}" @class(['active' => $active === 'personal-information'])>
+    <a href="{{ route('profile.personal-information') }}" @class(['active' => $active === 'personal-information']) title="Personal Information" aria-label="Personal Information">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
-        Personal Information
+        <span class="profile-sidebar-label">Personal Information</span>
     </a>
-    <a href="{{ route('profile.interests') }}" @class(['active' => $active === 'interests'])>
+    <a href="{{ route('profile.interests') }}" @class(['active' => $active === 'interests']) title="Interests" aria-label="Interests">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5 5 0 0 0-7.1 0L12 6.3l-1.7-1.7a5 5 0 0 0-7.1 7.1L12 21l8.8-9.3a5 5 0 0 0 0-7.1z"/></svg>
-        Interests
+        <span class="profile-sidebar-label">Interests</span>
     </a>
-    <a href="{{ route('profile.saved-experiences') }}" @class(['active' => $active === 'saved-experiences'])>
+    <a href="{{ route('profile.saved-experiences') }}" @class(['active' => $active === 'saved-experiences']) title="Saved Experiences" aria-label="Saved Experiences">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5 5 0 0 0-7.1 0L12 6.3l-1.7-1.7a5 5 0 0 0-7.1 7.1L12 21l8.8-9.3a5 5 0 0 0 0-7.1z"/></svg>
-        Saved Experiences
+        <span class="profile-sidebar-label">Saved Experiences</span>
     </a>
-    <a href="{{ route('profile.my-posts') }}" @class(['active' => $active === 'my-posts'])>
+    <a href="{{ route('profile.my-posts') }}" @class(['active' => $active === 'my-posts']) title="My Posts" aria-label="My Posts">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v18H3z"/><path d="M7 7h10"/><path d="M7 11h10"/><path d="M7 15h6"/>
         </svg>
-        My Posts
+        <span class="profile-sidebar-label">My Posts</span>
     </a>
-    <a href="{{ route('profile.saved-posts') }}" @class(['active' => $active === 'saved-posts'])>
+    <a href="{{ route('profile.saved-posts') }}" @class(['active' => $active === 'saved-posts']) title="Saved Posts" aria-label="Saved Posts">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-        Saved Posts
+        <span class="profile-sidebar-label">Saved Posts</span>
     </a>
-    <a href="{{ route('profile.achievements') }}" @class(['active' => $active === 'achievements'])>
+    <a href="{{ route('profile.achievements') }}" @class(['active' => $active === 'achievements']) title="Achievements & Stats" aria-label="Achievements & Stats">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a1 1 0 0 0-1 1 4 4 0 0 0 4 4"/><path d="M17 6h3a1 1 0 0 1 1 1 4 4 0 0 1-4 4"/></svg>
-        Achievements &amp; Stats
-    </a>
-    <a href="{{ route('profile.feedback') }}" @class(['active' => $active === 'feedback'])>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-        Feedback &amp; Support
+        <span class="profile-sidebar-label">Achievements &amp; Stats</span>
     </a>
 
     <div class="profile-sidebar-divider"></div>
 
-    <form method="POST" action="{{ route('logout') }}">
+    <form method="POST" action="{{ route('logout') }}" class="profile-sidebar-logout-form">
         @csrf
-        <button type="submit" class="profile-sidebar-logout">
+        <button type="submit" class="profile-sidebar-logout" title="Logout" aria-label="Logout">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
-            Logout
+            <span class="profile-sidebar-label">Logout</span>
         </button>
     </form>
 </nav>
