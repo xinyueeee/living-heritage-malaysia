@@ -14,11 +14,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\NotificationController;
-<<<<<<< HEAD
+
 use App\Http\Controllers\AlertController;
-=======
 use App\Http\Controllers\PostLikeController;
->>>>>>> origin/main
+
 
 Route::get('/', [ExperienceController::class, 'home'])->name('home');
 Route::get('/experiences', [ExperienceController::class, 'index'])->name('experiences.index');
