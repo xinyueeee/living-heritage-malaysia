@@ -18,9 +18,9 @@
             <ul>
                 <li><a href="{{ route('home') }}">Home</a></li>
                 <li><a href="{{ route('experiences.index') }}">Discover</a></li>
-                <li><a href="#" aria-disabled="true">Community</a></li>
-                <li><a href="#" aria-disabled="true">Festival Alert</a></li>
-                <li><a href="#" aria-disabled="true">Engagement &amp; Rewards</a></li>
+                <li><a href="{{ route('community.index') }}">Community</a></li>
+                <li><a href="{{ route('festival.calendar') }}">Festival Alert</a></li>
+                <li><a href="{{ route('engagement.index') }}">Engagement &amp; Rewards</a></li>
             </ul>
         </div>
 

@@ -54,10 +54,12 @@ Route::middleware('auth')->group(function () {
 
 Route::post('/alerts/personalize', [AlertController::class, 'store'])
     ->name('alerts.store');
-    Route::get('/alerts/test-matching', [AlertController::class, 'testMatchingEvents'])
-    ->name('alerts.test-matching');
-    Route::get('/alerts/test-email', [AlertController::class, 'testEmail'])
-    ->name('alerts.test-email');
+    if (app()->isLocal()) {
+        Route::get('/alerts/test-matching', [AlertController::class, 'testMatchingEvents'])
+            ->name('alerts.test-matching');
+        Route::get('/alerts/test-email', [AlertController::class, 'testEmail'])
+            ->name('alerts.test-email');
+    }
 
 
 #Route::get('/engagement', [EngagementController::class, 'index'])->name('engagement.index');
@@ -121,4 +123,3 @@ Route::post('/calendar/reminder', [NotificationController::class, 'storeReminder
 
 Route::get('/festival/login-required', function () {return view('festival.login-required');})->name('festival.login-required');
     
-

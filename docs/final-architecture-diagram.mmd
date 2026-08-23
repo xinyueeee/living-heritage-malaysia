@@ -1,0 +1,87 @@
+flowchart TB
+    User([Users / Web Browser])
+
+    subgraph Presentation["PRESENTATION LAYER"]
+        Blade["Blade layouts, pages, partials and components"]
+        Frontend["Scoped CSS + JavaScript"]
+        MapUI["Leaflet map UI"]
+        SupabaseJS["Supabase Auth browser client"]
+    end
+
+    subgraph MVC["MVC REQUEST / CONTROLLER LAYER"]
+        Routes["Laravel named routes + auth/guest middleware"]
+        Requests["Form Requests\nDiscovery, assistant and profile inputs"]
+        Controllers["Controllers\nExperience · Discovery Assistant · Profile\nCommunity · Engagement · Festival · Auth"]
+        Composer["HeaderComposer"]
+    end
+
+    subgraph Application["BUSINESS / APPLICATION LAYER"]
+        Discovery["Discovery services\nSearch/listing · Recommendations\nActivity tracking · Assistant/context"]
+        Parsers["Intent parser abstraction\nRule-based + optional LLM + fallback"]
+        ProfileServices["ProfileService\nProfileAchievementsService"]
+        CommunityServices["SavedPostService\nCommunityEngagementService"]
+        EngagementServices["AchievementProgressService"]
+        SavedExperience["SavedExperienceService"]
+    end
+
+    subgraph Access["DATA ACCESS LAYER"]
+        Contracts["ExperienceRepositoryInterface\nDiscoveryActivityRepositoryInterface"]
+        Repositories["EloquentExperienceRepository\nEloquentDiscoveryActivityRepository"]
+    end
+
+    subgraph Persistence["DOMAIN / PERSISTENCE"]
+        Models["Eloquent models + relationships + casts\nExperience · Category · User · Post\nHistory · Notification · Rewards"]
+    end
+
+    Database[("PostgreSQL on Supabase\napplication tables")]
+
+    subgraph External["INFRASTRUCTURE / EXTERNAL SERVICES"]
+        Auth["Supabase Auth + JWKS"]
+        Storage["Supabase Storage\nprofile and community images"]
+        Tiles["OpenStreetMap tile service"]
+        AI["Optional OpenAI-compatible AI endpoint"]
+        Mail["Laravel Mail / Resend-compatible mail transport"]
+    end
+
+    User -->|HTTPS| Blade
+    Blade <--> Frontend
+    Frontend --> Routes
+    Routes --> Requests
+    Requests --> Controllers
+    Routes --> Controllers
+    Composer --> Blade
+    Composer --> Models
+
+    Controllers --> Discovery
+    Controllers --> ProfileServices
+    Controllers --> CommunityServices
+    Controllers --> EngagementServices
+    Controllers --> SavedExperience
+    Discovery --> Parsers
+    Discovery --> Contracts
+    SavedExperience --> Contracts
+    Contracts --> Repositories
+    Repositories --> Models
+    Models --> Database
+
+    Controllers -. "remaining direct Eloquent / Query Builder\n(Profile, Community, Engagement, Festival)" .-> Models
+    Controllers -. "auth and upload infrastructure\nnot yet fully service-wrapped" .-> Auth
+    Controllers -.-> Storage
+    SupabaseJS --> Auth
+    Parsers -. "only when enabled; rule fallback otherwise" .-> AI
+    Frontend --> MapUI
+    MapUI --> Tiles
+    Controllers --> Mail
+
+    classDef presentation fill:#fff7ed,stroke:#d99a2b,color:#2c1e16,stroke-width:2px;
+    classDef mvc fill:#fdf2f0,stroke:#a52a1a,color:#2c1e16,stroke-width:2px;
+    classDef application fill:#f8efe8,stroke:#8a3a2d,color:#2c1e16,stroke-width:2px;
+    classDef access fill:#eef5ee,stroke:#52734d,color:#223322,stroke-width:2px;
+    classDef persistence fill:#eef3f8,stroke:#486581,color:#1f2d3d,stroke-width:2px;
+    classDef external fill:#f2eef8,stroke:#70518f,color:#2f2340,stroke-width:2px;
+    class Blade,Frontend,MapUI,SupabaseJS presentation;
+    class Routes,Requests,Controllers,Composer mvc;
+    class Discovery,Parsers,ProfileServices,CommunityServices,EngagementServices,SavedExperience application;
+    class Contracts,Repositories access;
+    class Models,Database persistence;
+    class Auth,Storage,Tiles,AI,Mail external;

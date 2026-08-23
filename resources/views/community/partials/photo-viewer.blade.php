@@ -9,6 +9,7 @@
         type="button"
         class="photo-viewer-close"
         id="photoViewerClose"
+        aria-label="Close photo viewer"
     >
         ×
     </button>
@@ -19,6 +20,7 @@
         type="button"
         class="photo-viewer-prev"
         id="photoViewerPrev"
+        aria-label="Previous photo"
     >
         ‹
     </button>
@@ -29,8 +31,8 @@
 
         <img
             id="photoViewerImage"
-            src=""
-            alt="Community Post Image"
+            alt="Community post image"
+            hidden
         >
 
         <div
@@ -48,6 +50,7 @@
         type="button"
         class="photo-viewer-next"
         id="photoViewerNext"
+        aria-label="Next photo"
     >
         ›
     </button>

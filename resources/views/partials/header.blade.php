@@ -25,13 +25,6 @@
                 @auth
 
 
-                @php
-                    $unreadCount = \Illuminate\Support\Facades\DB::table('notification')
-                        ->where('user_id', auth()->id())
-                        ->where('is_read', false)
-                        ->count();
-                @endphp
-
                 <a class="nav-bell"
                 href="{{ route('notifications.index') }}"
                 aria-label="Notifications">

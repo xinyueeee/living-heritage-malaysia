@@ -225,7 +225,7 @@
               <!-- Like -->
         @auth
             @php
-                $isLiked = $post->isLikedBy(Auth::user());
+                $isLiked = (bool) ($post->is_liked_by_user ?? false);
             @endphp
 
             <form method="POST" action="{{ route('community.posts.like', $post) }}" class="post-like-form" data-liked="{{ $isLiked ? '1' : '0' }}">

@@ -97,11 +97,6 @@ async function loadEvents()
     events =
         await response.json();
 
-    console.log(
-        "Calendar Events:",
-        events
-    );
-
     renderCalendar();
 }
 
@@ -326,9 +321,6 @@ async function setReminder(id)
         );
 
         const data = await response.json();
-
-        console.log("Status:", response.status);
-        console.log("Response:", data);
 
         if (response.ok && data.success)
         {

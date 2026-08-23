@@ -2,10 +2,6 @@
 
 @section('title', 'Notifications')
 
-@push('styles')
-    @vite('resources/css/festival.css')
-@endpush
-
 @section('content')
 
 <div class="notification-page">

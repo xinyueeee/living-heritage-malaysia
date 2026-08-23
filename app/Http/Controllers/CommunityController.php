@@ -32,6 +32,12 @@ class CommunityController extends Controller
                 'user',
             ])
             ->withCount('likes')
+            ->when($request->user(), function ($query, $user) {
+                $query->withExists([
+                    'likes as is_liked_by_user' => fn ($likes) => $likes
+                        ->where('user_id', $user->user_id),
+                ]);
+            })
             ->latest('created_at')
             ->get();
 
