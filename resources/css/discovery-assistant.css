@@ -113,3 +113,13 @@
     .discovery-assistant__panel { position: fixed; inset: 12px 12px 76px; width: auto; display: flex; flex-direction: column; }
     .discovery-assistant__messages { height: auto; min-height: 0; flex: 1; }
 }
+
+@media (max-width: 360px) {
+    .discovery-assistant__toggle {
+        justify-content: center;
+        width: 48px;
+        padding: 0;
+    }
+
+    .discovery-assistant__toggle-label { display: none; }
+}

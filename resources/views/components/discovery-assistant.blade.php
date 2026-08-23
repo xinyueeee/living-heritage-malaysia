@@ -8,11 +8,12 @@
     <button
         class="discovery-assistant__toggle"
         type="button"
+        aria-label="Open cultural discovery assistant"
         aria-expanded="false"
         aria-controls="discovery-assistant-panel"
     >
         <span class="discovery-assistant__toggle-icon" aria-hidden="true">✦</span>
-        <span>Ask Cultural Guide</span>
+        <span class="discovery-assistant__toggle-label">Ask Cultural Guide</span>
     </button>
 
     <div class="discovery-assistant__panel" id="discovery-assistant-panel" hidden>
