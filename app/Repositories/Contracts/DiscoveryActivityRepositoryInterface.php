@@ -37,4 +37,12 @@ interface DiscoveryActivityRepositoryInterface
         CarbonInterface $since,
         int $limit,
     ): Collection;
+
+    /** @return Collection<int, \App\Models\Experience> */
+    public function getTrendingExperiences(
+        CarbonInterface $since,
+        CarbonInterface $until,
+        CarbonInterface $eligibleOn,
+        int $limit,
+    ): Collection;
 }
