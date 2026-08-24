@@ -194,7 +194,7 @@ class DiscoveryActivityTrackingTest extends TestCase
         $repository->shouldReceive('searchExperiences')
             ->once()
             ->andReturn(new LengthAwarePaginator([], 0, 9));
-        $repository->shouldReceive('getCategories')
+        $repository->shouldReceive('getCategoriesForType')
             ->once()
             ->andReturn(new Collection);
         $repository->shouldReceive('getExperienceTypes')

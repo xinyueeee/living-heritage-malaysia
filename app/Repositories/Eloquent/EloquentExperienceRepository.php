@@ -102,18 +102,18 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
         return $query
             ->when($filters['search'] ?? null, function ($query, string $search) {
                 $query->where(function ($query) use ($search) {
-                    $query->where('experiences_name', 'ilike', "%{$search}%")
-                        ->orWhere('description', 'ilike', "%{$search}%")
+                    $query->whereLike('experiences_name', "%{$search}%")
+                        ->orWhereLike('description', "%{$search}%")
                         ->orWhereHas('category', function ($query) use ($search) {
-                            $query->where('category_name', 'ilike', "%{$search}%");
+                            $query->whereLike('category_name', "%{$search}%");
                         })
                         ->orWhereHas('type', function ($query) use ($search) {
-                            $query->where('type_name', 'ilike', "%{$search}%");
+                            $query->whereLike('type_name', "%{$search}%");
                         });
                 });
             })
             ->when($filters['location'] ?? null, function ($query, string $location) {
-                $query->where('location_name', 'ilike', "%{$location}%");
+                $query->whereLike('location_name', "%{$location}%");
             })
             ->when($filters['category'] ?? null, function ($query, int $categoryId) {
                 $query->where('category_id', $categoryId);
@@ -133,6 +133,19 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
     {
         return Category::query()
             ->with('type')
+            ->orderBy('category_name')
+            ->get();
+    }
+
+    public function getCategoriesForType(?int $typeId): Collection
+    {
+        if ($typeId === null) {
+            return new Collection;
+        }
+
+        return Category::query()
+            ->with('type')
+            ->where('type_id', $typeId)
             ->orderBy('category_name')
             ->get();
     }

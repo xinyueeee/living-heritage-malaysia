@@ -25,9 +25,12 @@ class CulturalDiscoveryAssistantService
     /** @return array<string, mixed> */
     public function respond(string $message, ?Authenticatable $user = null, ?int $contextExperienceId = null): array
     {
-        $type = $this->experienceRepository->findExperienceTypeByName('Cultural Experience');
+        $requestedTypeName = preg_match('/\bfestivals?\b/i', $message) === 1
+            ? 'Festival'
+            : 'Cultural Experience';
+        $type = $this->experienceRepository->findExperienceTypeByName($requestedTypeName);
         if (! $type) {
-            return $this->emptyResponse('unknown', 'Cultural Experience data is currently unavailable.');
+            return $this->emptyResponse('unknown', "{$requestedTypeName} data is currently unavailable.");
         }
 
         $categories = $this->experienceRepository->getCategories()->where('type_id', $type->type_id)->values();
@@ -38,15 +41,27 @@ class CulturalDiscoveryAssistantService
         }
 
         $parsed = $this->intentParser->parse($message, $context, $categories, $locations);
+        if ($requestedTypeName === 'Festival' && $this->isGenericFestivalRequest($message)) {
+            $parsed = new DiscoveryIntent(
+                intent: $parsed->intent,
+                location: $parsed->location,
+                category: null,
+                excludedCategories: $parsed->excludedCategories,
+                sortPreference: $parsed->sortPreference,
+                experienceReferences: $parsed->experienceReferences,
+                experienceNames: $parsed->experienceNames,
+                excludePreviousResults: $parsed->excludePreviousResults,
+            );
+        }
 
         return match ($parsed->intent) {
             'recommend' => $this->recommend($user),
-            'refine' => $this->refine($parsed, $user, $context, $categories, (int) $type->type_id),
+            'refine' => $this->refine($parsed, $user, $context, $categories, (int) $type->type_id, $requestedTypeName),
             'explain' => $this->explain($parsed, $context, $user),
             'details' => $this->details($parsed, $context),
             'compare' => $this->compare($parsed, $context),
             'unknown' => $this->emptyResponse('unknown', 'I can help you find, compare, or understand Cultural Experiences. Try a category or Malaysian location.'),
-            default => $this->find($parsed, $user, $categories, (int) $type->type_id),
+            default => $this->find($parsed, $user, $categories, (int) $type->type_id, $requestedTypeName),
         };
     }
 
@@ -60,7 +75,7 @@ class CulturalDiscoveryAssistantService
         return (new RuleBasedDiscoveryIntentParser)->parse($message, [], collect(), collect())->intent;
     }
 
-    private function find(DiscoveryIntent $parsed, ?Authenticatable $user, Collection $categories, int $typeId, array $excludedIds = []): array
+    private function find(DiscoveryIntent $parsed, ?Authenticatable $user, Collection $categories, int $typeId, string $typeName, array $excludedIds = []): array
     {
         $category = $this->categoryByName($parsed->category, $categories);
         $excludedCategoryIds = collect($parsed->excludedCategories)
@@ -84,18 +99,20 @@ class CulturalDiscoveryAssistantService
         $this->remember($parsed->intent, $parsed, $cards);
 
         if ($experiences->isEmpty()) {
-            return $this->emptyResponse($parsed->intent, 'I could not find a matching Cultural Experience in the current database. Try another location or category.', $filters);
+            return $this->emptyResponse($parsed->intent, "I could not find a matching {$typeName} in the current database. Try another location or category.", $filters);
         }
 
         return $this->response(
             $parsed->intent,
-            $experiences->count() === 1 ? 'I found one Cultural Experience that matches your request.' : 'Here are Cultural Experiences that match your request.',
+            $experiences->count() === 1
+                ? "I found one {$typeName} that matches your request."
+                : "Here are {$typeName}s that match your request.",
             $cards,
             $filters,
         );
     }
 
-    private function refine(DiscoveryIntent $parsed, ?Authenticatable $user, array $context, Collection $categories, int $typeId): array
+    private function refine(DiscoveryIntent $parsed, ?Authenticatable $user, array $context, Collection $categories, int $typeId, string $typeName): array
     {
         $excludedIds = $parsed->excludePreviousResults ? ($context['last_experience_ids'] ?? []) : [];
 
@@ -103,7 +120,15 @@ class CulturalDiscoveryAssistantService
             return $this->recommend($user, $excludedIds);
         }
 
-        return $this->find($parsed, $user, $categories, $typeId, $excludedIds);
+        return $this->find($parsed, $user, $categories, $typeId, $typeName, $excludedIds);
+    }
+
+    private function isGenericFestivalRequest(string $message): bool
+    {
+        return preg_match(
+            '/^(?:please\s+)?(?:(?:show|find|list|give)(?:\s+me)?(?:\s+some|\s+all|\s+the)?\s+)?festivals?(?:\s+please)?[?.!]*$/i',
+            trim($message),
+        ) === 1;
     }
 
     private function recommend(?Authenticatable $user, array $excludedIds = []): array

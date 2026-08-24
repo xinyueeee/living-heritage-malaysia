@@ -577,7 +577,7 @@
 .discovery-search-wrap { padding-top: 24px; }
 .discovery-search {
     display: grid;
-    grid-template-columns: 2.2fr 1.1fr 1.1fr auto;
+    grid-template-columns: 2.2fr 1.1fr auto;
     max-width: 1120px;
     margin-top: 0;
     overflow: hidden;
@@ -594,7 +594,7 @@
 .discovery-content { position: relative; padding-bottom: 76px; }
 .experience-type-tabs {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     margin-top: 24px;
     overflow: hidden;
     border: 1px solid #eadfd3;
@@ -606,11 +606,21 @@
 .experience-type-tabs a + a { border-left: 1px solid #eadfd3; }
 .experience-type-tabs a.active,
 .experience-type-tabs a:hover { border-bottom-color: var(--heritage-red); background: #fff8ef; }
+.experience-type-tabs a:focus-visible { position: relative; z-index: 1; outline: 3px solid rgba(165, 42, 26, .35); outline-offset: -3px; }
 .type-tab-icon { display: grid; width: 48px; height: 48px; place-items: center; border-radius: 50%; background: #fff0df; color: var(--heritage-red); font-size: 1.35rem; }
 .experience-type-tabs strong,
 .experience-type-tabs small { display: block; }
 .experience-type-tabs strong { color: var(--heritage-red-dark); }
 .experience-type-tabs small { margin-top: 3px; color: var(--heritage-muted); }
+.category-hierarchy-filter { display: flex; align-items: center; justify-content: space-between; gap: 28px; margin-top: 16px; padding: 18px 22px; border: 1px solid #eadfd3; border-radius: 10px; background: #fff8ef; }
+.category-hierarchy-filter h2 { margin: 1px 0 4px; font-size: 1.25rem; }
+.category-hierarchy-filter p { margin: 0; color: var(--heritage-muted); font-size: .83rem; }
+.category-hierarchy-filter .filter-step { color: var(--heritage-red); font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.category-filter-form { flex: 0 1 360px; }
+.category-filter-form select { width: 100%; min-height: 46px; padding: 10px 40px 10px 13px; border: 1px solid #d9c7b5; border-radius: 8px; background: #fff; color: var(--heritage-ink); font: inherit; cursor: pointer; }
+.category-filter-form select:disabled { background: #f2ede7; color: #786d66; cursor: not-allowed; }
+.category-filter-form select:focus-visible { outline: 3px solid rgba(165, 42, 26, .28); outline-offset: 2px; }
+.category-filter-form noscript button { min-height: 44px; margin-top: 8px; padding: 8px 16px; border: 0; border-radius: 7px; background: var(--heritage-red); color: #fff; font-weight: 700; }
 .listing-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin: 26px 0 38px; padding: 14px 18px; border: 1px solid #eadfd3; border-radius: 10px; background: rgba(255, 253, 249, .9); }
 .active-filters { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; }
 .filter-label { color: var(--heritage-red); font-weight: 700; }
@@ -711,8 +721,7 @@
     .membership-grid { grid-template-columns: 1fr; }
     .discovery-search { grid-template-columns: 1.7fr 1fr; }
     .discovery-search-field:nth-of-type(2) { border-right: 0; }
-    .discovery-search-field:nth-of-type(3) { border-top: 1px solid #eadfd3; }
-    .discovery-search button { min-height: 52px; }
+    .discovery-search button { grid-column: 1 / -1; min-height: 52px; }
     .nearby-experiences-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .interactive-map-shell { grid-template-columns: 1fr; }
     .map-legend { border-right: 0; border-bottom: 1px solid var(--heritage-border); }
@@ -742,12 +751,17 @@
     .festival-card .card-image { height: 235px; }
     .passport-preview { grid-template-columns: 130px 1fr; }
     .badges-preview { grid-column: 1 / -1; }
-    .experience-type-tabs { grid-template-columns: 1fr; margin-top: 24px; }
-    .experience-type-tabs a + a { border-left: 0; border-top: 1px solid #eadfd3; }
+    .experience-type-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 24px; }
+    .experience-type-tabs a { align-items: center; flex-direction: column; gap: 8px; min-width: 0; min-height: 118px; padding: 13px 7px; text-align: center; }
+    .experience-type-tabs a + a { border-top: 0; border-left: 1px solid #eadfd3; }
+    .experience-type-tabs strong { overflow-wrap: anywhere; font-size: .82rem; line-height: 1.25; }
+    .experience-type-tabs small { font-size: .7rem; }
+    .type-tab-icon { width: 40px; height: 40px; font-size: 1.05rem; }
+    .category-hierarchy-filter { align-items: stretch; flex-direction: column; gap: 14px; }
+    .category-filter-form { width: 100%; flex-basis: auto; }
     .discovery-hero { min-height: 400px; padding: 58px 0; background-position: 68% center; }
     .discovery-search { grid-template-columns: 1fr; }
     .discovery-search-field { border-right: 0; border-bottom: 1px solid #eadfd3; }
-    .discovery-search-field:nth-of-type(3) { border-top: 0; }
     .discovery-search button { min-height: 48px; }
     .sort-form { width: 100%; justify-content: space-between; }
     .experience-map-heading { align-items: flex-start; flex-direction: column; gap: 4px; }

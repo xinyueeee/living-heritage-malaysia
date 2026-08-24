@@ -22,6 +22,8 @@ interface ExperienceRepositoryInterface
 
     public function getCategories(): Collection;
 
+    public function getCategoriesForType(?int $typeId): Collection;
+
     public function getExperienceTypes(): Collection;
 
     /** @return SupportCollection<int, string> */
