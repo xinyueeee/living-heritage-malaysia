@@ -58,6 +58,7 @@
             <span class="card-category">{{ $badgeName }}</span>
         @endif
 
+        @if (!($hideFavourite ?? false))
         @auth
             <form
                 class="card-favourite {{ $isSaved ? 'is-saved' : '' }}"
@@ -77,6 +78,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></svg>
             </a>
         @endauth
+        @endif
 
         @if ($variant === 'festival' && !is_null($daysRemaining))
             <span class="festival-countdown"><strong>{{ $daysRemaining }}</strong> {{ $daysRemaining === 1 ? 'day' : 'days' }} left</span>

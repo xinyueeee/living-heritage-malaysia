@@ -94,6 +94,27 @@ class TrendingExperienceServiceTest extends TestCase
         $this->assertSame([1, 2], $trending->pluck('experiences_id')->all());
     }
 
+    public function test_trending_page_uses_the_service_eligibility_rules_without_recording_a_view(): void
+    {
+        $this->insertViews(1, [
+            ['user-a', now()->subHours(3)],
+            ['user-b', now()->subHours(2)],
+        ]);
+        $this->insertViews(2, [['user-c', now()->subHour()]]);
+        $this->insertViews(4, array_fill(0, 4, ['user-past', now()->subHour()]));
+        $historyCount = DB::table('experience_view_history')->count();
+
+        $this->get(route('experiences.trending'))
+            ->assertOk()
+            ->assertSeeInOrder(['Current Leader', 'Upcoming Recent Tie'])
+            ->assertSee('2 views in the last 7 days')
+            ->assertSee('1 view in the last 7 days')
+            ->assertDontSee('Past Popular Experience')
+            ->assertDontSee('Zero View Experience');
+
+        $this->assertSame($historyCount, DB::table('experience_view_history')->count());
+    }
+
     public function test_read_only_artisan_command_displays_the_ranked_result(): void
     {
         $this->insertViews(1, [

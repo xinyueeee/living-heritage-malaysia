@@ -116,6 +116,16 @@
                 <x-experience-map-data :experiences="$mapExperiences" />
             @endpush
 
+            <aside class="trending-entry" aria-labelledby="trending-entry-heading">
+                <div>
+                    <p class="eyebrow">Popular This Week</p>
+                    <h2 id="trending-entry-heading">See what heritage explorers are viewing</h2>
+                </div>
+                <a class="trending-entry-link" href="{{ route('experiences.trending') }}">
+                    View Trending Experiences <span aria-hidden="true">&rarr;</span>
+                </a>
+            </aside>
+
             <div class="results-heading">
                 <div>
                     <p class="eyebrow">Explore Malaysia</p>

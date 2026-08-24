@@ -6,6 +6,7 @@ use App\Http\Requests\ExperienceIndexRequest;
 use App\Models\Experience;
 use App\Services\Experience\ExperienceDiscoveryService;
 use App\Services\Experience\SavedExperienceService;
+use App\Services\Experience\TrendingExperienceService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -14,6 +15,7 @@ class ExperienceController extends Controller
     public function __construct(
         private ExperienceDiscoveryService $experienceDiscoveryService,
         private SavedExperienceService $savedExperienceService,
+        private TrendingExperienceService $trendingExperienceService,
     ) {}
 
     public function home(Request $request): View
@@ -53,6 +55,13 @@ class ExperienceController extends Controller
     {
         return view('experiences.map', $this->experienceDiscoveryService
             ->getMapPageData($request->validated()));
+    }
+
+    public function trending(): View
+    {
+        return view('experiences.trending', [
+            'trendingExperiences' => $this->trendingExperienceService->getTrendingExperiences(),
+        ]);
     }
 
     public function show(Request $request, Experience $experience): View
