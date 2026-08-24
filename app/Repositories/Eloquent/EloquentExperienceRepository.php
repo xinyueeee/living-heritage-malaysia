@@ -74,6 +74,13 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
         )
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
+            ->where(function ($query) {
+                $query->whereDate('end_date', '>=', today())
+                    ->orWhere(function ($query) {
+                        $query->whereNull('end_date')
+                            ->whereDate('start_date', '>=', today());
+                    });
+            })
             ->orderBy('experiences_id')
             ->get([
                 'experiences_id',
