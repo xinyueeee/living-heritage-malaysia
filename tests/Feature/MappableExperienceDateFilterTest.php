@@ -41,15 +41,37 @@ class MappableExperienceDateFilterTest extends TestCase
             $table->date('end_date')->nullable();
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 11, 8)->nullable();
+            $table->string('status')->default('Available');
             $table->timestamps();
         });
 
         DB::table('experience_type')->insert(['type_id' => 1, 'type_name' => 'Festival']);
+        DB::table('experience_type')->insert(['type_id' => 2, 'type_name' => 'Cultural Experience']);
         DB::table('category')->insert([
             'category_id' => 1,
             'type_id' => 1,
             'category_name' => 'Cultural Festival',
         ]);
+        DB::table('category')->insert([
+            'category_id' => 2,
+            'type_id' => 2,
+            'category_name' => 'Heritage Experience',
+        ]);
+    }
+
+    public function test_map_query_is_type_agnostic_while_preserving_date_and_coordinate_rules(): void
+    {
+        $this->insertExperience('Eligible Festival', '2026-08-25', null, 1.49, 103.74, 1, 1);
+        $this->insertExperience('Eligible Cultural Experience', null, null, 1.50, 103.75, 2, 2);
+        $this->insertExperience('Past Festival', '2026-08-20', '2026-08-23', 1.49, 103.74, 1, 1);
+        $this->insertExperience('Unavailable Cultural Experience', null, null, 1.50, 103.75, 2, 2, 'Unavailable');
+        $this->insertExperience('Festival Without Coordinates', '2026-08-25', null, null, null, 1, 1);
+        $this->insertExperience('Cultural Experience Without Coordinates', null, null, null, null, 2, 2);
+
+        $experiences = app(EloquentExperienceRepository::class)->getMappableExperiences([]);
+
+        $this->assertSame(['Eligible Festival', 'Eligible Cultural Experience'], $experiences->pluck('experiences_name')->all());
+        $this->assertSame(['Festival', 'Cultural Experience'], $experiences->pluck('type.type_name')->all());
     }
 
     protected function tearDown(): void
@@ -92,15 +114,19 @@ class MappableExperienceDateFilterTest extends TestCase
         ?string $endDate,
         ?float $latitude = 3.139,
         ?float $longitude = 101.6869,
+        int $typeId = 1,
+        int $categoryId = 1,
+        string $status = 'Available',
     ): void {
         DB::table('experiences')->insert([
-            'type_id' => 1,
-            'category_id' => 1,
+            'type_id' => $typeId,
+            'category_id' => $categoryId,
             'experiences_name' => $name,
             'start_date' => $startDate,
             'end_date' => $endDate,
             'latitude' => $latitude,
             'longitude' => $longitude,
+            'status' => $status,
         ]);
     }
 }

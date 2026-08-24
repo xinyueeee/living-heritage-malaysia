@@ -32,6 +32,14 @@
 
             <div class="interactive-map-shell">
                 <aside class="map-legend" aria-labelledby="map-legend-heading">
+                    <div class="map-state-control">
+                        <label for="map-state-select">Explore by state</label>
+                        <select id="map-state-select" disabled>
+                            <option value="">All Malaysia</option>
+                        </select>
+                        <button id="clear-map-state" class="map-state-clear" type="button" hidden>Show All Malaysia</button>
+                        <p id="map-state-source">State boundaries: Department of Statistics Malaysia.</p>
+                    </div>
                     <h2 id="map-legend-heading">Map Categories</h2>
                     <p>Show or hide marker groups.</p>
                     <div id="map-category-filters" class="map-category-filters"></div>
@@ -44,6 +52,18 @@
                     aria-label="Interactive map of cultural experiences matching the current filters"
                 ></div>
             </div>
+
+            <section id="state-experiences" class="state-experiences" aria-labelledby="state-experiences-heading" hidden>
+                <div class="state-experiences-heading">
+                    <div>
+                        <p class="eyebrow">Exploring Malaysia</p>
+                        <h2 id="state-experiences-heading">All Malaysia</h2>
+                    </div>
+                    <button class="map-control-button" type="button" data-clear-map-state hidden>Show All Malaysia</button>
+                </div>
+                <p id="state-experiences-summary" class="state-experiences-summary" role="status" aria-live="polite"></p>
+                <div id="state-experiences-list" class="state-experiences-list"></div>
+            </section>
 
             <noscript>
                 <p class="experience-map-fallback">Enable JavaScript to use the interactive map. You can still return to the Experience List.</p>

@@ -75,10 +75,18 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->where(function ($query) {
-                $query->whereDate('end_date', '>=', today())
-                    ->orWhere(function ($query) {
-                        $query->whereNull('end_date')
-                            ->whereDate('start_date', '>=', today());
+                $query->where(function ($query) {
+                    $query->whereHas('type', fn ($query) => $query->where('type_name', 'Festival'))
+                        ->where(function ($query) {
+                            $query->whereDate('end_date', '>=', today())
+                                ->orWhere(function ($query) {
+                                    $query->whereNull('end_date')
+                                        ->whereDate('start_date', '>=', today());
+                                });
+                        });
+                })->orWhere(function ($query) {
+                    $query->whereHas('type', fn ($query) => $query->where('type_name', 'Cultural Experience'))
+                        ->whereRaw('LOWER(status) = ?', ['available']);
                     });
             })
             ->orderBy('experiences_id')

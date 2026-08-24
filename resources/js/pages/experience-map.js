@@ -1,5 +1,7 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import malaysiaStatesUrl from '../../data/malaysia-states.geojson?url';
+import { markerMatchesSelection, stateForMarker } from './experience-state-map';
 
 const createPlaceholder = (name) => {
     const placeholder = document.createElement('div');
@@ -94,6 +96,15 @@ const haversineDistanceKm = (originLatitude, originLongitude, targetLatitude, ta
 const formatDistance = (distanceKm) => distanceKm < 1
     ? `${Math.round(distanceKm * 1000)} m`
     : `${distanceKm.toFixed(1)} km`;
+
+const stateDisplayNames = {
+    'Pulau Pinang': 'Penang',
+    'W.P. Kuala Lumpur': 'Kuala Lumpur',
+    'W.P. Labuan': 'Labuan',
+    'W.P. Putrajaya': 'Putrajaya',
+};
+
+const displayStateName = (stateName) => stateDisplayNames[stateName] ?? stateName;
 
 const markerGroups = {
     heritage: { label: 'Heritage', symbol: '▥', color: '#8a5528' },
@@ -200,7 +211,9 @@ const createNearbyCard = (marker) => {
     badge.textContent = marker.categoryName || marker.typeName || markerGroups[marker.markerGroup].label;
     content.appendChild(badge);
     appendText(content, 'nearby-experience-location', marker.location);
-    appendText(content, 'nearby-experience-distance', `Approx. ${formatDistance(marker.distanceKm)} away`);
+    if (Number.isFinite(marker.distanceKm)) {
+        appendText(content, 'nearby-experience-distance', `Approx. ${formatDistance(marker.distanceKm)} away`);
+    }
 
     const details = document.createElement('a');
     details.href = marker.detailsUrl;
@@ -244,6 +257,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const nearbySummary = document.getElementById('nearby-experiences-summary');
     const nearbyList = document.getElementById('nearby-experiences-list');
     const categoryFilters = document.getElementById('map-category-filters');
+    const stateSelect = document.getElementById('map-state-select');
+    const clearStateButton = document.getElementById('clear-map-state');
+    const stateSection = document.getElementById('state-experiences');
+    const stateHeading = document.getElementById('state-experiences-heading');
+    const stateSummary = document.getElementById('state-experiences-summary');
+    const stateList = document.getElementById('state-experiences-list');
+    const stateSectionClearButton = document.querySelector('[data-clear-map-state]');
     const nearbyRadiusKm = 50;
     const nearbyLimit = 5;
 
@@ -260,6 +280,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const activeGroups = new Set(availableGroups);
     let userMarker = null;
     let userPosition = null;
+    let selectedState = null;
+    let stateLayer = null;
+    let stateFeatures = [];
     markers.forEach((marker) => {
         const coordinates = [marker.latitude, marker.longitude];
         const group = markerGroups[marker.markerGroup] ?? markerGroups.generic;
@@ -273,6 +296,20 @@ document.addEventListener('DOMContentLoaded', () => {
         experienceLayers.set(marker.detailsUrl, { layer, marker });
         bounds.push(coordinates);
     });
+
+    const matchingMarkers = () => markers.filter((marker) =>
+        markerMatchesSelection(marker, activeGroups, selectedState)
+    );
+
+    const applyMarkerVisibility = () => {
+        experienceLayers.forEach(({ layer, marker }) => {
+            if (markerMatchesSelection(marker, activeGroups, selectedState)) {
+                layer.addTo(map);
+            } else {
+                layer.removeFrom(map);
+            }
+        });
+    };
 
     availableGroups.forEach((groupKey) => {
         const group = markerGroups[groupKey] ?? markerGroups.generic;
@@ -300,16 +337,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeGroups.delete(groupKey);
             }
 
-            experienceLayers.forEach(({ layer, marker }) => {
-                if (marker.markerGroup !== groupKey) {
-                    return;
-                }
-                if (checkbox.checked) {
-                    layer.addTo(map);
-                } else {
-                    layer.removeFrom(map);
-                }
-            });
+            applyMarkerVisibility();
+            renderStateExperiences();
             renderNearbyExperiences();
         });
     });
@@ -319,8 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const showAllExperiences = () => {
-        const visibleBounds = markers
-            .filter((marker) => activeGroups.has(marker.markerGroup))
+        const visibleBounds = matchingMarkers()
             .map((marker) => [marker.latitude, marker.longitude]);
         if (visibleBounds.length > 0) {
             map.fitBounds(visibleBounds, { padding: [28, 28], maxZoom: 11 });
@@ -343,7 +371,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const exactMarkers = markers
-            .filter((marker) => marker.coordinatePrecision === 'exact' && activeGroups.has(marker.markerGroup))
+            .filter((marker) => marker.coordinatePrecision === 'exact'
+                && markerMatchesSelection(marker, activeGroups, selectedState))
             .map((marker) => ({
                 ...marker,
                 distanceKm: haversineDistanceKm(
@@ -372,6 +401,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return nearbyMarkers;
     };
+
+    const stateStyle = (feature) => {
+        const isSelected = feature.properties.state === selectedState;
+
+        return {
+            className: 'map-state-boundary',
+            color: isSelected ? '#7B1E14' : '#8a6d5a',
+            fillColor: isSelected ? '#D99A2B' : '#f4dfc5',
+            fillOpacity: isSelected ? 0.42 : 0.12,
+            weight: isSelected ? 3 : 1.2,
+        };
+    };
+
+    const renderStateExperiences = () => {
+        if (!selectedState) {
+            stateSection.hidden = true;
+            return;
+        }
+
+        const stateMarkers = matchingMarkers();
+        const displayName = displayStateName(selectedState);
+        stateHeading.textContent = displayName;
+        stateSectionClearButton.hidden = false;
+        stateSection.hidden = false;
+        stateSummary.textContent = stateMarkers.length === 0
+            ? 'No current or upcoming Experiences are available in this state for the selected map categories.'
+            : `${stateMarkers.length} current or upcoming ${stateMarkers.length === 1 ? 'Experience' : 'Experiences'}`;
+        stateList.replaceChildren(...stateMarkers.map(createNearbyCard));
+    };
+
+    const selectState = (stateName, fitBounds = true) => {
+        selectedState = stateName || null;
+        stateSelect.value = selectedState ?? '';
+        clearStateButton.hidden = selectedState === null;
+        stateSectionClearButton.hidden = selectedState === null;
+        stateLayer?.setStyle(stateStyle);
+        applyMarkerVisibility();
+        renderStateExperiences();
+        renderNearbyExperiences();
+
+        if (selectedState && fitBounds) {
+            const selectedLayer = Object.values(stateLayer?._layers ?? {})
+                .find((layer) => layer.feature?.properties?.state === selectedState);
+            if (selectedLayer) {
+                map.fitBounds(selectedLayer.getBounds(), { padding: [24, 24], maxZoom: 9 });
+            }
+        } else if (!selectedState) {
+            showAllExperiences();
+        }
+    };
+
+    const clearState = () => selectState(null);
+    clearStateButton?.addEventListener('click', clearState);
+    stateSectionClearButton?.addEventListener('click', clearState);
+    stateSelect?.addEventListener('change', () => selectState(stateSelect.value || null));
+
+    fetch(malaysiaStatesUrl)
+        .then((response) => {
+            if (!response.ok) throw new Error('State boundaries could not be loaded.');
+            return response.json();
+        })
+        .then((geoJson) => {
+            stateFeatures = Array.isArray(geoJson.features) ? geoJson.features : [];
+            markers.forEach((marker) => { marker.stateName = stateForMarker(marker, stateFeatures); });
+
+            [...stateFeatures]
+                .sort((first, second) => displayStateName(first.properties.state).localeCompare(displayStateName(second.properties.state)))
+                .forEach((feature) => {
+                    const option = document.createElement('option');
+                    option.value = feature.properties.state;
+                    option.textContent = displayStateName(feature.properties.state);
+                    stateSelect.appendChild(option);
+                });
+            stateSelect.disabled = false;
+
+            stateLayer = L.geoJSON(geoJson, {
+                style: stateStyle,
+                onEachFeature: (feature, layer) => {
+                    layer.bindTooltip(displayStateName(feature.properties.state), { sticky: true });
+                    layer.on('click', () => selectState(feature.properties.state));
+                },
+            }).addTo(map);
+            stateLayer.bringToBack();
+        })
+        .catch(() => {
+            stateSelect.disabled = true;
+            locationStatus.textContent = 'State boundaries are temporarily unavailable. All Experience markers remain available.';
+        });
 
     locationButton?.addEventListener('click', () => {
         if (!navigator.geolocation) {
