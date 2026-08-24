@@ -2,6 +2,7 @@ import './bootstrap';
 import './pages/experience-map';
 import './pages/discovery-assistant';
 import './pages/saved-experience-collections';
+import './pages/festival-reminder';
 
 document.addEventListener('DOMContentLoaded', () => {
     const menuButton = document.querySelector('.menu-toggle');

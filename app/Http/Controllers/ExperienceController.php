@@ -9,6 +9,7 @@ use App\Services\Experience\SavedExperienceService;
 use App\Services\Experience\TrendingExperienceService;
 use App\Services\Experience\WeatherForecastService;
 use App\Services\Experience\WeatherSuitabilityService;
+use App\Services\Festival\FestivalReminderService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Throwable;
@@ -21,6 +22,7 @@ class ExperienceController extends Controller
         private TrendingExperienceService $trendingExperienceService,
         private WeatherForecastService $weatherForecastService,
         private WeatherSuitabilityService $weatherSuitabilityService,
+        private FestivalReminderService $festivalReminderService,
     ) {}
 
     public function home(Request $request): View
@@ -83,6 +85,10 @@ class ExperienceController extends Controller
         $savedCollectionName = $isSaved
             ? ($this->savedExperienceService->getSavedExperienceCollectionNames($request->user())[$experience->getKey()] ?? null)
             : null;
+        $festivalReminderEligible = $this->festivalReminderService->isEligible($experience);
+        $festivalReminderSet = $festivalReminderEligible && $request->user()
+            ? $this->festivalReminderService->existsFor($request->user(), $experience)
+            : false;
 
         try {
             $weatherGuide = $this->weatherForecastService->guideForExperience($experience);
@@ -104,6 +110,13 @@ class ExperienceController extends Controller
             ];
         }
 
-        return view('experiences.show', compact('experience', 'isSaved', 'savedCollectionName', 'weatherSuitability'));
+        return view('experiences.show', compact(
+            'experience',
+            'isSaved',
+            'savedCollectionName',
+            'weatherSuitability',
+            'festivalReminderEligible',
+            'festivalReminderSet',
+        ));
     }
 }
