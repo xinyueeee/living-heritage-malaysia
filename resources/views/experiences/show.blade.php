@@ -48,16 +48,14 @@
                     <div class="experience-details-heading">
                         <h1>{{ $experience->experiences_name }}</h1>
                         @auth
-                            <form method="POST" action="{{ $isSaved ? route('experiences.saved.destroy', $experience) : route('experiences.saved.store', $experience) }}">
-                                @csrf
-                                @if ($isSaved)
-                                    @method('DELETE')
-                                @endif
-                                <button type="submit" class="experience-save-button {{ $isSaved ? 'is-saved' : '' }}">
+                            <div>
+                                <button type="button" class="experience-save-button {{ $isSaved ? 'is-saved' : '' }}"
+                                    @if ($isSaved) data-open-already-saved data-collection-name="{{ $savedCollectionName }}"
+                                    @else data-open-save-picker data-save-url="{{ route('experiences.saved.store', $experience) }}" @endif>
                                     <span aria-hidden="true">{{ $isSaved ? '♥' : '♡' }}</span>
                                     {{ $isSaved ? 'Saved' : 'Save Experience' }}
                                 </button>
-                            </form>
+                            </div>
                         @else
                             <a class="experience-save-button" href="{{ route('login') }}"><span aria-hidden="true">♡</span> Save Experience</a>
                         @endauth

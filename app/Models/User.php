@@ -61,7 +61,12 @@ class User extends Authenticatable
             'experience_id',
             'user_id',
             'experiences_id',
-        )->withPivot('saved_date');
+        )->withPivot(['saved_date', 'collection_id']);
+    }
+
+    public function savedExperienceCollections(): HasMany
+    {
+        return $this->hasMany(SavedExperienceCollection::class, 'user_id', 'user_id');
     }
     /**
      * A post has many likes.

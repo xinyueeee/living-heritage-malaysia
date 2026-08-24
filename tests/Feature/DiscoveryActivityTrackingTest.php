@@ -27,6 +27,7 @@ class DiscoveryActivityTrackingTest extends TestCase
 
         $savedExperienceService = Mockery::mock(SavedExperienceService::class);
         $savedExperienceService->shouldReceive('getSavedExperienceIds')->andReturn([]);
+        $savedExperienceService->shouldReceive('getSavedExperienceCollectionNames')->andReturn([]);
         $savedExperienceService->shouldReceive('isSaved')->andReturn(false);
         $this->app->instance(SavedExperienceService::class, $savedExperienceService);
     }

@@ -18,6 +18,10 @@
         @yield('content')
     </main>
 
+    @auth
+        @include('components.saved-experience-picker', ['collections' => $savePickerCollections])
+    @endauth
+
     @include('partials.footer')
 
     @if (request()->routeIs('home', 'experiences.*', 'recommendations.*'))

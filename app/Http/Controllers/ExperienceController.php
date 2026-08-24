@@ -29,6 +29,8 @@ class ExperienceController extends Controller
             ...$this->experienceDiscoveryService->getHomePageData(),
             'savedExperienceIds' => $this->savedExperienceService
                 ->getSavedExperienceIds($request->user()),
+            'savedExperienceCollectionNames' => $this->savedExperienceService
+                ->getSavedExperienceCollectionNames($request->user()),
         ]);
     }
 
@@ -42,6 +44,8 @@ class ExperienceController extends Controller
                 ->getDiscoveryPageData($filters),
             'savedExperienceIds' => $this->savedExperienceService
                 ->getSavedExperienceIds($request->user()),
+            'savedExperienceCollectionNames' => $this->savedExperienceService
+                ->getSavedExperienceCollectionNames($request->user()),
         ]);
     }
 
@@ -53,6 +57,8 @@ class ExperienceController extends Controller
             ),
             'savedExperienceIds' => $this->savedExperienceService
                 ->getSavedExperienceIds($request->user()),
+            'savedExperienceCollectionNames' => $this->savedExperienceService
+                ->getSavedExperienceCollectionNames($request->user()),
         ]);
     }
 
@@ -74,6 +80,9 @@ class ExperienceController extends Controller
         $this->experienceDiscoveryService->recordExperienceView($request->user(), $experience);
         $experience->loadMissing(['category', 'type']);
         $isSaved = $this->savedExperienceService->isSaved($request->user(), $experience);
+        $savedCollectionName = $isSaved
+            ? ($this->savedExperienceService->getSavedExperienceCollectionNames($request->user())[$experience->getKey()] ?? null)
+            : null;
 
         try {
             $weatherGuide = $this->weatherForecastService->guideForExperience($experience);
@@ -95,6 +104,6 @@ class ExperienceController extends Controller
             ];
         }
 
-        return view('experiences.show', compact('experience', 'isSaved', 'weatherSuitability'));
+        return view('experiences.show', compact('experience', 'isSaved', 'savedCollectionName', 'weatherSuitability'));
     }
 }

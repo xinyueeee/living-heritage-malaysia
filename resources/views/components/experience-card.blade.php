@@ -15,6 +15,7 @@
     $typeName = $experience->type?->type_name;
     $badgeName = $experience->category?->category_name ?? $typeName;
     $isSaved = in_array((int) $experience->experiences_id, $savedExperienceIds ?? [], true);
+    $savedCollectionName = $savedExperienceCollectionNames[(int) $experience->experiences_id] ?? null;
 
     $countdownTarget = null;
     if ($variant === 'festival') {
@@ -60,19 +61,14 @@
 
         @if (!($hideFavourite ?? false))
         @auth
-            <form
-                class="card-favourite {{ $isSaved ? 'is-saved' : '' }}"
-                method="POST"
-                action="{{ $isSaved ? route('experiences.saved.destroy', $experience) : route('experiences.saved.store', $experience) }}"
-            >
-                @csrf
-                @if ($isSaved)
-                    @method('DELETE')
-                @endif
-                <button type="submit" aria-label="{{ $isSaved ? 'Remove from saved experiences' : 'Save experience' }}">
+            <div class="card-favourite {{ $isSaved ? 'is-saved' : '' }}">
+                <button type="button"
+                    @if ($isSaved) data-open-already-saved data-collection-name="{{ $savedCollectionName }}"
+                    @else data-open-save-picker data-save-url="{{ route('experiences.saved.store', $experience) }}" @endif
+                    aria-label="{{ $isSaved ? 'View saved experience status' : 'Save experience' }}">
                     <svg viewBox="0 0 24 24" fill="{{ $isSaved ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></svg>
                 </button>
-            </form>
+            </div>
         @else
             <a class="card-favourite" href="{{ route('login') }}" aria-label="Log in to save this experience">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></svg>

@@ -8,6 +8,7 @@ use App\Http\Controllers\PersonalInformationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilePhotoController;
 use App\Http\Controllers\SavedExperienceController;
+use App\Http\Controllers\SavedExperienceCollectionController;
 use App\Http\Controllers\SavedPostController;
 use App\Http\Controllers\EngagementController;
 use Illuminate\Support\Facades\Route;
@@ -79,6 +80,14 @@ Route::post('/alerts/personalize', [AlertController::class, 'store'])
         ->name('experiences.saved.store');
     Route::delete('/experiences/{experience}/save', [SavedExperienceController::class, 'destroy'])
         ->name('experiences.saved.destroy');
+    Route::patch('/experiences/{experience}/save/collection', [SavedExperienceController::class, 'move'])
+        ->name('experiences.saved.move');
+    Route::post('/profile/saved-experience-collections', [SavedExperienceCollectionController::class, 'store'])
+        ->name('saved-experience-collections.store');
+    Route::patch('/profile/saved-experience-collections/{collection}', [SavedExperienceCollectionController::class, 'update'])
+        ->name('saved-experience-collections.update');
+    Route::delete('/profile/saved-experience-collections/{collection}', [SavedExperienceCollectionController::class, 'destroy'])
+        ->name('saved-experience-collections.destroy');
 
     Route::post('/community/posts/{post}/save', [SavedPostController::class, 'store'])
         ->name('community.posts.saved.store');

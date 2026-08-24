@@ -1,6 +1,7 @@
 import './bootstrap';
 import './pages/experience-map';
 import './pages/discovery-assistant';
+import './pages/saved-experience-collections';
 
 document.addEventListener('DOMContentLoaded', () => {
     const menuButton = document.querySelector('.menu-toggle');
