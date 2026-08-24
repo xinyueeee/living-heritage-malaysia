@@ -25,6 +25,7 @@ class WeatherForecastService
      * @var array<string, string>
      */
     private const LOCATION_ALIASES = [
+        'dewan filharmonik petronas' => 'Kuala Lumpur',
         'george town' => 'Pulau Pinang',
         'penang' => 'Pulau Pinang',
         'kuala lumpur' => 'Kuala Lumpur',
@@ -103,11 +104,17 @@ class WeatherForecastService
             throw new RuntimeException('The official weather service response did not contain forecast records.');
         }
 
-        return collect($payload)
+        $normalized = collect($payload)
             ->map(fn (mixed $record): ?array => $this->normalizeRecord($record))
             ->filter()
             ->values()
             ->all();
+
+        if ($payload !== [] && $normalized === []) {
+            throw new RuntimeException('The official weather service returned unusable forecast records.');
+        }
+
+        return $normalized;
     }
 
     /** @return array<string, mixed> */
@@ -167,8 +174,8 @@ class WeatherForecastService
         if ($forecasts === []) {
             return [
                 ...$result,
-                'forecast_status' => 'RETRIEVAL_EMPTY',
-                'location_match_status' => 'UNRESOLVED',
+                'forecast_status' => 'LOCATION_UNMATCHED',
+                'location_match_status' => 'UNMATCHED',
             ];
         }
 
@@ -201,11 +208,15 @@ class WeatherForecastService
         $lastDate = CarbonImmutable::parse($matchedForecasts->last()['forecast_date']);
         $forecast = $matchedForecasts->firstWhere('forecast_date', $targetDate->toDateString());
 
+        $forecastStatus = match (true) {
+            $targetDate->isAfter($lastDate) => 'FORECAST_NOT_AVAILABLE_YET',
+            $targetDate->betweenIncluded($firstDate, $lastDate) && $forecast !== null => 'FORECAST_AVAILABLE',
+            default => 'RETRIEVAL_EMPTY',
+        };
+
         return [
             ...$result,
-            'forecast_status' => $targetDate->betweenIncluded($firstDate, $lastDate) && $forecast
-                ? 'FORECAST_AVAILABLE'
-                : 'FORECAST_NOT_AVAILABLE_YET',
+            'forecast_status' => $forecastStatus,
             'location_match_status' => 'MATCHED',
             'matched_location' => $match,
             'forecast_window' => [

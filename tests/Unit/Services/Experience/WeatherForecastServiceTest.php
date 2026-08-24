@@ -49,13 +49,14 @@ class WeatherForecastServiceTest extends TestCase
         $this->assertNull($guide['forecast']);
     }
 
-    public function test_empty_response_is_reported_without_guessing(): void
+    public function test_valid_empty_response_is_classified_as_an_unmatched_location(): void
     {
         Http::fake(['*' => Http::response([])]);
 
         $guide = app(WeatherForecastService::class)->guideForExperience($this->experience());
 
-        $this->assertSame('RETRIEVAL_EMPTY', $guide['forecast_status']);
+        $this->assertSame('LOCATION_UNMATCHED', $guide['forecast_status']);
+        $this->assertSame('UNMATCHED', $guide['location_match_status']);
     }
 
     public function test_malformed_json_is_reported_as_a_retrieval_failure(): void
@@ -66,6 +67,24 @@ class WeatherForecastServiceTest extends TestCase
 
         $this->assertSame('RETRIEVAL_FAILED', $guide['forecast_status']);
         $this->assertNull($guide['forecast']);
+    }
+
+    public function test_unusable_non_empty_records_are_reported_as_a_retrieval_failure(): void
+    {
+        Http::fake(['*' => Http::response([['unexpected' => 'record']])]);
+
+        $guide = app(WeatherForecastService::class)->guideForExperience($this->experience());
+
+        $this->assertSame('RETRIEVAL_FAILED', $guide['forecast_status']);
+    }
+
+    public function test_http_failure_is_reported_as_a_retrieval_failure(): void
+    {
+        Http::fake(['*' => Http::response(['error' => 'unavailable'], 503)]);
+
+        $guide = app(WeatherForecastService::class)->guideForExperience($this->experience());
+
+        $this->assertSame('RETRIEVAL_FAILED', $guide['forecast_status']);
     }
 
     public function test_valid_venue_location_matches_an_official_area(): void
@@ -120,7 +139,19 @@ class WeatherForecastServiceTest extends TestCase
         Http::assertNothingSent();
     }
 
-    public function test_event_beyond_the_returned_window_is_not_claimed_as_forecasted(): void
+    public function test_event_one_day_after_latest_returned_date_is_not_available_yet(): void
+    {
+        Http::fake(['*' => Http::response($this->week('Ds058', 'Kuala Lumpur'))]);
+
+        $guide = app(WeatherForecastService::class)->guideForExperience(
+            $this->experience(start: '2026-08-31', end: '2026-08-31'),
+        );
+
+        $this->assertSame('FORECAST_NOT_AVAILABLE_YET', $guide['forecast_status']);
+        $this->assertSame('2026-08-30', $guide['forecast_window']['to']);
+    }
+
+    public function test_far_future_event_is_not_claimed_as_forecasted(): void
     {
         Http::fake(['*' => Http::response($this->week('Ds058', 'Kuala Lumpur'))]);
 
@@ -130,6 +161,35 @@ class WeatherForecastServiceTest extends TestCase
 
         $this->assertSame('FORECAST_NOT_AVAILABLE_YET', $guide['forecast_status']);
         $this->assertNull($guide['forecast']);
+    }
+
+    public function test_reviewed_petronas_venue_alias_uses_actual_window_for_future_event(): void
+    {
+        Http::fake(['*' => Http::response($this->week('Ds058', 'Kuala Lumpur'))]);
+
+        $guide = app(WeatherForecastService::class)->guideForExperience(
+            $this->experience(
+                start: '2026-09-02',
+                end: '2026-09-02',
+                location: 'Dewan Filharmonik PETRONAS',
+            ),
+        );
+
+        $this->assertSame('MATCHED', $guide['location_match_status']);
+        $this->assertSame('FORECAST_NOT_AVAILABLE_YET', $guide['forecast_status']);
+    }
+
+    public function test_missing_record_inside_returned_window_is_a_retrieval_problem(): void
+    {
+        $weekWithGap = collect($this->week('Ds058', 'Kuala Lumpur'))
+            ->reject(fn (array $forecast): bool => $forecast['date'] === '2026-08-26')
+            ->values()
+            ->all();
+        Http::fake(['*' => Http::response($weekWithGap)]);
+
+        $guide = app(WeatherForecastService::class)->guideForExperience($this->experience());
+
+        $this->assertSame('RETRIEVAL_EMPTY', $guide['forecast_status']);
     }
 
     public function test_past_event_is_classified_without_calling_the_api(): void

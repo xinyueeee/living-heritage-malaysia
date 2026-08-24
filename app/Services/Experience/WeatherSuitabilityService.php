@@ -40,12 +40,12 @@ class WeatherSuitabilityService
             ],
             2 => [
                 'CAUTION',
-                'Caution',
+                'Plan with Caution',
                 'Rain, haze, or uncertain conditions are forecast during part of the event day. Visitors may need suitable preparation.',
             ],
             default => [
                 'GOOD',
-                'Good',
+                'Good Conditions',
                 'No significant rain or thunderstorm conditions are forecast for the event day.',
             ],
         };
@@ -87,19 +87,40 @@ class WeatherSuitabilityService
     /** @return array<string, mixed> */
     private function unavailable(string $forecastStatus): array
     {
-        $reason = match ($forecastStatus) {
-            'FORECAST_NOT_AVAILABLE_YET' => 'Weather forecast is not available for this event date yet.',
-            'PAST_EVENT' => 'Weather suitability is not provided for past events.',
-            'DATE_UNAVAILABLE' => 'Weather suitability is unavailable because the event date is missing.',
-            'LOCATION_AMBIGUOUS' => 'Weather suitability is unavailable because the event location has multiple possible forecast areas.',
-            'LOCATION_UNMATCHED' => 'Weather suitability is unavailable because the event location could not be matched to an official forecast area.',
-            'RETRIEVAL_FAILED', 'RETRIEVAL_EMPTY' => 'Weather forecast is temporarily unavailable.',
-            default => 'Weather forecast is unavailable for this experience.',
+        [$label, $reason] = match ($forecastStatus) {
+            'FORECAST_NOT_AVAILABLE_YET' => [
+                'Forecast Not Available Yet',
+                'Weather forecast is not available for this event date yet. Check again closer to the event date.',
+            ],
+            'PAST_EVENT' => [
+                'Weather Guidance Unavailable',
+                'Weather guidance is not available because this Experience has ended.',
+            ],
+            'DATE_UNAVAILABLE' => [
+                'Date Required',
+                'Weather guidance requires an Experience date.',
+            ],
+            'LOCATION_AMBIGUOUS' => [
+                'Weather Unavailable',
+                'A reliable weather area could not be determined for this Experience.',
+            ],
+            'LOCATION_UNMATCHED' => [
+                'Weather Unavailable',
+                'Weather forecast is currently unavailable for this Experience location.',
+            ],
+            'RETRIEVAL_FAILED', 'RETRIEVAL_EMPTY' => [
+                'Weather Temporarily Unavailable',
+                'Weather information is temporarily unavailable. Please try again later.',
+            ],
+            default => [
+                'Weather Unavailable',
+                'Weather forecast is unavailable for this experience.',
+            ],
         };
 
         return [
             'status' => 'UNAVAILABLE',
-            'label' => 'Unavailable',
+            'label' => $label,
             'reason' => $reason,
             'forecast_date' => null,
             'forecast_summary' => null,

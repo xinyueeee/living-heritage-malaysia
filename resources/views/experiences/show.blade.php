@@ -98,6 +98,8 @@
                         @endif
                     </dl>
 
+                    <x-weather-visit-guide :weather-suitability="$weatherSuitability" />
+
                     <section class="experience-description" aria-labelledby="experience-description-heading">
                         <h2 id="experience-description-heading">About this experience</h2>
                         <p>{{ $experience->description }}</p>
@@ -134,6 +136,31 @@
         .experience-details-meta div { min-width: 0; }
         .experience-details-meta dt { color: var(--muted); font-size: .75rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
         .experience-details-meta dd { margin: 3px 0 0; overflow-wrap: anywhere; font-weight: 600; }
+        .weather-visit-guide { margin: 0 0 32px; padding: 24px; border: 1px solid var(--border); border-left: 5px solid #84766c; border-radius: 10px; background: #fffaf3; }
+        .weather-guide-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+        .weather-guide-eyebrow { margin: 0 0 4px; color: var(--primary); font-size: .72rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+        .weather-guide-heading h2 { margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 1.55rem; }
+        .weather-guide-heading > div:first-child > p:last-child { margin: 5px 0 0; color: var(--muted); font-size: .9rem; }
+        .weather-suitability { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid currentColor; border-radius: 999px; color: #62564e; font-size: .82rem; font-weight: 800; }
+        .weather-suitability-icon { display: grid; width: 20px; height: 20px; flex: 0 0 auto; place-items: center; border: 1px solid currentColor; border-radius: 50%; font-size: .75rem; line-height: 1; }
+        .weather-status-good { border-left-color: #347653; }
+        .weather-status-good .weather-suitability { color: #286343; }
+        .weather-status-caution { border-left-color: #b57b16; }
+        .weather-status-caution .weather-suitability { color: #8a5a0a; }
+        .weather-status-not_ideal { border-left-color: var(--primary); }
+        .weather-status-not_ideal .weather-suitability { color: var(--primary); }
+        .weather-guide-reason { margin: 18px 0; color: var(--ink); font-weight: 600; }
+        .weather-forecast-date { margin: 0 0 14px; color: var(--muted); }
+        .weather-forecast-date strong,
+        .weather-temperature strong { margin-right: 7px; color: var(--ink); }
+        .weather-periods { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0 0 16px; }
+        .weather-periods div { min-width: 0; padding: 14px; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+        .weather-periods dt { color: var(--muted); font-size: .72rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+        .weather-periods dd { margin: 4px 0 0; overflow-wrap: anywhere; font-weight: 700; }
+        .weather-temperature { margin: 0 0 12px; color: var(--muted); }
+        .weather-source { margin: 0; color: var(--muted); font-size: .76rem; }
+        .weather-source a { color: var(--primary); font-weight: 700; }
+        .weather-source a:hover { text-decoration: underline; }
         .experience-description h2 { margin: 0 0 12px; font-family: Georgia, 'Times New Roman', serif; font-size: 1.55rem; }
         .experience-description p { margin: 0; color: var(--muted); line-height: 1.8; white-space: pre-line; }
         @media (max-width: 640px) {
@@ -141,6 +168,8 @@
             .experience-details-meta { grid-template-columns: 1fr; }
             .experience-details-heading { align-items: stretch; flex-direction: column; }
             .experience-save-button { justify-content: center; }
+            .weather-guide-heading { flex-direction: column; }
+            .weather-periods { grid-template-columns: 1fr; }
         }
     </style>
 @endpush
