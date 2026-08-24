@@ -11,6 +11,7 @@ interface DiscoveryActivityRepositoryInterface
         string $userId,
         int $experienceId,
         CarbonInterface $viewedAt,
+        CarbonInterface $duplicateCutoff,
     ): void;
 
     /**

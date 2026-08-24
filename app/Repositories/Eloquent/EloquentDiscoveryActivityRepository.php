@@ -15,14 +15,21 @@ class EloquentDiscoveryActivityRepository implements DiscoveryActivityRepository
         string $userId,
         int $experienceId,
         CarbonInterface $viewedAt,
+        CarbonInterface $duplicateCutoff,
     ): void {
-        ExperienceViewHistory::query()->updateOrCreate(
-            [
+        $recentViewExists = ExperienceViewHistory::query()
+            ->where('user_id', $userId)
+            ->where('experience_id', $experienceId)
+            ->where('viewed_at', '>=', $duplicateCutoff)
+            ->exists();
+
+        if (! $recentViewExists) {
+            ExperienceViewHistory::query()->create([
                 'user_id' => $userId,
                 'experience_id' => $experienceId,
-            ],
-            ['viewed_at' => $viewedAt],
-        );
+                'viewed_at' => $viewedAt,
+            ]);
+        }
     }
 
     public function recordSearch(
@@ -62,13 +69,22 @@ class EloquentDiscoveryActivityRepository implements DiscoveryActivityRepository
         CarbonInterface $since,
         int $limit,
     ): Collection {
-        return DB::table('experience_view_history')
-            ->join('experiences', 'experience_view_history.experience_id', '=', 'experiences.experiences_id')
+        $latestViews = DB::table('experience_view_history')
+            ->where('user_id', $userId)
+            ->where('viewed_at', '>=', $since)
+            ->groupBy('user_id', 'experience_id')
+            ->select([
+                'user_id',
+                'experience_id',
+                DB::raw('MAX(viewed_at) as viewed_at'),
+            ]);
+
+        return DB::query()
+            ->fromSub($latestViews, 'recent_views')
+            ->join('experiences', 'recent_views.experience_id', '=', 'experiences.experiences_id')
             ->join('category', 'experiences.category_id', '=', 'category.category_id')
             ->join('experience_type', 'experiences.type_id', '=', 'experience_type.type_id')
-            ->where('experience_view_history.user_id', $userId)
-            ->where('experience_view_history.viewed_at', '>=', $since)
-            ->latest('experience_view_history.viewed_at')
+            ->latest('recent_views.viewed_at')
             ->limit($limit)
             ->get([
                 'experiences.experiences_id',
@@ -78,7 +94,7 @@ class EloquentDiscoveryActivityRepository implements DiscoveryActivityRepository
                 'experiences.location_name',
                 'category.category_name',
                 'experience_type.type_name',
-                'experience_view_history.viewed_at as activity_at',
+                'recent_views.viewed_at as activity_at',
             ]);
     }
 

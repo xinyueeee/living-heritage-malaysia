@@ -6,9 +6,12 @@ use App\Models\Experience;
 use App\Repositories\Contracts\DiscoveryActivityRepositoryInterface;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Collection;
+use Throwable;
 
 class UserDiscoveryActivityService
 {
+    private const VIEW_DUPLICATE_MINUTES = 30;
+
     private const SEARCH_DUPLICATE_MINUTES = 10;
 
     private const RECOMMENDATION_LOOKBACK_DAYS = 30;
@@ -31,11 +34,18 @@ class UserDiscoveryActivityService
             return;
         }
 
-        $this->activityRepository->recordExperienceView(
-            (string) $userId,
-            (int) $experience->getKey(),
-            now(),
-        );
+        $viewedAt = now();
+
+        try {
+            $this->activityRepository->recordExperienceView(
+                (string) $userId,
+                (int) $experience->getKey(),
+                $viewedAt,
+                $viewedAt->copy()->subMinutes(self::VIEW_DUPLICATE_MINUTES),
+            );
+        } catch (Throwable $exception) {
+            report($exception);
+        }
     }
 
     /** @param array<string, mixed> $filters */
