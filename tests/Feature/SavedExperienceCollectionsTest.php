@@ -97,8 +97,27 @@ class SavedExperienceCollectionsTest extends TestCase
     {
         [$user, $experience] = $this->fixtures(); $other = $this->user('user-b'); $foreign = $this->collection($other, 'Private');
         $this->actingAs($user)->post(route('experiences.saved.store', $experience), ['collection_id' => $foreign->getKey()])->assertNotFound();
+        $this->assertDatabaseMissing('favourite', ['user_id' => $user->getKey(), 'experience_id' => $experience->getKey()]);
         DB::table('favourite')->insert(['user_id' => $user->getKey(), 'experience_id' => $experience->getKey()]);
         $this->actingAs($user)->patch(route('experiences.saved.move', $experience), ['collection_id' => $foreign->getKey()])->assertNotFound();
+        $this->assertDatabaseHas('favourite', [
+            'user_id' => $user->getKey(),
+            'experience_id' => $experience->getKey(),
+            'collection_id' => null,
+        ]);
+    }
+
+    public function test_rls_migration_defines_owner_only_crud_policies(): void
+    {
+        $migration = file_get_contents(database_path('migrations/2026_08_25_010000_enable_rls_on_saved_experience_collections.php'));
+
+        $this->assertStringContainsString('ENABLE ROW LEVEL SECURITY', $migration);
+        $this->assertStringContainsString('FOR SELECT TO authenticated', $migration);
+        $this->assertStringContainsString('FOR INSERT TO authenticated', $migration);
+        $this->assertStringContainsString('FOR UPDATE TO authenticated', $migration);
+        $this->assertStringContainsString('FOR DELETE TO authenticated', $migration);
+        $this->assertSame(5, substr_count($migration, 'user_id = auth.uid()'));
+        $this->assertStringNotContainsString('TO anon', $migration);
     }
 
     public function test_deleting_collection_moves_saved_experiences_to_default_without_deleting_them(): void
