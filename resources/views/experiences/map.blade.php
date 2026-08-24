@@ -75,9 +75,20 @@
                         <p class="eyebrow">Around You</p>
                         <h2 id="nearby-experiences-heading">Nearby Cultural Experiences</h2>
                     </div>
-                    <p id="nearby-experiences-summary">Sorted by nearest</p>
+                    <div class="nearby-experiences-tools">
+                        <label for="nearby-sort">Sort by</label>
+                        <select id="nearby-sort">
+                            <option value="nearest" selected>Nearest</option>
+                            <option value="soonest">Soonest Date</option>
+                        </select>
+                    </div>
                 </div>
+                <p id="nearby-experiences-summary" class="nearby-experiences-summary" role="status" aria-live="polite">Sorted by nearest</p>
                 <div id="nearby-experiences-list" class="nearby-experiences-list"></div>
+                <div class="nearby-experiences-actions">
+                    <button id="nearby-view-more" class="map-control-button" type="button" hidden>View More</button>
+                    <button id="nearby-show-less" class="map-state-clear" type="button" hidden>Show Less</button>
+                </div>
             </section>
         </div>
     </div>

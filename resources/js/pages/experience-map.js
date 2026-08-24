@@ -2,6 +2,12 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import malaysiaStatesUrl from '../../data/malaysia-states.geojson?url';
 import { markerMatchesSelection, stateForMarker } from './experience-state-map';
+import {
+    eligibleNearbyMarkers,
+    NEARBY_BATCH_SIZE,
+    sortNearbyMarkers,
+    visibleNearbyMarkers,
+} from './experience-nearby';
 
 const createPlaceholder = (name) => {
     const placeholder = document.createElement('div');
@@ -214,6 +220,11 @@ const createNearbyCard = (marker) => {
     if (Number.isFinite(marker.distanceKm)) {
         appendText(content, 'nearby-experience-distance', `Approx. ${formatDistance(marker.distanceKm)} away`);
     }
+    appendText(
+        content,
+        'nearby-experience-date',
+        marker.startDate ? `Starts ${marker.startDate}` : 'Available anytime',
+    );
 
     const details = document.createElement('a');
     details.href = marker.detailsUrl;
@@ -256,6 +267,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const nearbyHeading = document.getElementById('nearby-experiences-heading');
     const nearbySummary = document.getElementById('nearby-experiences-summary');
     const nearbyList = document.getElementById('nearby-experiences-list');
+    const nearbySort = document.getElementById('nearby-sort');
+    const nearbyViewMore = document.getElementById('nearby-view-more');
+    const nearbyShowLess = document.getElementById('nearby-show-less');
     const categoryFilters = document.getElementById('map-category-filters');
     const stateSelect = document.getElementById('map-state-select');
     const clearStateButton = document.getElementById('clear-map-state');
@@ -265,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const stateList = document.getElementById('state-experiences-list');
     const stateSectionClearButton = document.querySelector('[data-clear-map-state]');
     const nearbyRadiusKm = 50;
-    const nearbyLimit = 5;
+    let nearbyVisibleCount = NEARBY_BATCH_SIZE;
 
     const map = L.map(container, { scrollWheelZoom: false }).setView([4.2, 109.5], 5);
 
@@ -381,26 +395,41 @@ document.addEventListener('DOMContentLoaded', () => {
                     marker.latitude,
                     marker.longitude,
                 ),
-            }))
-            .sort((first, second) => first.distanceKm - second.distanceKm);
-        const withinRadius = exactMarkers.filter((marker) => marker.distanceKm <= nearbyRadiusKm);
-        const nearbyMarkers = (withinRadius.length > 0 ? withinRadius : exactMarkers).slice(0, nearbyLimit);
+            }));
+        const eligible = eligibleNearbyMarkers(exactMarkers, nearbyRadiusKm);
+        const sortedMarkers = sortNearbyMarkers(eligible.markers, nearbySort?.value ?? 'nearest');
+        const nearbyMarkers = visibleNearbyMarkers(sortedMarkers, nearbyVisibleCount);
 
         nearbyList.replaceChildren(...nearbyMarkers.map(createNearbyCard));
         nearbySection.hidden = false;
+        nearbyViewMore.hidden = nearbyMarkers.length >= sortedMarkers.length;
+        nearbyShowLess.hidden = nearbyVisibleCount <= NEARBY_BATCH_SIZE;
         if (nearbyMarkers.length === 0) {
             nearbyHeading.textContent = 'Nearby Cultural Experiences';
             nearbySummary.textContent = 'No exact-coordinate Experiences are available for the selected map categories.';
-        } else if (withinRadius.length > 0) {
+        } else if (eligible.usesRadius) {
             nearbyHeading.textContent = 'Nearby Cultural Experiences';
-            nearbySummary.textContent = `Up to ${nearbyLimit} within ${nearbyRadiusKm} km · Sorted by nearest`;
+            nearbySummary.textContent = `Showing ${nearbyMarkers.length} of ${sortedMarkers.length} within ${nearbyRadiusKm} km · Sorted by ${nearbySort?.selectedOptions[0]?.textContent ?? 'Nearest'}`;
         } else {
             nearbyHeading.textContent = 'Nearest Cultural Experiences';
-            nearbySummary.textContent = `None within ${nearbyRadiusKm} km · Showing nearest available`;
+            nearbySummary.textContent = `None within ${nearbyRadiusKm} km · Showing ${nearbyMarkers.length} of ${sortedMarkers.length} nearest available · Sorted by ${nearbySort?.selectedOptions[0]?.textContent ?? 'Nearest'}`;
         }
 
         return nearbyMarkers;
     };
+
+    nearbyViewMore?.addEventListener('click', () => {
+        nearbyVisibleCount += NEARBY_BATCH_SIZE;
+        renderNearbyExperiences();
+    });
+    nearbyShowLess?.addEventListener('click', () => {
+        nearbyVisibleCount = NEARBY_BATCH_SIZE;
+        renderNearbyExperiences();
+    });
+    nearbySort?.addEventListener('change', () => {
+        nearbyVisibleCount = NEARBY_BATCH_SIZE;
+        renderNearbyExperiences();
+    });
 
     const stateStyle = (feature) => {
         const isSelected = feature.properties.state === selectedState;

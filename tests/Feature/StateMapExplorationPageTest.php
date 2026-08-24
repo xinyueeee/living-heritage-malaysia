@@ -36,7 +36,13 @@ class StateMapExplorationPageTest extends TestCase
             ->assertSee('state-experiences-list', false)
             ->assertSee('Johor Heritage Festival')
             ->assertSee('Use My Location')
-            ->assertSee('nearby-experiences', false);
+            ->assertSee('nearby-experiences', false)
+            ->assertSee('nearby-sort', false)
+            ->assertSee('Soonest Date')
+            ->assertSee('nearby-view-more', false)
+            ->assertSee('nearby-show-less', false)
+            ->assertSee('\u0022id\u0022:41', false)
+            ->assertSee('\u0022startDateSort\u0022:\u00222026-09-10\u0022', false);
 
         $this->assertSame('http://localhost/experiences/41', route('experiences.show', $experience));
     }
