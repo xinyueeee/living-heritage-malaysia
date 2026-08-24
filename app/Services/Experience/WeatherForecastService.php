@@ -5,6 +5,7 @@ namespace App\Services\Experience;
 use App\Models\Experience;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 use Throwable;
@@ -14,6 +15,8 @@ class WeatherForecastService
     private const ENDPOINT = 'https://api.data.gov.my/weather/forecast/';
 
     private const SOURCE = 'data.gov.my / MET Malaysia';
+
+    private const CACHE_TTL_SECONDS = 3600;
 
     /**
      * These aliases translate common Malaysian place wording to the API's
@@ -35,6 +38,36 @@ class WeatherForecastService
         if ($locationName === '') {
             return [];
         }
+
+        $cacheKey = 'weather_forecast:location_query:'.hash('sha256', $this->normalizeText($locationName));
+        $cacheAvailable = true;
+
+        try {
+            $cached = Cache::get($cacheKey);
+
+            if (is_array($cached)) {
+                return $cached;
+            }
+        } catch (Throwable) {
+            $cacheAvailable = false;
+        }
+
+        $forecasts = $this->retrieveForecasts($locationName);
+
+        if ($cacheAvailable) {
+            try {
+                Cache::put($cacheKey, $forecasts, self::CACHE_TTL_SECONDS);
+            } catch (Throwable) {
+                // Weather remains optional when the configured cache is unavailable.
+            }
+        }
+
+        return $forecasts;
+    }
+
+    /** @return array<int, array<string, int|string>> */
+    private function retrieveForecasts(string $locationName): array
+    {
 
         try {
             $response = Http::acceptJson()

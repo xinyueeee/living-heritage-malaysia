@@ -5,6 +5,7 @@ namespace Tests\Unit\Services\Experience;
 use App\Models\Experience;
 use App\Services\Experience\WeatherForecastService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -14,6 +15,8 @@ class WeatherForecastServiceTest extends TestCase
     {
         parent::setUp();
         Carbon::setTestNow('2026-08-24 08:00:00');
+        config(['cache.default' => 'array']);
+        Cache::flush();
     }
 
     protected function tearDown(): void
