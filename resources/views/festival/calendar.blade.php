@@ -518,17 +518,13 @@ async function setReminder(id)
         );
 
 
-<<<<<<< Updated upstream
-        if (response.ok && data.success)
-=======
-        const data =
-            await response.json();
-
-
+     const data =
+    await response.json();
         console.log(
             "Status:",
             response.status
         );
+
 
         console.log(
             "Response:",
@@ -543,8 +539,7 @@ async function setReminder(id)
         if (
             response.ok &&
             data.success
-        )
->>>>>>> Stashed changes
+)
         {
             showReminderDialog(
                 "success",

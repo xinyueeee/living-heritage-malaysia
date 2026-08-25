@@ -24,9 +24,7 @@
             <li class="nav-auth">
                 @auth
 
-<<<<<<< Updated upstream
 
-=======
                 @php
                     $unreadCount = \Illuminate\Support\Facades\DB::table('notification')
                         ->where('user_id', auth()->id())
@@ -35,7 +33,6 @@
                         ->where('scheduled_at', '<=', now())
                         ->count();
                 @endphp
->>>>>>> Stashed changes
                 <a class="nav-bell"
                 href="{{ route('notifications.index') }}"
                 aria-label="Notifications">
