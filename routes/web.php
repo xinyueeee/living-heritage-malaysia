@@ -160,4 +160,9 @@ Route::post(
     [TripPlannerController::class, 'plan']
 )->name('trip.planner.plan');
 
+Route::post(
+    '/trip-planner/add',
+    [TripPlannerController::class, 'add']
+)->name('trip.planner.add');
+
 
