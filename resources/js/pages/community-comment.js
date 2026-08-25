@@ -29,9 +29,10 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+
         /*
         |--------------------------------------------------------------------------
-        | TOGGLE
+        | TOGGLE COMMENT SECTION
         |--------------------------------------------------------------------------
         */
 
@@ -40,9 +41,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const isOpen =
             !commentSection.classList.contains('comments-hidden');
 
+
         /*
         |--------------------------------------------------------------------------
-        | ARIA
+        | UPDATE ARIA
         |--------------------------------------------------------------------------
         */
 
@@ -71,6 +73,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         event.preventDefault();
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | GET FORM ELEMENTS
+        |--------------------------------------------------------------------------
+        */
+
         const input = form.querySelector(
             'input[name="comment"]'
         );
@@ -78,19 +87,47 @@ document.addEventListener('DOMContentLoaded', function () {
         const submitButton =
             form.querySelector('.comment-submit-btn');
 
+        const commentSection =
+            form.closest('.comment-section');
+
         const commentsList =
-            form.closest('.comment-section')
-                ?.querySelector('.comments-list');
+            commentSection?.querySelector('.comments-list');
+
 
         if (!input || !submitButton) {
             return;
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | GET COMMENT BUTTON
+        |--------------------------------------------------------------------------
+        */
+
+        const postId =
+            form.action.match(/community\/posts\/(\d+)\/comments/)?.[1];
+
+        const commentButton =
+            postId
+                ? document.querySelector(
+                    `.comment-toggle[data-post-id="${postId}"]`
+                )
+                : null;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDATE COMMENT
+        |--------------------------------------------------------------------------
+        */
 
         const commentText = input.value.trim();
 
         if (!commentText) {
             return;
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -101,7 +138,14 @@ document.addEventListener('DOMContentLoaded', function () {
         submitButton.disabled = true;
         submitButton.textContent = 'Posting...';
 
+
         try {
+
+            /*
+            |--------------------------------------------------------------------------
+            | SEND COMMENT
+            |--------------------------------------------------------------------------
+            */
 
             const response = await fetch(
                 form.action,
@@ -207,6 +251,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
             /*
             |--------------------------------------------------------------------------
+            | UPDATE COMMENT COUNT
+            |--------------------------------------------------------------------------
+            | Increase the number beside the comment icon by 1.
+            */
+
+            if (commentButton) {
+
+                const commentCount =
+                    commentButton.querySelector('.comment-count');
+
+                if (commentCount) {
+
+                    const currentCount =
+                        parseInt(
+                            commentCount.textContent.trim(),
+                            10
+                        ) || 0;
+
+                    commentCount.textContent =
+                        currentCount + 1;
+
+                }
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
             | CLEAR INPUT
             |--------------------------------------------------------------------------
             */
@@ -225,10 +297,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 'Unable to add comment. Please try again.'
             );
 
+
         } finally {
 
-            submitButton.disabled = false;
+            /*
+            |--------------------------------------------------------------------------
+            | ENABLE BUTTON AGAIN
+            |--------------------------------------------------------------------------
+            */
 
+            submitButton.disabled = false;
             submitButton.textContent = 'Post';
 
         }

@@ -294,7 +294,7 @@
             </span>
 
             <span class="comment-count">
-                {{ $post->comments_count ?? 0 }}
+                {{ $post->post_comments_count ?? 0 }}
             </span>
 
         </button>
@@ -380,7 +380,7 @@
 
         <div class="comments-list">
 
-            @forelse($post->comments ?? collect() as $comment)
+            @forelse($post->postComments as $comment)
 
                 <div class="comment-item">
 
@@ -454,7 +454,8 @@
                 >
 
 
-                <button type="submit">
+                <button type="submit"
+                    class="comment-submit-btn">
                     Post
                 </button>
 
