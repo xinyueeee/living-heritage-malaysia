@@ -19,6 +19,8 @@ use App\Http\Controllers\NotificationController;
 
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\PostLikeController;
+use App\Http\Controllers\ReminderController;
+use App\Http\Controllers\TripPlannerController;
 
 
 Route::get('/', [ExperienceController::class, 'home'])->name('home');
@@ -136,3 +138,34 @@ Route::post('/calendar/reminder', [NotificationController::class, 'storeReminder
 
 Route::get('/festival/login-required', function () {return view('festival.login-required');})->name('festival.login-required');
     
+
+Route::get(
+    '/reminders',
+    [ReminderController::class, 'index']
+)->middleware('auth')->name('festival.reminder');
+
+Route::get(
+    '/experience/{id}',
+    [ExperienceController::class, 'show']
+)->name('experience.show');
+
+
+Route::get('/notifications/count', [NotificationController::class, 'count'])
+    ->name('notifications.count')
+    ->middleware('auth');
+
+Route::post('/trip-planner/plan', [TripPlannerController::class, 'plan'])
+    ->name('trip.planner.plan')
+    ->middleware('auth');
+
+Route::post(
+    '/trip-planner/plan',
+    [TripPlannerController::class, 'plan']
+)->name('trip.planner.plan');
+
+Route::post(
+    '/trip-planner/add',
+    [TripPlannerController::class, 'add']
+)->name('trip.planner.add');
+
+

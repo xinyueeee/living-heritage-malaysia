@@ -25,6 +25,14 @@
                 @auth
 
 
+                @php
+                    $unreadCount = \Illuminate\Support\Facades\DB::table('notification')
+                        ->where('user_id', auth()->id())
+                        ->where('notification_type', 'festival_reminder')
+                        ->where('is_read', false)
+                        ->where('scheduled_at', '<=', now())
+                        ->count();
+                @endphp
                 <a class="nav-bell"
                 href="{{ route('notifications.index') }}"
                 aria-label="Notifications">
@@ -42,11 +50,13 @@
 
                     </svg>
 
-                    @if ($unreadCount > 0)
-                        <span class="nav-bell-badge">
-                            {{ $unreadCount > 9 ? '9+' : $unreadCount }}
-                        </span>
-                    @endif
+                    <span
+                        id="notificationBadge"
+                        class="nav-bell-badge"
+                        style="{{ $unreadCount > 0 ? '' : 'display: none;' }}"
+                    >
+                        {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                    </span>
 
                 </a>
 
