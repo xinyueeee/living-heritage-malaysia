@@ -26,6 +26,15 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
         <span class="profile-sidebar-label">Saved Posts</span>
     </a>
+    
+    <a href="{{ route('profile.albums.index') }}"@class(['active' => $active === 'albums'])title="My Albums"aria-label="My Albums">
+        <svg viewBox="0 0 24 24"fill="none"stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/>circle cx="8.5" cy="9" r="1.5"/>
+        <path d="M21 15l-5-5L5 20"/>
+    </svg>
+
+    <span class="profile-sidebar-label">My Albums</span>
+</a>
+
     <a href="{{ route('profile.achievements') }}" @class(['active' => $active === 'achievements']) title="Achievements & Stats" aria-label="Achievements & Stats">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a1 1 0 0 0-1 1 4 4 0 0 0 4 4"/><path d="M17 6h3a1 1 0 0 1 1 1 4 4 0 0 1-4 4"/></svg>
         <span class="profile-sidebar-label">Achievements &amp; Stats</span>

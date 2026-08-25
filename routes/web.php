@@ -16,6 +16,7 @@ use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\AlbumController;
 
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\PostLikeController;
@@ -120,6 +121,40 @@ Route::post('/alerts/personalize', [AlertController::class, 'store'])
 
     Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
     Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
+
+    // Profile Albums
+    Route::get('/profile/albums', [AlbumController::class, 'index'])
+        ->name('profile.albums.index');
+
+    Route::get('/profile/albums/create', [AlbumController::class, 'create'])
+        ->name('profile.albums.create');
+
+    Route::post('/profile/albums', [AlbumController::class, 'store'])
+        ->name('profile.albums.store');
+
+    Route::get('/profile/albums/{album}', [AlbumController::class, 'show'])
+        ->name('profile.albums.show');
+        Route::get('/profile/albums/{album}/edit', [AlbumController::class, 'edit'])
+        ->name('profile.albums.edit');
+
+    Route::put('/profile/albums/{album}', [AlbumController::class, 'update'])
+        ->name('profile.albums.update');
+
+    Route::delete('/profile/albums/{album}', [AlbumController::class, 'destroy'])
+        ->name('profile.albums.destroy');
+
+    // Photo Management
+    Route::get('/profile/albums/{album}/photos/create', [AlbumController::class, 'createPhotos'])
+        ->name('profile.albums.photos.create');
+
+    Route::post('/profile/albums/{album}/photos', [AlbumController::class, 'storePhotos'])
+        ->name('profile.albums.photos.store');
+
+    Route::delete('/profile/albums/{album}/photos/{photo}', [AlbumController::class, 'deletePhoto'])
+        ->name('profile.albums.photos.destroy');
+    // Cover Photo
+    Route::patch('/profile/albums/{album}/cover/{photo}', [AlbumController::class, 'updateCover'])
+        ->name('profile.albums.cover.update');
 });
 
 
