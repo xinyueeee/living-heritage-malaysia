@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\PostComment;
 use App\Models\PostLike;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,6 +27,12 @@ class Post extends Model
         'experience_id',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | USER
+    |--------------------------------------------------------------------------
+    */
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(
@@ -34,6 +41,13 @@ class Post extends Model
             'user_id'
         );
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | EXPERIENCE
+    |--------------------------------------------------------------------------
+    */
 
     public function experience(): BelongsTo
     {
@@ -44,6 +58,13 @@ class Post extends Model
         );
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | LIKES
+    |--------------------------------------------------------------------------
+    */
+
     public function likes(): HasMany
     {
         return $this->hasMany(
@@ -52,6 +73,7 @@ class Post extends Model
             'post_id'
         );
     }
+
 
     public function isLikedBy($user): bool
     {
@@ -62,5 +84,26 @@ class Post extends Model
         return $this->likes()
             ->where('user_id', $user->user_id)
             ->exists();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | COMMENTS
+    |--------------------------------------------------------------------------
+    |
+    | IMPORTANT:
+    | We use "postComments" instead of "comments"
+    | because the post table already has a "comments" column.
+    |
+    */
+
+    public function postComments(): HasMany
+    {
+        return $this->hasMany(
+            PostComment::class,
+            'post_id',
+            'post_id'
+        );
     }
 }
