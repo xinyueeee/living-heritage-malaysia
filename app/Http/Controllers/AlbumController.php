@@ -49,14 +49,12 @@ class AlbumController extends Controller
         $validated = $request->validate([
             'album_name' => ['required', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:1000'],
-            'privacy' => ['nullable', 'in:private,public,shared'],
         ]);
 
         $albumId = DB::table('album')->insertGetId([
             'user_id' => $user->user_id,
             'album_name' => trim($validated['album_name']),
             'description' => $validated['description'] ? trim($validated['description']) : null,
-            'privacy' => $validated['privacy'] ?? 'private',
             'created_at' => now(),
             'updated_at' => now(),
         ], 'album_id');
@@ -122,7 +120,6 @@ class AlbumController extends Controller
         $validated = $request->validate([
             'album_name' => ['required', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:1000'],
-            'privacy' => ['required', 'in:private,public,shared'],
         ]);
 
         $updated = DB::table('album')
@@ -131,7 +128,6 @@ class AlbumController extends Controller
             ->update([
                 'album_name' => trim($validated['album_name']),
                 'description' => $validated['description'] ? trim($validated['description']) : null,
-                'privacy' => $validated['privacy'],
                 'updated_at' => now(),
             ]);
 
@@ -246,11 +242,11 @@ class AlbumController extends Controller
             foreach ($files as $photo) {
                 // Check if file is valid
                 if ($photo && $photo->isValid()) {
-                    // ✅ Store the photo with unique name
+                    // Store the photo with unique name
                     $filename = time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
                     $path = $photo->storeAs('album_photos', $filename, 'public');
                     
-                    // ✅ Store the full URL
+                    // Store the full URL
                     $fullUrl = asset('storage/' . $path);
                     
                     DB::table('album_photo')->insert([
@@ -343,35 +339,6 @@ class AlbumController extends Controller
         return redirect()
             ->route('profile.albums.show', $albumId)
             ->with('success', 'Photo deleted successfully.');
-    }
-
-    /**
-     * Update album privacy.
-     */
-    public function updatePrivacy(Request $request, $albumId)
-    {
-        $user = Auth::user();
-
-        $validated = $request->validate([
-            'privacy' => ['required', 'in:private,public,shared'],
-        ]);
-
-        $updated = DB::table('album')
-            ->where('album_id', $albumId)
-            ->where('user_id', $user->user_id)
-            ->update([
-                'privacy' => $validated['privacy'],
-                'updated_at' => now(),
-            ]);
-
-        if (!$updated) {
-            abort(404, 'Album not found.');
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Privacy updated successfully!',
-        ]);
     }
 
     /**
