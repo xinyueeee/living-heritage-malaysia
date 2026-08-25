@@ -58,7 +58,7 @@
 
                 <div class="profile-passport-widget">
                     <div class="profile-passport-preview">
-                        <img src="{{ asset('images/engagement/passport-book.png') }}" alt="">
+                        <img src="{{ asset('images/engagement/passport-book.webp') }}" alt="">
                         <div class="profile-passport-preview-text">
                             @if ($stats['stamps_collected'] > 0)
                                 <strong>{{ $stats['stamps_collected'] }} {{ \Illuminate\Support\Str::plural('stamp', $stats['stamps_collected']) }} collected</strong>
@@ -83,7 +83,7 @@
                         <div class="profile-progress-stats">
                             <div class="profile-progress-stat">
                                 <span class="profile-progress-stat-label">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg>
                                     Total Stamps
                                 </span>
                                 <b>{{ $stats['stamps_collected'] }} / {{ $stats['total_stamps'] }}</b>

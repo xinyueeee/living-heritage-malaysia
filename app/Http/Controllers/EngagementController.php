@@ -69,6 +69,13 @@ class EngagementController extends Controller
                 return $badge;
             });
 
+        $recentUnlockedBadges = $achievements
+            ->where('is_unlocked', true)
+            ->sortByDesc('unlocked_date')
+            ->take(4)
+            ->values();
+                    
+
         /*
         * Load only the latest eight stamps needed by the
         * home-page preview.
@@ -119,7 +126,7 @@ class EngagementController extends Controller
             ])
             ->where('user_id', $userId)
             ->latest('completed_date')
-            ->limit(1)
+            ->limit(3)
             ->get();
 
         $completedExperienceCount = (int) (
@@ -128,6 +135,29 @@ class EngagementController extends Controller
                 ?->total_experience_count
             ?? 0
         );
+
+        $experiencesThisMonthCount = CompletedExperience::where(
+            'user_id',
+            $userId
+        )
+        ->whereYear('completed_date', now()->year)
+        ->whereMonth('completed_date', now()->month)
+        ->count();
+
+        $nextStamp = PassportStamp::with('categoryDetails')
+            ->whereDoesntHave(
+                'userPassportStamps',
+                function ($query) use ($userId) {
+                    $query->whereHas(
+                        'passport',
+                        function ($passportQuery) use ($userId) {
+                            $passportQuery->where('user_id', $userId);
+                        }
+                    );
+                }
+            )
+            ->inRandomOrder()
+            ->first();
 
         return view('engagement.index', [
             'latestPassportStamps' =>
@@ -139,11 +169,16 @@ class EngagementController extends Controller
             'achievements' =>
                 $achievements,
 
+            'recentUnlockedBadges' => $recentUnlockedBadges,
+
             'recentExperienceHistory' =>
                 $recentExperienceHistory,
 
             'completedExperienceCount' =>
                 $completedExperienceCount,
+            
+            'experiencesThisMonthCount' => $experiencesThisMonthCount,
+            'nextStamp' => $nextStamp,
         ]);
     }
 

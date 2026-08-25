@@ -3,6 +3,12 @@
 @section('title', 'Discover | Living Heritage Malaysia')
 
 @section('content')
+    @php
+        $selectedType = $types->firstWhere('type_id', (int) request('type'));
+        $selectedCategory = $categories->firstWhere('category_id', (int) request('category'));
+        $totalExperienceCount = $types->sum('experiences_count');
+    @endphp
+
     <div class="discovery-page">
         <section class="discovery-hero" style="--discovery-hero-image: url('{{ asset('images/discovery/discover-hero.png') }}')">
             <div class="container discovery-hero-content">
@@ -17,6 +23,12 @@
                     @if (request()->filled('type'))
                         <input type="hidden" name="type" value="{{ request('type') }}">
                     @endif
+                    @if ($selectedCategory)
+                        <input type="hidden" name="category" value="{{ $selectedCategory->category_id }}">
+                    @endif
+                    @if (request()->filled('sort'))
+                        <input type="hidden" name="sort" value="{{ request('sort') }}">
+                    @endif
 
                     <div class="discovery-search-field discovery-search-keyword">
                         <label class="sr-only" for="search">Search</label>
@@ -30,49 +42,97 @@
                         <input id="location" name="location" type="search" value="{{ request('location') }}" placeholder="All locations">
                     </div>
 
-                    <div class="discovery-search-field">
-                        <label class="sr-only" for="category">Category</label>
-                        <select id="category" name="category">
-                            <option value="">All categories</option>
-                            @foreach ($categories as $category)
-                                <option value="{{ $category->category_id }}" @selected((string) request('category') === (string) $category->category_id)>
-                                    {{ $category->category_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
                     <button type="submit">Search</button>
             </form>
         </div>
 
         <div class="container discovery-content">
             <nav class="experience-type-tabs" aria-label="Experience type">
+                <a
+                    @class(['active' => $selectedType === null])
+                    href="{{ route('experiences.index', request()->except(['page', 'type', 'category'])) }}"
+                    @if ($selectedType === null) aria-current="page" @endif
+                >
+                    <span class="type-tab-icon" aria-hidden="true">◎</span>
+                    <span>
+                        <strong>All</strong>
+                        <small>{{ $totalExperienceCount }} available</small>
+                    </span>
+                </a>
+
                 @foreach ($types as $type)
                     <a
-                        @class(['active' => (string) request('type') === (string) $type->type_id])
-                        href="{{ route('experiences.index', array_merge(request()->except(['page', 'type']), ['type' => $type->type_id])) }}"
+                        @class(['active' => $selectedType?->type_id === $type->type_id])
+                        href="{{ route('experiences.index', array_merge(request()->except(['page', 'type', 'category']), ['type' => $type->type_id])) }}"
+                        @if ($selectedType?->type_id === $type->type_id) aria-current="page" @endif
                     >
                         <span class="type-tab-icon" aria-hidden="true">{{ $type->type_name === 'Festival' ? '✣' : '◆' }}</span>
                         <span>
-                            <strong>{{ $type->type_name }}</strong>
+                            <strong>{{ $type->type_name === 'Cultural Experience' ? 'Cultural Experiences' : $type->type_name . 's' }}</strong>
                             <small>{{ $type->experiences_count }} available</small>
                         </span>
                     </a>
                 @endforeach
             </nav>
 
+            <section class="category-hierarchy-filter" aria-labelledby="category-filter-heading">
+                <div>
+                    <p class="filter-step">Step 2</p>
+                    <h2 id="category-filter-heading">Choose a category</h2>
+                    <p id="category-filter-help">
+                        @if ($selectedType)
+                            Showing categories for {{ $selectedType->type_name === 'Cultural Experience' ? 'Cultural Experiences' : 'Festivals' }} only.
+                        @else
+                            Select an experience type first to see its categories.
+                        @endif
+                    </p>
+                </div>
+
+                <form class="category-filter-form" action="{{ route('experiences.index') }}" method="get">
+                    @foreach (['search', 'location', 'sort', 'type'] as $parameter)
+                        @if (request()->filled($parameter))
+                            <input type="hidden" name="{{ $parameter }}" value="{{ request($parameter) }}">
+                        @endif
+                    @endforeach
+
+                    <label class="sr-only" for="category">Experience category</label>
+                    <select
+                        id="category"
+                        name="category"
+                        aria-describedby="category-filter-help"
+                        onchange="this.form.submit()"
+                        @disabled($selectedType === null)
+                    >
+                        <option value="">
+                            {{ $selectedType ? 'All ' . ($selectedType->type_name === 'Festival' ? 'festival' : 'cultural experience') . ' categories' : 'Select an experience type first' }}
+                        </option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->category_id }}" @selected($selectedCategory?->category_id === $category->category_id)>
+                                {{ $category->category_name }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <noscript>
+                        <button type="submit" @disabled($selectedType === null)>Apply category</button>
+                    </noscript>
+                </form>
+            </section>
+
             <div class="listing-toolbar">
                 <div class="active-filters">
                     <span class="filter-label">Filters</span>
+                    @if ($selectedType)
+                        <span class="filter-chip">{{ $selectedType->type_name === 'Cultural Experience' ? 'Cultural Experiences' : 'Festivals' }}</span>
+                    @endif
                     @if (request()->filled('search'))
                         <span class="filter-chip">“{{ request('search') }}”</span>
                     @endif
                     @if (request()->filled('location'))
                         <span class="filter-chip">{{ request('location') }}</span>
                     @endif
-                    @if (request()->filled('category'))
-                        <span class="filter-chip">{{ $categories->firstWhere('category_id', (int) request('category'))?->category_name }}</span>
+                    @if ($selectedCategory)
+                        <span class="filter-chip">{{ $selectedCategory->category_name }}</span>
                     @endif
                     @if (request()->hasAny(['search', 'location', 'category', 'type', 'sort']))
                         <a class="clear-filter" href="{{ route('experiences.index') }}">Clear all</a>
@@ -115,6 +175,16 @@
             @push('scripts')
                 <x-experience-map-data :experiences="$mapExperiences" />
             @endpush
+
+            <aside class="trending-entry" aria-labelledby="trending-entry-heading">
+                <div>
+                    <p class="eyebrow">Popular This Week</p>
+                    <h2 id="trending-entry-heading">See what heritage explorers are viewing</h2>
+                </div>
+                <a class="trending-entry-link" href="{{ route('experiences.trending') }}">
+                    View Trending Experiences <span aria-hidden="true">&rarr;</span>
+                </a>
+            </aside>
 
             <div class="results-heading">
                 <div>

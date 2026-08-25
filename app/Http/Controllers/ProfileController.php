@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Services\Community\SavedPostService;
 use App\Services\Profile\ProfileAchievementsService;
+use App\Services\ProfileService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -12,7 +13,8 @@ class ProfileController extends Controller
 {
     public function __construct(
         private SavedPostService $savedPostService,
-        private ProfileAchievementsService $achievementsService
+        private ProfileAchievementsService $achievementsService,
+        private ProfileService $profileService
     ) {}
 
     public function show(): View
@@ -33,6 +35,7 @@ class ProfileController extends Controller
                 ->count(),
             'badges_earned' => DB::table('user_achievement')
                 ->where('user_id', $userId)
+                ->where('is_unlocked', true)
                 ->count(),
         ];
 
@@ -45,6 +48,7 @@ class ProfileController extends Controller
         $achievements = DB::table('user_achievement')
             ->join('achievement_badge', 'user_achievement.badge_id', '=', 'achievement_badge.badge_id')
             ->where('user_achievement.user_id', $userId)
+            ->where('user_achievement.is_unlocked', true)
             ->orderByDesc('user_achievement.unlocked_date')
             ->limit(3)
             ->get(['achievement_badge.badge_name', 'achievement_badge.description', 'user_achievement.unlocked_date']);
@@ -54,6 +58,7 @@ class ProfileController extends Controller
             'stats' => $stats,
             'interests' => $interests,
             'achievements' => $achievements,
+            'photoHistory' => $this->profileService->getPhotoHistory($userId),
         ]);
     }
     public function myPosts(): View

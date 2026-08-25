@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class EloquentExperienceRepository implements ExperienceRepositoryInterface
 {
@@ -73,6 +74,21 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
         )
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
+            ->where(function ($query) {
+                $query->where(function ($query) {
+                    $query->whereHas('type', fn ($query) => $query->where('type_name', 'Festival'))
+                        ->where(function ($query) {
+                            $query->whereDate('end_date', '>=', today())
+                                ->orWhere(function ($query) {
+                                    $query->whereNull('end_date')
+                                        ->whereDate('start_date', '>=', today());
+                                });
+                        });
+                })->orWhere(function ($query) {
+                    $query->whereHas('type', fn ($query) => $query->where('type_name', 'Cultural Experience'))
+                        ->whereRaw('LOWER(status) = ?', ['available']);
+                    });
+            })
             ->orderBy('experiences_id')
             ->get([
                 'experiences_id',
@@ -94,24 +110,30 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
         return $query
             ->when($filters['search'] ?? null, function ($query, string $search) {
                 $query->where(function ($query) use ($search) {
-                    $query->where('experiences_name', 'ilike', "%{$search}%")
-                        ->orWhere('description', 'ilike', "%{$search}%")
+                    $query->whereLike('experiences_name', "%{$search}%")
+                        ->orWhereLike('description', "%{$search}%")
                         ->orWhereHas('category', function ($query) use ($search) {
-                            $query->where('category_name', 'ilike', "%{$search}%");
+                            $query->whereLike('category_name', "%{$search}%");
                         })
                         ->orWhereHas('type', function ($query) use ($search) {
-                            $query->where('type_name', 'ilike', "%{$search}%");
+                            $query->whereLike('type_name', "%{$search}%");
                         });
                 });
             })
             ->when($filters['location'] ?? null, function ($query, string $location) {
-                $query->where('location_name', 'ilike', "%{$location}%");
+                $query->whereLike('location_name', "%{$location}%");
             })
             ->when($filters['category'] ?? null, function ($query, int $categoryId) {
                 $query->where('category_id', $categoryId);
             })
             ->when($filters['type'] ?? null, function ($query, int $typeId) {
                 $query->where('type_id', $typeId);
+            })
+            ->when($filters['excluded_categories'] ?? [], function ($query, array $categoryIds) {
+                $query->whereNotIn('category_id', $categoryIds);
+            })
+            ->when($filters['excluded_ids'] ?? [], function ($query, array $experienceIds) {
+                $query->whereNotIn('experiences_id', $experienceIds);
             });
     }
 
@@ -123,12 +145,71 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
             ->get();
     }
 
+    public function getCategoriesForType(?int $typeId): Collection
+    {
+        if ($typeId === null) {
+            return new Collection;
+        }
+
+        return Category::query()
+            ->with('type')
+            ->where('type_id', $typeId)
+            ->orderBy('category_name')
+            ->get();
+    }
+
     public function getExperienceTypes(): Collection
     {
         return ExperienceType::query()
             ->withCount('experiences')
             ->orderBy('type_id')
             ->get();
+    }
+
+    public function getCulturalExperienceLocations(): SupportCollection
+    {
+        return Experience::query()
+            ->whereHas('type', fn ($query) => $query->where('type_name', 'Cultural Experience'))
+            ->whereNotNull('location_name')
+            ->where('location_name', '<>', '')
+            ->distinct()
+            ->orderBy('location_name')
+            ->pluck('location_name');
+    }
+
+    public function findCulturalExperienceByName(string $name): ?Experience
+    {
+        $matches = Experience::query()
+            ->with(['category', 'type'])
+            ->whereHas('type', fn ($query) => $query->where('type_name', 'Cultural Experience'))
+            ->where('experiences_name', 'ilike', '%'.trim($name).'%')
+            ->orderByRaw('CASE WHEN LOWER(experiences_name) = LOWER(?) THEN 0 ELSE 1 END', [trim($name)])
+            ->orderBy('experiences_id')
+            ->limit(2)
+            ->get();
+        $exact = $matches->first(fn (Experience $experience) => Str::lower($experience->experiences_name) === Str::lower(trim($name)));
+
+        return $exact ?? ($matches->count() === 1 ? $matches->first() : null);
+    }
+
+    public function getCulturalExperiencesByIds(array $ids): Collection
+    {
+        if ($ids === []) {
+            return new Collection;
+        }
+
+        $experiences = Experience::query()
+            ->with(['category', 'type'])
+            ->whereHas('type', fn ($query) => $query->where('type_name', 'Cultural Experience'))
+            ->whereIn('experiences_id', $ids)
+            ->get()
+            ->keyBy('experiences_id');
+
+        return new Collection(collect($ids)
+            ->map(fn (int $id) => $experiences->get($id))
+            ->filter()
+            ->values()
+            ->all());
     }
 
     public function getRecommendationCandidates(int $limit): Collection

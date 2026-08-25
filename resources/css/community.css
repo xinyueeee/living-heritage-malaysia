@@ -1914,6 +1914,20 @@
 
 @media (max-width: 700px) {
 
+    .community-hero-content {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .community-intro {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .create-post-btn {
+        align-self: flex-start;
+    }
+
     .community-feed-header {
         margin-bottom: 18px;
     }
@@ -2099,6 +2113,7 @@
 .like-action.is-liked .action-icon {
     color: #e53935;
 }
+
 
 .comment-section {
     border-top: 1px solid #eee;

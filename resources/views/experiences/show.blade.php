@@ -47,20 +47,37 @@
 
                     <div class="experience-details-heading">
                         <h1>{{ $experience->experiences_name }}</h1>
-                        @auth
-                            <form method="POST" action="{{ $isSaved ? route('experiences.saved.destroy', $experience) : route('experiences.saved.store', $experience) }}">
-                                @csrf
-                                @if ($isSaved)
-                                    @method('DELETE')
-                                @endif
-                                <button type="submit" class="experience-save-button {{ $isSaved ? 'is-saved' : '' }}">
+                        <div class="experience-details-actions">
+                            @auth
+                                <button type="button" class="experience-save-button {{ $isSaved ? 'is-saved' : '' }}"
+                                    @if ($isSaved) data-open-already-saved data-collection-name="{{ $savedCollectionName }}"
+                                    @else data-open-save-picker data-save-url="{{ route('experiences.saved.store', $experience) }}" @endif>
                                     <span aria-hidden="true">{{ $isSaved ? '♥' : '♡' }}</span>
                                     {{ $isSaved ? 'Saved' : 'Save Experience' }}
                                 </button>
-                            </form>
-                        @else
-                            <a class="experience-save-button" href="{{ route('login') }}"><span aria-hidden="true">♡</span> Save Experience</a>
-                        @endauth
+                            @else
+                                <a class="experience-save-button" href="{{ route('login') }}"><span aria-hidden="true">♡</span> Save Experience</a>
+                            @endauth
+                            @if ($festivalReminderEligible)
+                                @auth
+                                    <button
+                                        type="button"
+                                        class="experience-save-button festival-reminder-button {{ $festivalReminderSet ? 'is-set' : '' }}"
+                                        data-festival-reminder
+                                        data-reminder-set="{{ $festivalReminderSet ? 'true' : 'false' }}"
+                                        data-reminder-url="{{ route('calendar.reminder') }}"
+                                        data-experience-id="{{ $experience->getKey() }}"
+                                    >
+                                        <span aria-hidden="true">{{ $festivalReminderSet ? '✓' : '🔔' }}</span>
+                                        {{ $festivalReminderSet ? 'Reminder Set' : 'Set Festival Reminder' }}
+                                    </button>
+                                @else
+                                    <a class="experience-save-button festival-reminder-button" href="{{ route('festival.login-required') }}">
+                                        <span aria-hidden="true">🔔</span> Set Festival Reminder
+                                    </a>
+                                @endauth
+                            @endif
+                        </div>
                     </div>
 
                     <dl class="experience-details-meta">
@@ -98,12 +115,32 @@
                         @endif
                     </dl>
 
+                    <x-weather-visit-guide :weather-suitability="$weatherSuitability" />
+
                     <section class="experience-description" aria-labelledby="experience-description-heading">
                         <h2 id="experience-description-heading">About this experience</h2>
                         <p>{{ $experience->description }}</p>
                     </section>
                 </div>
             </article>
+
+            @auth
+                @if ($festivalReminderEligible)
+                    <dialog class="saved-picker saved-message-dialog" data-festival-reminder-dialog aria-labelledby="festival-reminder-dialog-title">
+                        <div class="saved-picker-message">
+                            <div class="saved-picker-heading">
+                                <h2 id="festival-reminder-dialog-title" data-festival-reminder-title>Festival Reminder</h2>
+                                <button type="button" class="saved-picker-close" data-festival-reminder-close aria-label="Close">&times;</button>
+                            </div>
+                            <p data-festival-reminder-message></p>
+                            <div class="saved-picker-actions">
+                                <button type="button" class="button saved-picker-cancel" data-festival-reminder-close>Close</button>
+                                <a class="button button-primary" href="{{ route('festival.calendar') }}">View Festival Alerts</a>
+                            </div>
+                        </div>
+                    </dialog>
+                @endif
+            @endauth
         </div>
     </div>
 @endsection
@@ -126,21 +163,51 @@
         .experience-details-eyebrow { margin: 0 0 8px; color: var(--primary); font-size: .8rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
         .experience-details-content h1 { margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(2rem, 5vw, 3.3rem); line-height: 1.15; }
         .experience-details-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+        .experience-details-actions { display: flex; flex: 0 0 auto; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
         .experience-details-heading form { flex-shrink: 0; }
         .experience-save-button { display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px; border: 1px solid var(--primary); border-radius: 7px; background: #fff; color: var(--primary); font: inherit; font-weight: 700; cursor: pointer; white-space: nowrap; }
         .experience-save-button:hover,
         .experience-save-button.is-saved { background: var(--primary); color: #fff; }
+        .festival-reminder-button.is-set { border-color: #347653; background: #347653; color: #fff; }
         .experience-details-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 28px; margin: 30px 0; padding: 22px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
         .experience-details-meta div { min-width: 0; }
         .experience-details-meta dt { color: var(--muted); font-size: .75rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
         .experience-details-meta dd { margin: 3px 0 0; overflow-wrap: anywhere; font-weight: 600; }
+        .weather-visit-guide { margin: 0 0 32px; padding: 24px; border: 1px solid var(--border); border-left: 5px solid #84766c; border-radius: 10px; background: #fffaf3; }
+        .weather-guide-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+        .weather-guide-eyebrow { margin: 0 0 4px; color: var(--primary); font-size: .72rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+        .weather-guide-heading h2 { margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 1.55rem; }
+        .weather-guide-heading > div:first-child > p:last-child { margin: 5px 0 0; color: var(--muted); font-size: .9rem; }
+        .weather-suitability { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid currentColor; border-radius: 999px; color: #62564e; font-size: .82rem; font-weight: 800; }
+        .weather-suitability-icon { display: grid; width: 20px; height: 20px; flex: 0 0 auto; place-items: center; border: 1px solid currentColor; border-radius: 50%; font-size: .75rem; line-height: 1; }
+        .weather-status-good { border-left-color: #347653; }
+        .weather-status-good .weather-suitability { color: #286343; }
+        .weather-status-caution { border-left-color: #b57b16; }
+        .weather-status-caution .weather-suitability { color: #8a5a0a; }
+        .weather-status-not_ideal { border-left-color: var(--primary); }
+        .weather-status-not_ideal .weather-suitability { color: var(--primary); }
+        .weather-guide-reason { margin: 18px 0; color: var(--ink); font-weight: 600; }
+        .weather-forecast-date { margin: 0 0 14px; color: var(--muted); }
+        .weather-forecast-date strong,
+        .weather-temperature strong { margin-right: 7px; color: var(--ink); }
+        .weather-periods { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0 0 16px; }
+        .weather-periods div { min-width: 0; padding: 14px; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+        .weather-periods dt { color: var(--muted); font-size: .72rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+        .weather-periods dd { margin: 4px 0 0; overflow-wrap: anywhere; font-weight: 700; }
+        .weather-temperature { margin: 0 0 12px; color: var(--muted); }
+        .weather-source { margin: 0; color: var(--muted); font-size: .76rem; }
+        .weather-source a { color: var(--primary); font-weight: 700; }
+        .weather-source a:hover { text-decoration: underline; }
         .experience-description h2 { margin: 0 0 12px; font-family: Georgia, 'Times New Roman', serif; font-size: 1.55rem; }
         .experience-description p { margin: 0; color: var(--muted); line-height: 1.8; white-space: pre-line; }
         @media (max-width: 640px) {
             .experience-details-page { padding-top: 28px; }
             .experience-details-meta { grid-template-columns: 1fr; }
             .experience-details-heading { align-items: stretch; flex-direction: column; }
+            .experience-details-actions { align-items: stretch; flex-direction: column; }
             .experience-save-button { justify-content: center; }
+            .weather-guide-heading { flex-direction: column; }
+            .weather-periods { grid-template-columns: 1fr; }
         }
     </style>
 @endpush

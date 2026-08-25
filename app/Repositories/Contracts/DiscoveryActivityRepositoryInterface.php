@@ -11,6 +11,7 @@ interface DiscoveryActivityRepositoryInterface
         string $userId,
         int $experienceId,
         CarbonInterface $viewedAt,
+        CarbonInterface $duplicateCutoff,
     ): void;
 
     /**
@@ -34,6 +35,14 @@ interface DiscoveryActivityRepositoryInterface
     public function getRecentSearches(
         string $userId,
         CarbonInterface $since,
+        int $limit,
+    ): Collection;
+
+    /** @return Collection<int, \App\Models\Experience> */
+    public function getTrendingExperiences(
+        CarbonInterface $since,
+        CarbonInterface $until,
+        CarbonInterface $eligibleOn,
         int $limit,
     ): Collection;
 }

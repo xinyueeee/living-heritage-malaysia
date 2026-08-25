@@ -221,7 +221,7 @@
         @auth
 
             @php
-                $isLiked = $post->isLikedBy(Auth::user());
+                $isLiked = (bool) ($post->is_liked_by_user ?? false);
             @endphp
 
 
@@ -312,6 +312,7 @@
                 action="{{ route('community.posts.saved.store', $post) }}"
                 class="post-save-form"
                 data-saved="{{ $isSaved ? '1' : '0' }}"
+                data-post-id="{{ $post->post_id }}"
             >
 
                 @csrf

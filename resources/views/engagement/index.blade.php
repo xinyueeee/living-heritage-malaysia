@@ -38,15 +38,16 @@
     <section class="progress-section container">
         <div class="progress-header">
             <h2>Your Cultural Journey</h2>
-            <p>Track your exploration progress across Malaysia.</p>
+            <p>Track your cultural experiences, stamps, and achievements.</p>
         </div>
 
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon">🗺️</div>
+                <div class="stat-icon">📅</div>
+
                 <div>
-                    <h3>0</h3>
-                    <p>States Visited</p>
+                    <h3>{{ $experiencesThisMonthCount }}</h3>
+                    <p>Experiences This Month</p>
                 </div>
             </div>
 
@@ -88,6 +89,7 @@
             </a>
         </div>
 
+        <div class="passport-showcase">
         <div class="passport-book">
             <img
                 src="{{ asset('images/engagement/passport-book.webp') }}"
@@ -120,36 +122,152 @@
                 @endforelse
             </div>
         </div>
+
+        <aside class="next-stamp-panel">
+            @if ($nextStamp)
+                <span class="next-stamp-eyebrow">
+                    Recommended Stamp to Collect
+                </span>
+
+                <div class="next-stamp-image">
+                    <img
+                        src="{{ $nextStamp->stamp_image
+                            ? asset($nextStamp->stamp_image)
+                            : asset('images/default-stamp.png') }}"
+                        alt="{{ $nextStamp->category }} stamp"
+                    >
+
+                    <span class="stamp-lock" aria-hidden="true">🔒</span>
+                </div>
+
+                <h3>
+                    {{ $nextStamp->category ?? 'Cultural Stamp' }}
+                </h3>
+
+                <p>
+                    Looking for your next cultural experience?
+                    Explore and share a
+                    <strong>{{ $nextStamp->category }}</strong>
+                    experience to collect this stamp.
+                </p>
+
+                <div class="next-stamp-steps">
+                    <div>
+                        <span>1</span>
+                        <p>Discover an experience</p>
+                    </div>
+
+                    <div>
+                        <span>2</span>
+                        <p>Join or complete it</p>
+                    </div>
+
+                    <div>
+                        <span>3</span>
+                        <p>Share your journey</p>
+                    </div>
+                </div>
+
+                @if ($nextStamp->categoryDetails)
+                    <a
+                        class="next-stamp-button"
+                        href="{{ route('experiences.index', [
+                            'type' => $nextStamp->categoryDetails->type_id,
+                            'category' => $nextStamp->category_id,
+                        ]) }}"
+                    >
+                        Explore
+                        {{ $nextStamp->categoryDetails->category_name }}
+                        Experiences
+                    </a>
+                @else
+                    <a
+                        class="next-stamp-button"
+                        href="{{ route('experiences.index') }}"
+                    >
+                        Explore Experiences
+                    </a>
+                @endif
+            @else
+                <div class="collection-complete">
+                    <span aria-hidden="true">🏆</span>
+
+                    <span class="next-stamp-eyebrow">
+                        Collection Complete
+                    </span>
+
+                    <h3>You collected every stamp!</h3>
+
+                    <p>
+                        Your digital cultural passport collection is complete.
+                        Continue exploring to unlock more achievement badges.
+                    </p>
+
+                    <a
+                        class="next-stamp-button"
+                        href="{{ route('engagement.achievements') }}"
+                    >
+                        View Achievements
+                    </a>
+                </div>
+            @endif
+        </aside>
+        </div>
     </section>
 
     <section id="achievement" class="achievement-section container">
         <div class="section-top">
             <div>
-                <h2>Achievement Badges</h2>
-                <p>Track your progress and unlock rewards.</p>
+                <h2>Recently Unlocked Badges</h2>
+                <p>Celebrate your latest cultural achievements.</p>
             </div>
-            <a href="{{ route('engagement.achievements') }}" class="outline-btn">
+
+            <a
+                href="{{ route('engagement.achievements') }}"
+                class="outline-btn"
+            >
                 View All Badges
             </a>
         </div>
 
-        <div class="achievement-grid">
-            @forelse($achievements->take(3) as $achievement)
-                <div class="achievement-card {{ $achievement->is_unlocked ? 'unlocked' : 'locked' }}">
-                    <img src="{{ asset($achievement->badge_image ?? 'images/default-badge.png') }}"
-                        alt="{{ $achievement->badge_name }}">
+        <div class="achievement-grid recent-achievement-grid">
+            @forelse ($recentUnlockedBadges as $achievement)
+                <article class="achievement-card recent-achievement-card">
+                    <img
+                        src="{{ asset(
+                            $achievement->badge_image
+                                ?? 'images/default-badge.png'
+                        ) }}"
+                        alt="{{ $achievement->badge_name }}"
+                    >
+
                     <h3>{{ $achievement->badge_name }}</h3>
-                    <p>{{ $achievement->requirement }}</p>
-                    <div class="progress-bar">
-                        <div class="progress" style="width: {{ $achievement->progress_percentage }}%"></div>
-                    </div>
-                    <span class="progress-text">
-                        {{ $achievement->current_progress }} / {{ $achievement->target_count }}
+
+                    <p>{{ $achievement->description }}</p>
+
+                    <span class="recent-badge-date">
+                        Unlocked
+                        {{ $achievement->unlocked_date
+                            ?->format('d M Y') ?? 'recently' }}
                     </span>
-                </div>
+                </article>
             @empty
-                <div class="empty-state">
-                    <p>No achievement badges available.</p>
+                <div class="empty-state recent-badge-empty">
+                    <span aria-hidden="true">🏆</span>
+
+                    <h3>No badges unlocked yet</h3>
+
+                    <p>
+                        Complete cultural experiences to earn your
+                        first achievement badge.
+                    </p>
+
+                    <a
+                        href="{{ route('engagement.achievements') }}"
+                        class="outline-btn"
+                    >
+                        View Badge Progress
+                    </a>
                 </div>
             @endforelse
         </div>
@@ -159,7 +277,7 @@
         <div class="section-top">
             <div>
                 <h2>Recent Cultural Journey</h2>
-                <p>Your latest completed experiences.</p>
+                <p>Your 3 most recently completed cultural experiences.</p>
             </div>
 
             <a href="{{ route('engagement.history') }}" class="outline-btn">
@@ -167,27 +285,90 @@
             </a>
         </div>
 
-        @forelse($recentExperienceHistory as $history)
-            <div class="recent-card">
-                <div>
-                    <h3>
-                        {{ $history->experience?->experiences_name ?? 'Experience' }}
-                    </h3>
+        <div class="recent-journey-grid">
+            @forelse ($recentExperienceHistory as $history)
+                @php
+                    $experience = $history->experience;
+                    $imagePath = $experience?->image_url;
+
+                    $imageSource = $imagePath
+                        ? (
+                            \Illuminate\Support\Str::startsWith(
+                                $imagePath,
+                                ['http://', 'https://']
+                            )
+                                ? $imagePath
+                                : asset(ltrim($imagePath, '/'))
+                        )
+                        : asset('images/default-experience.png');
+                @endphp
+
+                <article class="recent-journey-card">
+                    <div class="recent-journey-image">
+                        <img
+                            src="{{ $imageSource }}"
+                            alt="{{ $experience?->experiences_name
+                                ?? 'Cultural experience' }}"
+                            onerror="
+                                this.onerror = null;
+                                this.src = '{{ asset(
+                                    'images/default-experience.png'
+                                ) }}';
+                            "
+                        >
+
+                        <span class="recent-journey-status">
+                            Completed
+                        </span>
+                    </div>
+
+                    <div class="recent-journey-content">
+                        <span class="recent-journey-category">
+                            {{ $experience?->category?->category_name
+                                ?? 'Cultural Experience' }}
+                        </span>
+
+                        <h3>
+                            {{ $experience?->experiences_name
+                                ?? 'Experience' }}
+                        </h3>
+
+                        <div class="recent-journey-details">
+                            <p>
+                                <span aria-hidden="true">📍</span>
+                                {{ $experience?->location_name
+                                    ?? 'Malaysia' }}
+                            </p>
+
+                            <p>
+                                <span aria-hidden="true">📅</span>
+                                Completed
+                                {{ $history->completed_date
+                                    ?->format('d M Y') ?? '-' }}
+                            </p>
+                        </div>
+                    </div>
+                </article>
+            @empty
+                <div class="empty-state recent-journey-empty">
+                    <span aria-hidden="true">🧭</span>
+
+                    <h3>No completed experiences yet</h3>
 
                     <p>
-                        📍 {{ $history->experience?->location_name ?? '-' }}
+                        Explore and share a cultural experience to begin
+                        your journey.
                     </p>
 
-                    <p>🎨 {{ $history->experience?->category?->category_name ?? '-' }}</p>
-
-                    <p>📅 {{ $history->completed_date?->format('d M Y') ?? '-' }}</p>
+                    <a
+                        href="{{ route('experiences.index') }}"
+                        class="outline-btn"
+                    >
+                        Discover Experiences
+                    </a>
                 </div>
-            </div>
-        @empty
-            <div class="empty-state">
-                <p>No completed cultural experiences yet.</p>
-            </div>
-        @endforelse
+            @endforelse
+        </div>
     </section>
 </div>
 

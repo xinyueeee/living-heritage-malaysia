@@ -24,4 +24,13 @@ class ProfilePhotoController extends Controller
             'photo_url' => $user->profile_photo,
         ]);
     }
+
+    public function restore(int $photo): JsonResponse
+    {
+        $user = $this->profileService->setCurrentPhoto(Auth::id(), $photo);
+
+        return response()->json([
+            'photo_url' => $user->profile_photo,
+        ]);
+    }
 }

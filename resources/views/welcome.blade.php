@@ -32,7 +32,7 @@
                     <span>Join communities and discussions</span>
                 </span>
                 @if ($festivalType)
-                    <a class="shortcut-item" href="{{ route('experiences.index', ['type' => $festivalType->type_id]) }}">
+                    <a class="shortcut-item" href="{{ route('festival.calendar') }}">
                         <span class="shortcut-icon"><x-home-icon name="bell" /></span>
                         <strong>Festival Alert</strong>
                         <span>Browse upcoming festivals</span>
@@ -44,11 +44,11 @@
                         <span>Festival integration pending</span>
                     </span>
                 @endif
-                <span class="shortcut-item shortcut-disabled">
+                <a class="shortcut-item" href="{{ route('engagement.index') }}">
                     <span class="shortcut-icon"><x-home-icon name="gift" /></span>
                     <strong>Engagement &amp; Rewards</strong>
                     <span>Earn points and unlock rewards</span>
-                </span>
+                </a>
                 <span class="shortcut-item shortcut-disabled">
                     <span class="shortcut-icon"><x-home-icon name="heart" /></span>
                     <strong>My Activities</strong>
@@ -142,23 +142,55 @@
         <section class="home-section home-membership-section" aria-label="Passport and community benefits preview">
             <div class="container membership-grid">
                 <article class="passport-preview">
-                    <span class="sr-only">Presentation-only rewards preview.</span>
                     <div class="passport-book" aria-hidden="true">
                         <span>Living Heritage<br>Malaysia</span>
                         <strong>&#10047;</strong>
                     </div>
+
                     <div class="explorer-preview">
-                        <span>Explorer Level</span>
-                        <h2>&mdash; Points</h2>
-                        <p>Rewards integration pending</p>
-                        <div class="progress-placeholder" aria-hidden="true"><span></span></div>
-                        <span class="button button-light-static" aria-disabled="true">View My Passport</span>
+                        <span>Digital Cultural Passport</span>
+
+                        @auth
+                            <h2>{{ $passportStampCount }} Stamps</h2>
+                            <p>Continue exploring to collect more stamps.</p>
+
+                            <a
+                                class="button button-light-static"
+                                href="{{ route('engagement.passport') }}"
+                            >
+                                View My Passport
+                            </a>
+                        @else
+                            <h2>Start Exploring</h2>
+                            <p>Log in to collect stamps and unlock badges.</p>
+
+                            <a
+                                class="button button-light-static"
+                                href="{{ route('login') }}"
+                            >
+                                Log In to Begin
+                            </a>
+                        @endauth
                     </div>
+
                     <div class="badges-preview">
-                        <span>Recent Badges</span>
-                        <div class="badge-preview-grid" aria-hidden="true">
-                            <i>&#9673;</i><i>&#9651;</i><i>&#10022;</i><i>&#9670;</i>
-                        </div>
+                        <span>Recent Stamps</span>
+
+                        @auth
+                            <div class="badge-preview-grid">
+                                @forelse ($recentStamps as $userStamp)
+                                    <img
+                                        src="{{ asset($userStamp->stamp->stamp_image ?? 'images/default-stamp.png') }}"
+                                        alt="{{ $userStamp->stamp->stamp_name ?? 'Passport stamp' }}"
+                                        title="{{ $userStamp->stamp->stamp_name ?? 'Passport stamp' }}"
+                                    >
+                                @empty
+                                    <small>No stamps collected yet.</small>
+                                @endforelse
+                            </div>
+                        @else
+                            <small>Log in to see your stamps.</small>
+                        @endauth
                     </div>
                 </article>
 

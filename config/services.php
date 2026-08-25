@@ -42,4 +42,16 @@ return [
         'service_role_key' => env('SUPABASE_SERVICE_ROLE_KEY'),
     ],
 
+
+
+    'discovery_ai' => [
+        'enabled' => env('DISCOVERY_AI_ENABLED', false),
+        'provider' => env('DISCOVERY_AI_PROVIDER', 'openai_compatible'),
+        'endpoint' => env('DISCOVERY_AI_ENDPOINT'),
+        'api_key' => env('DISCOVERY_AI_API_KEY'),
+        'model' => env('DISCOVERY_AI_MODEL'),
+        'timeout' => env('DISCOVERY_AI_TIMEOUT', 5),
+    ],
+
+
 ];

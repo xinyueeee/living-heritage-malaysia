@@ -6,6 +6,20 @@
 
 <div class="calendar-container">
 
+    <!-- Personalized Alert -->
+    <div class="personalized-alert-box">
+        <div>
+            <h3>Personalized Alerts</h3>
+            <p>
+                Select your favourite categories and get notified about upcoming events.
+            </p>
+        </div>
+
+        <a href="{{ route('alerts.create') }}" class="personalized-alert-btn">
+            Create Personalized Alert
+        </a>
+    </div>
+
     <!-- Calendar Header -->
     <div class="calendar-header">
 
@@ -25,7 +39,6 @@
 
     </div>
 
-
     <!-- Week Day -->
     <div class="calendar-weekdays">
 
@@ -39,10 +52,8 @@
 
     </div>
 
-
     <!-- Calendar -->
     <div id="calendarDays" class="calendar-days"></div>
-
 
     <!-- Event Detail -->
     <div class="event-box">
@@ -59,7 +70,6 @@
 
 @endsection
 
-
 @push('scripts')
 
 <script>
@@ -67,6 +77,12 @@
 let currentDate = new Date();
 
 let events = [];
+
+let isLoggedIn = false;
+
+@if(auth()->check())
+    isLoggedIn = true;
+@endif
 
 
 // ========================================
@@ -80,11 +96,6 @@ async function loadEvents()
 
     events =
         await response.json();
-
-    console.log(
-        "Calendar Events:",
-        events
-    );
 
     renderCalendar();
 }
@@ -102,26 +113,22 @@ function renderCalendar()
     let month =
         currentDate.getMonth();
 
-
     document.getElementById('monthYear')
     .innerHTML =
         currentDate.toLocaleString(
             'default',
             {
-                month:'long',
-                year:'numeric'
+                month: 'long',
+                year: 'numeric'
             }
         );
-
 
     let calendarDays =
         document.getElementById(
             'calendarDays'
         );
 
-
     calendarDays.innerHTML = "";
-
 
     let firstDay =
         new Date(
@@ -129,7 +136,6 @@ function renderCalendar()
             month,
             1
         ).getDay();
-
 
     let totalDays =
         new Date(
@@ -163,8 +169,7 @@ function renderCalendar()
     )
     {
         let date =
-            `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-
+            `${year}-${String(month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
 
         let dayEvents =
             events.filter(event =>
@@ -173,16 +178,14 @@ function renderCalendar()
                 date <= event.end_date
             );
 
-
         calendarDays.innerHTML +=
         `
         <div class="calendar-date
-        ${dayEvents.length ? 'has-event':''}">
+        ${dayEvents.length ? 'has-event' : ''}">
 
             <div class="date-number">
                 ${day}
             </div>
-
 
             <div class="calendar-event-list">
 
@@ -219,12 +222,10 @@ function showEvent(id)
             e => e.id == id
         );
 
-
     if(!event)
     {
         return;
     }
-
 
     document.getElementById('eventList')
     .innerHTML =
@@ -235,7 +236,6 @@ function showEvent(id)
             ${event.title}
         </h3>
 
-
         <p>
             📅
             ${event.start_date}
@@ -243,11 +243,9 @@ function showEvent(id)
             ${event.end_date}
         </p>
 
-
         <p>
             Status: Upcoming
         </p>
-
 
         <div class="event-actions">
 
@@ -287,6 +285,16 @@ async function setReminder(id)
 {
     window.selectedEventId = id;
 
+    // User is not logged in
+    if (!isLoggedIn)
+    {
+        window.location.href =
+            "{{ route('festival.login-required') }}";
+
+        return;
+    }
+
+    // User is logged in
     try
     {
         const response = await fetch(
@@ -312,94 +320,26 @@ async function setReminder(id)
             }
         );
 
+        const data = await response.json();
 
-        console.log("Response status:", response.status);
-
-
-        const text = await response.text();
-
-        console.log("Server response:", text);
-
-
-        if (!response.ok)
-        {
-            alert(
-                "Reminder failed.\n\n" +
-                "Status: " +
-                response.status +
-                "\n\n" +
-                text
-            );
-
-            return;
-        }
-
-
-        const data = JSON.parse(text);
-
-
-        if (data.success)
+        if (response.ok && data.success)
         {
             alert(data.message);
         }
         else
         {
-            alert("Reminder could not be saved.");
+            alert(
+                "Reminder failed.\n\n" +
+                "Status: " + response.status + "\n" +
+                "Message: " + (data.message || "Unknown error")
+            );
         }
-
     }
     catch(error)
     {
         console.error("Reminder error:", error);
 
-        alert(
-            "Something went wrong.\n\n" +
-            error.message
-        );
-    }
-}
-
-function showLoginPrompt()
-{
-    document.getElementById('eventList').innerHTML =
-    `
-    <div class="reminder-login-card">
-
-        <div class="reminder-login-icon">
-            🔒
-        </div>
-
-        <h3>Log In to Set a Reminder</h3>
-
-        <p>
-            Please sign in to your account to receive
-            reminders for your favourite festivals.
-        </p>
-
-        <div class="reminder-login-actions">
-
-            <a href="{{ route('login') }}"
-               class="button button-primary">
-                Continue to Login
-            </a>
-
-            <button
-                type="button"
-                class="button"
-                onclick="showEventAgain()">
-                Not Now
-            </button>
-
-        </div>
-
-    </div>
-    `;
-}
-function showEventAgain()
-{
-    if (window.selectedEventId)
-    {
-        showEvent(window.selectedEventId);
+        alert("Something went wrong.");
     }
 }
 
@@ -410,9 +350,7 @@ function showEventAgain()
 
 function learnMore(id)
 {
-
     // We will implement this later
-
 }
 
 
@@ -425,7 +363,6 @@ function changeMonth(value)
     currentDate.setMonth(
         currentDate.getMonth() + value
     );
-
 
     renderCalendar();
 }

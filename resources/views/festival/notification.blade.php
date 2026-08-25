@@ -24,7 +24,6 @@
 
         </div>
 
-
         @if($notifications->isEmpty())
 
             <div class="notification-empty">
