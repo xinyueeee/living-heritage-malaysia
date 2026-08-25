@@ -93,32 +93,6 @@
                 </small>
             </div>
 
-            <!-- Privacy Option -->
-            <div class="album-form-group">
-                <label for="privacy">Privacy</label>
-                <select
-                    id="privacy"
-                    name="privacy"
-                    class="@error('privacy') is-invalid @enderror"
-                >
-                    <option value="private" {{ old('privacy') == 'private' ? 'selected' : '' }}>
-                        🔒 Private (Only you)
-                    </option>
-                    <option value="shared" {{ old('privacy') == 'shared' ? 'selected' : '' }}>
-                        👥 Shared (People with link)
-                    </option>
-                    <option value="public" {{ old('privacy') == 'public' ? 'selected' : '' }}>
-                        🌍 Public (Everyone)
-                    </option>
-                </select>
-                <small class="album-help-text">
-                    Choose who can see your album.
-                </small>
-                @error('privacy')
-                    <span class="album-error-text">{{ $message }}</span>
-                @enderror
-            </div>
-
             <div class="album-form-actions">
                 <a
                     href="{{ route('profile.albums.index') }}"
