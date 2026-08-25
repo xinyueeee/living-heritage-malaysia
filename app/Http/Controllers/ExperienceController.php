@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ExperienceIndexRequest;
 use App\Models\Experience;
+use App\Models\UserPassportStamp;
 use App\Services\Experience\ExperienceDiscoveryService;
 use App\Services\Experience\SavedExperienceService;
 use App\Services\Experience\TrendingExperienceService;
@@ -27,12 +28,36 @@ class ExperienceController extends Controller
 
     public function home(Request $request): View
     {
+        $user = $request->user();
+
+        $passportStampCount = 0;
+        $recentStamps = collect();
+
+        if ($user) {
+            $userId = $user->getKey();
+
+            $passportStampCount = UserPassportStamp::whereHas(
+                'passport',
+                fn ($query) => $query->where('user_id', $userId)
+            )->count();
+
+            $recentStamps = UserPassportStamp::with('stamp')
+                ->whereHas(
+                    'passport',
+                    fn ($query) => $query->where('user_id', $userId)
+                )
+                ->latest('collected_date')
+                ->limit(4)
+                ->get();
+        }
         return view('welcome', [
             ...$this->experienceDiscoveryService->getHomePageData(),
             'savedExperienceIds' => $this->savedExperienceService
                 ->getSavedExperienceIds($request->user()),
             'savedExperienceCollectionNames' => $this->savedExperienceService
                 ->getSavedExperienceCollectionNames($request->user()),
+            'passportStampCount' => $passportStampCount,
+            'recentStamps' => $recentStamps,
         ]);
     }
 

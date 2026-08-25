@@ -474,6 +474,20 @@
 .progress-placeholder span { display: block; width: 38%; height: 100%; background: #f2b93d; }
 .button-light-static { display: inline-flex; padding: 9px 15px; border-radius: 5px; background: #fff; color: var(--heritage-red); font-size: .78rem; font-weight: 700; }
 .badges-preview { text-align: center; }
+
+.badge-preview-grid img {
+    width: 58px;
+    height: 58px;
+    margin: auto;
+    border-radius: 50%;
+    object-fit: contain;
+}
+
+.badge-preview-grid small {
+    grid-column: 1 / -1;
+    color: rgba(255, 255, 255, 0.85);
+}
+
 .badge-preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
 .badge-preview-grid i {
     display: grid;
