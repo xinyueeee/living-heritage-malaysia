@@ -5,7 +5,9 @@
 @section('content')
 
 <div class="community-page">
-    <section class="community-hero">
+    <section 
+        class="community-hero"
+        style="--community-hero-image: url('{{ asset('images/community/community-hero.png') }}')">
         <div class="container community-hero-content">
             <div class="community-intro">
                 <p class="community-eyebrow">
