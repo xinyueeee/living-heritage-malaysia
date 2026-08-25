@@ -577,3 +577,2256 @@
     cursor: pointer;
     font-size: 16px;
 }
+<<<<<<< Updated upstream
+=======
+
+/* ========================================
+   PERSONALIZED ALERT
+======================================== */
+
+.personalized-alert-box {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 30px;
+
+    padding: 28px 26px;
+    margin-bottom: 24px;
+
+    background: #ffffff;
+
+    border: 1px solid #e1e4e8;
+    border-radius: 14px;
+
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+
+/* Left text */
+
+.personalized-alert-box > div {
+    flex: 1;
+    min-width: 0;
+}
+
+.personalized-alert-box h3 {
+    margin: 0 0 10px;
+
+    color: #111827;
+
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.personalized-alert-box p {
+    margin: 0;
+
+    color: #5f6b7a;
+
+    font-size: 17px;
+    line-height: 1.6;
+}
+
+
+/* Right button */
+
+.personalized-alert-btn {
+    flex: 0 0 auto !important;
+
+    width: auto !important;
+    min-width: 220px;
+
+    height: 48px;
+
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 24px;
+
+    background: #111827;
+    color: #ffffff;
+
+    border: 1px solid #111827;
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    white-space: nowrap;
+
+    box-sizing: border-box;
+}
+
+.personalized-alert-btn:hover {
+    background: #1f2937;
+    border-color: #1f2937;
+
+    color: #ffffff;
+    text-decoration: none;
+}
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 768px) {
+
+    .personalized-alert-box {
+        flex-direction: column;
+        align-items: flex-start;
+
+        padding: 20px;
+        gap: 18px;
+    }
+
+    .personalized-alert-btn {
+        width: 100%;
+    }
+}
+
+/* ========================================
+   MY REMINDERS SUMMARY
+======================================== */
+
+.reminder-summary-box
+{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 24px;
+
+    margin-bottom: 20px;
+
+    background: #fff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 14px;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.reminder-summary-box h3
+{
+    margin: 0 0 8px;
+
+    font-size: 20px;
+}
+
+.reminder-summary-box p
+{
+    margin: 0;
+
+    color: #6b7280;
+}
+
+.reminder-summary-btn
+{
+    padding: 11px 18px;
+
+    text-decoration: none;
+
+    border-radius: 8px;
+
+    background: #111827;
+
+    color: white;
+
+    font-weight: 600;
+}
+
+.reminder-summary-btn:hover
+{
+    opacity: 0.9;
+}
+
+
+/* ========================================
+   REMINDER PAGE
+======================================== */
+
+.reminder-page
+{
+    max-width: 1000px;
+
+    margin: 0 auto;
+
+    padding: 30px;
+}
+
+.reminder-page-header
+{
+    margin-bottom: 30px;
+}
+
+.reminder-page-header h2
+{
+    margin-bottom: 6px;
+}
+
+.reminder-page-header p
+{
+    margin: 0 0 5px;
+
+    font-size: 18px;
+
+    font-weight: 600;
+}
+
+.reminder-page-header span
+{
+    color: #6b7280;
+}
+
+
+/* ========================================
+   REMINDER CARD
+======================================== */
+
+.reminder-card
+{
+    display: flex;
+
+    gap: 20px;
+
+    padding: 20px;
+
+    margin-bottom: 15px;
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 12px;
+}
+
+.reminder-date
+{
+    min-width: 140px;
+
+    font-weight: 600;
+}
+
+.reminder-content h3
+{
+    margin: 0 0 10px;
+}
+
+.reminder-content p
+{
+    margin: 5px 0;
+
+    color: #6b7280;
+}
+
+
+/* ========================================
+   EMPTY STATE
+======================================== */
+
+.empty-reminder
+{
+    text-align: center;
+
+    padding: 60px 20px;
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 12px;
+}
+
+.empty-icon
+{
+    font-size: 40px;
+
+    margin-bottom: 10px;
+}
+
+.empty-reminder p
+{
+    color: #6b7280;
+
+    margin-bottom: 20px;
+}
+
+.empty-reminder a
+{
+    display: inline-block;
+
+    padding: 10px 18px;
+
+    background: #111827;
+
+    color: white;
+
+    text-decoration: none;
+
+    border-radius: 8px;
+}
+
+
+/* ========================================
+   AI TRIP PLANNER
+======================================== */
+
+.ai-trip-planner-box
+{
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-top: 30px;
+
+    padding: 25px;
+
+    border-radius: 14px;
+
+    background: #f5f3ff;
+
+    border: 1px solid #ddd6fe;
+}
+
+.ai-trip-planner-box h3
+{
+    margin: 0 0 8px;
+}
+
+.ai-trip-planner-box p
+{
+    margin: 0;
+
+    color: #6b7280;
+}
+
+.ai-trip-planner-btn
+{
+    padding: 12px 20px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #6d28d9;
+
+    color: white;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.ai-trip-planner-btn:hover
+{
+    opacity: 0.9;
+}
+
+/* ========================================
+   REMINDER DAY CARD
+======================================== */
+
+.reminder-day-card
+{
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 16px;
+
+    margin-bottom: 24px;
+
+    overflow: hidden;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+
+/* ========================================
+   DAY HEADER
+======================================== */
+
+.reminder-day-header
+{
+    padding: 20px 24px;
+
+    background: #f8fafc;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.reminder-day-header h3
+{
+    margin: 0 0 5px;
+
+    font-size: 20px;
+}
+
+.reminder-day-header span
+{
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+
+/* ========================================
+   ACTIVITIES
+======================================== */
+
+.reminder-day-activities
+{
+    padding: 10px 24px;
+}
+
+.reminder-activity
+{
+    display: flex;
+
+    gap: 16px;
+
+    padding: 18px 0;
+
+    border-bottom: 1px solid #eeeeee;
+}
+
+.reminder-activity:last-child
+{
+    border-bottom: none;
+}
+
+.reminder-activity-icon
+{
+    width: 44px;
+
+    height: 44px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #f3f4f6;
+
+    border-radius: 10px;
+
+    font-size: 22px;
+
+    flex-shrink: 0;
+}
+
+.reminder-activity-content
+{
+    flex: 1;
+}
+
+.reminder-activity-content h4
+{
+    margin: 0 0 8px;
+
+    font-size: 17px;
+}
+
+.reminder-activity-content p
+{
+    margin: 4px 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+.reminder-status
+{
+    display: inline-block;
+
+    margin-top: 8px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: #16a34a;
+}
+
+
+/* ========================================
+   AI PLANNER SECTION
+======================================== */
+
+.day-planner-section
+{
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+    padding: 20px 24px;
+
+    background: #f5f3ff;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+.day-planner-section h4
+{
+    margin: 0 0 5px;
+
+    font-size: 17px;
+}
+
+.day-planner-section p
+{
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+
+/* ========================================
+   AI BUTTON
+======================================== */
+
+.ai-trip-planner-btn
+{
+    padding: 12px 20px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: #6d28d9;
+
+    color: white;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+}
+
+.ai-trip-planner-btn:hover
+{
+    opacity: 0.9;
+}
+
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 700px)
+{
+    .day-planner-section
+    {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .ai-trip-planner-btn
+    {
+        width: 100%;
+    }
+
+    .reminder-day-header
+    {
+        padding: 18px;
+    }
+
+    .reminder-day-activities
+    {
+        padding: 10px 18px;
+    }
+
+    .day-planner-section
+    {
+        padding: 18px;
+    }
+}
+
+/* ========================================
+   REMINDER MESSAGE
+======================================== */
+
+.reminder-message
+{
+    position: fixed;
+
+    top: 24px;
+
+    right: 24px;
+
+    z-index: 9999;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    min-width: 320px;
+
+    max-width: 450px;
+
+    padding: 16px 18px;
+
+    border-radius: 12px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.12);
+
+    animation:
+        reminderMessageIn
+        0.25s ease;
+}
+
+
+/* ========================================
+   SUCCESS
+======================================== */
+
+.reminder-message-success
+{
+    border-left:
+        4px solid #16a34a;
+}
+
+
+/* ========================================
+   ALREADY EXISTS
+======================================== */
+
+.reminder-message-exists
+{
+    border-left:
+        4px solid #f59e0b;
+}
+
+
+/* ========================================
+   ERROR
+======================================== */
+
+.reminder-message-error
+{
+    border-left:
+        4px solid #dc2626;
+}
+
+
+/* ========================================
+   ICON
+======================================== */
+
+.reminder-message-icon
+{
+    font-size: 22px;
+
+    flex-shrink: 0;
+}
+
+
+/* ========================================
+   MESSAGE
+======================================== */
+
+.reminder-message-text
+{
+    flex: 1;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    color: #374151;
+
+    font-weight: 500;
+}
+
+
+/* ========================================
+   CLOSE BUTTON
+======================================== */
+
+.reminder-message-close
+{
+    border: none;
+
+    background: transparent;
+
+    color: #6b7280;
+
+    font-size: 22px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    padding: 4px;
+
+    flex-shrink: 0;
+}
+
+.reminder-message-close:hover
+{
+    color: #111827;
+}
+
+
+/* ========================================
+   ANIMATION
+======================================== */
+
+@keyframes reminderMessageIn
+{
+    from
+    {
+        opacity: 0;
+
+        transform:
+            translateX(30px);
+    }
+
+    to
+    {
+        opacity: 1;
+
+        transform:
+            translateX(0);
+    }
+}
+
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 600px)
+{
+    .reminder-message
+    {
+        top: 15px;
+
+        left: 15px;
+
+        right: 15px;
+
+        min-width: auto;
+
+        max-width: none;
+    }
+}
+
+/* ========================================
+   REMINDER DIALOG
+======================================== */
+
+.reminder-dialog-overlay
+{
+    position: fixed;
+
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    z-index: 99999;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(0, 0, 0, 0.45);
+}
+
+
+/* ========================================
+   DIALOG
+======================================== */
+
+.reminder-dialog
+{
+    position: relative;
+
+    width: 100%;
+
+    max-width: 420px;
+
+    padding: 35px 30px 30px;
+
+    text-align: center;
+
+    background: #ffffff;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 20px 50px
+        rgba(0, 0, 0, 0.2);
+
+    animation:
+        reminderDialogIn
+        0.2s ease;
+}
+
+
+/* ========================================
+   CLOSE BUTTON
+======================================== */
+
+.reminder-dialog-close
+{
+    position: absolute;
+
+    top: 12px;
+
+    right: 14px;
+
+    width: 32px;
+
+    height: 32px;
+
+    border: none;
+
+    background: transparent;
+
+    color: #6b7280;
+
+    font-size: 24px;
+
+    cursor: pointer;
+
+    border-radius: 50%;
+}
+
+.reminder-dialog-close:hover
+{
+    background: #f3f4f6;
+
+    color: #111827;
+}
+
+
+/* ========================================
+   ICON
+======================================== */
+
+.reminder-dialog-icon
+{
+    width: 64px;
+
+    height: 64px;
+
+    margin: 0 auto 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    font-size: 34px;
+
+    font-weight: 700;
+}
+
+
+/* ========================================
+   SUCCESS
+======================================== */
+
+.dialog-icon-success
+{
+    background: #dcfce7;
+
+    color: #16a34a;
+}
+
+.dialog-success
+{
+    border-top:
+        4px solid #16a34a;
+}
+
+
+/* ========================================
+   WARNING
+======================================== */
+
+.dialog-icon-warning
+{
+    background: #fef3c7;
+
+    color: #d97706;
+}
+
+.dialog-warning
+{
+    border-top:
+        4px solid #d97706;
+}
+
+
+/* ========================================
+   ERROR
+======================================== */
+
+.dialog-icon-error
+{
+    background: #fee2e2;
+
+    color: #dc2626;
+}
+
+.dialog-error
+{
+    border-top:
+        4px solid #dc2626;
+}
+
+
+/* ========================================
+   TITLE
+======================================== */
+
+.reminder-dialog h3
+{
+    margin: 0 0 10px;
+
+    font-size: 21px;
+
+    color: #111827;
+}
+
+
+/* ========================================
+   MESSAGE
+======================================== */
+
+.reminder-dialog p
+{
+    margin: 0 auto 25px;
+
+    max-width: 330px;
+
+    line-height: 1.6;
+
+    color: #6b7280;
+
+    font-size: 15px;
+}
+
+
+/* ========================================
+   OK BUTTON
+======================================== */
+
+.reminder-dialog-button
+{
+    width: 100%;
+
+    padding: 12px 20px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: #111827;
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.reminder-dialog-button:hover
+{
+    opacity: 0.9;
+}
+
+
+/* ========================================
+   ANIMATION
+======================================== */
+
+@keyframes reminderDialogIn
+{
+    from
+    {
+        opacity: 0;
+
+        transform:
+            scale(0.95);
+    }
+
+    to
+    {
+        opacity: 1;
+
+        transform:
+            scale(1);
+    }
+}
+
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 500px)
+{
+    .reminder-dialog
+    {
+        padding:
+            32px 22px 24px;
+    }
+}
+
+/* ========================================
+   REMINDER DATE SELECTION
+======================================== */
+
+.reminder-date-selection
+{
+    margin-top: 20px;
+    margin-bottom: 20px;
+
+    padding: 16px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 10px;
+}
+
+
+.reminder-date-selection label
+{
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    color: #374151;
+}
+
+
+.reminder-date-selection input[type="date"]
+{
+    width: 100%;
+
+    padding: 11px 12px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #111827;
+
+    font-size: 14px;
+
+    box-sizing: border-box;
+}
+
+
+.reminder-date-selection input[type="date"]:focus
+{
+    outline: none;
+
+    border-color: #6b7280;
+
+    box-shadow:
+        0 0 0 2px
+        rgba(107, 114, 128, 0.12);
+}
+
+
+.reminder-date-selection small
+{
+    display: block;
+
+    margin-top: 7px;
+
+    font-size: 12px;
+
+    color: #6b7280;
+}
+
+/* ========================================
+   REMINDER BACK BUTTON
+======================================== */
+
+.reminder-back-section {
+    margin-bottom: 20px;
+}
+
+.reminder-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 10px 18px;
+
+    background: #7f1d1d;
+    border: 1px solid #7f1d1d;
+    border-radius: 8px;
+
+    color: #ffffff;
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.reminder-back-btn:hover {
+    background: #991b1b;
+    border-color: #991b1b;
+
+    color: #ffffff;
+    text-decoration: none;
+
+    transform: translateX(-3px);
+
+    box-shadow: 0 4px 10px rgba(127, 29, 29, 0.25);
+}
+
+/* ========================================
+   EVENT ACTION BUTTONS
+======================================== */
+
+.event-actions {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.event-actions .reminder-btn,
+.event-actions .learn-more-btn {
+    height: 48px;
+    min-height: 48px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 22px;
+
+    box-sizing: border-box;
+
+    border-radius: 8px;
+
+    font-size: 16px;
+    font-weight: 500;
+
+    cursor: pointer;
+}
+
+/* ========================================
+   EXPERIENCE ALERT PAGE
+======================================== */
+
+.experience-alert-page {
+    max-width: 800px;
+
+    margin: 40px auto;
+
+    padding: 20px;
+}
+
+
+.experience-alert-card {
+    background: #ffffff;
+
+    padding: 30px;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 14px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+
+.experience-alert-card h2 {
+    margin: 0 0 15px;
+
+    color: #111827;
+
+    font-size: 26px;
+}
+
+
+.experience-alert-card h3 {
+    margin: 25px 0 15px;
+
+    color: #9f2d20;
+
+    font-size: 22px;
+}
+
+
+.experience-alert-card p {
+    margin: 10px 0;
+
+    color: #6b7280;
+
+    line-height: 1.6;
+}
+
+
+/* ========================================
+   BACK BUTTON
+======================================== */
+
+.experience-alert-actions {
+    display: flex;
+
+    justify-content: flex-start;
+
+    margin-top: 30px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+
+.experience-alert-back-btn {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 11px 18px;
+
+    background: #111827;
+
+    color: #ffffff;
+
+    text-decoration: none;
+
+    border-radius: 8px;
+
+    font-weight: 600;
+
+    transition: 0.2s ease;
+}
+
+
+.experience-alert-back-btn:hover {
+    background: #1f2937;
+
+    color: #ffffff;
+
+    text-decoration: none;
+
+    transform: translateY(-1px);
+}
+
+/* ========================================
+   TRIP PLANNER MODAL
+======================================== */
+
+.trip-planner-modal
+{
+    display: none;
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 9999;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 20px;
+}
+
+
+/* Modal */
+
+.trip-planner-modal-content
+{
+    position: relative;
+
+    width: 100%;
+
+    max-width: 650px;
+
+    max-height: 85vh;
+
+    overflow-y: auto;
+
+    background: #ffffff;
+
+    border-radius: 16px;
+
+    padding: 30px;
+
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+}
+
+
+/* Close X */
+
+.trip-planner-close
+{
+    position: absolute;
+
+    top: 15px;
+
+    right: 18px;
+
+    width: 36px;
+
+    height: 36px;
+
+    border: none;
+
+    background: transparent;
+
+    color: #6b7280;
+
+    font-size: 28px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    border-radius: 50%;
+}
+
+.trip-planner-close:hover
+{
+    background: #f3f4f6;
+
+    color: #111827;
+}
+
+
+/* ========================================
+   MODAL HEADER
+======================================== */
+
+.trip-planner-modal-header
+{
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-bottom: 24px;
+
+    padding-right: 35px;
+}
+
+
+.trip-planner-icon
+{
+    width: 55px;
+
+    height: 55px;
+
+    min-width: 55px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #fef3c7;
+
+    border-radius: 50%;
+
+    font-size: 28px;
+}
+
+
+.trip-planner-modal-header h2
+{
+    margin: 0 0 5px;
+
+    color: #111827;
+
+    font-size: 25px;
+
+    font-weight: 700;
+}
+
+
+.trip-planner-modal-header p
+{
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 15px;
+}
+
+
+.trip-planner-modal-header strong
+{
+    color: #111827;
+}
+
+
+/* ========================================
+   STARTING ACTIVITY
+======================================== */
+
+.trip-planner-start
+{
+    padding: 20px;
+
+    margin-bottom: 25px;
+
+    background: #f9fafb;
+
+    border: 1px solid #e5e7eb;
+
+    border-left: 4px solid #111827;
+
+    border-radius: 12px;
+}
+
+
+.trip-planner-start h4
+{
+    margin: 0 0 10px;
+
+    color: #111827;
+
+    font-size: 16px;
+}
+
+
+.trip-planner-start strong
+{
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #111827;
+
+    font-size: 18px;
+
+    line-height: 1.4;
+}
+
+
+.trip-planner-start p
+{
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+
+/* ========================================
+   NEARBY EXPERIENCES
+======================================== */
+
+.trip-planner-section h3
+{
+    margin: 0 0 6px;
+
+    color: #111827;
+
+    font-size: 20px;
+}
+
+
+.trip-planner-description
+{
+    margin: 0 0 15px;
+
+    color: #6b7280;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+
+.trip-planner-suggestions
+{
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+
+/* Individual suggestion */
+
+.trip-suggestion
+{
+    padding: 17px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 10px;
+
+    transition: box-shadow 0.2s ease,
+                transform 0.2s ease;
+}
+
+
+.trip-suggestion:hover
+{
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+    transform: translateY(-1px);
+}
+
+
+.trip-suggestion h4
+{
+    margin: 0 0 8px;
+
+    color: #111827;
+
+    font-size: 17px;
+
+    line-height: 1.4;
+}
+
+
+.trip-suggestion p
+{
+    margin: 5px 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+
+.trip-suggestion span
+{
+    display: inline-block;
+
+    margin-top: 5px;
+
+    color: #6b7280;
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+
+/* ========================================
+   MODAL FOOTER
+======================================== */
+
+.trip-planner-modal-footer
+{
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 25px;
+
+    padding-top: 18px;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+
+.trip-planner-close-btn
+{
+    padding: 10px 22px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #111827;
+
+    color: #ffffff;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: opacity 0.2s ease;
+}
+
+
+.trip-planner-close-btn:hover
+{
+    opacity: 0.85;
+}
+
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 600px)
+{
+    .trip-planner-modal
+    {
+        padding: 12px;
+    }
+
+    .trip-planner-modal-content
+    {
+        max-height: 90vh;
+
+        padding: 22px;
+
+        border-radius: 14px;
+    }
+
+    .trip-planner-modal-header h2
+    {
+        font-size: 21px;
+    }
+
+    .trip-planner-start strong
+    {
+        font-size: 16px;
+    }
+
+    .trip-planner-section h3
+    {
+        font-size: 18px;
+    }
+}
+
+/* ========================================
+   AI TRIP PLANNER MODAL
+======================================== */
+
+.trip-planner-modal
+{
+    display: none;
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 9999;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(0, 0, 0, 0.55);
+}
+
+
+.trip-planner-modal-content
+{
+    width: 100%;
+
+    max-width: 760px;
+
+    max-height: 85vh;
+
+    overflow-y: auto;
+
+    position: relative;
+
+    background: #ffffff;
+
+    border-radius: 18px;
+
+    padding: 30px;
+
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+}
+
+
+/* ========================================
+   CLOSE BUTTON
+======================================== */
+
+.trip-planner-close
+{
+    position: absolute;
+
+    top: 15px;
+
+    right: 18px;
+
+    width: 36px;
+
+    height: 36px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: #f3f4f6;
+
+    color: #374151;
+
+    font-size: 24px;
+
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+
+.trip-planner-close:hover
+{
+    background: #e5e7eb;
+}
+
+
+/* ========================================
+   MODAL HEADER
+======================================== */
+
+.trip-planner-modal-header
+{
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding-right: 40px;
+
+    margin-bottom: 25px;
+}
+
+
+.trip-planner-icon
+{
+    width: 52px;
+
+    height: 52px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 14px;
+
+    background: #f5f3ff;
+
+    font-size: 26px;
+}
+
+
+.trip-planner-modal-header h2
+{
+    margin: 0 0 5px;
+
+    font-size: 24px;
+}
+
+
+.trip-planner-modal-header p
+{
+    margin: 0;
+
+    color: #6b7280;
+}
+
+
+/* ========================================
+   SELECTED FESTIVALS
+======================================== */
+
+.trip-planner-start
+{
+    padding: 20px;
+
+    margin-bottom: 25px;
+
+    background: #f9fafb;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 14px;
+}
+
+
+.trip-planner-start > h4
+{
+    margin: 0 0 15px;
+
+    font-size: 18px;
+}
+
+
+.trip-selected-festivals
+{
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+
+.trip-selected-festival
+{
+    padding: 15px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 10px;
+}
+
+
+.trip-selected-festival h4
+{
+    margin: 0 0 6px;
+
+    font-size: 16px;
+}
+
+
+.trip-selected-festival p
+{
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+
+/* ========================================
+   RECOMMENDATION SECTION
+======================================== */
+
+.trip-planner-section
+{
+    margin-top: 10px;
+}
+
+
+.trip-planner-section h3
+{
+    margin: 0 0 7px;
+
+    font-size: 20px;
+}
+
+
+.trip-planner-description
+{
+    margin: 0 0 18px;
+
+    color: #6b7280;
+
+    line-height: 1.5;
+}
+
+
+/* ========================================
+   CULTURAL EXPERIENCE CARD
+======================================== */
+
+.trip-planner-suggestions
+{
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+
+.trip-cultural-suggestion
+{
+    padding: 18px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 12px;
+
+    transition: transform 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+
+.trip-cultural-suggestion:hover
+{
+    transform: translateY(-2px);
+
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.08);
+}
+
+
+.trip-cultural-suggestion h4
+{
+    margin: 0 0 8px;
+
+    font-size: 17px;
+}
+
+
+.trip-cultural-suggestion p
+{
+    margin: 0 0 12px;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+
+/* ========================================
+   DISTANCE INFORMATION
+======================================== */
+
+.trip-distance-list
+{
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+
+.trip-distance
+{
+    display: inline-block;
+
+    padding: 6px 10px;
+
+    border-radius: 20px;
+
+    background: #f3f4f6;
+
+    color: #4b5563;
+
+    font-size: 13px;
+
+    font-weight: 500;
+}
+
+
+/* ========================================
+   NO RECOMMENDATION
+======================================== */
+
+.trip-no-suggestion
+{
+    padding: 20px;
+
+    text-align: center;
+
+    background: #f9fafb;
+
+    border: 1px dashed #d1d5db;
+
+    border-radius: 12px;
+}
+
+
+.trip-no-suggestion p
+{
+    margin: 0;
+
+    color: #6b7280;
+}
+
+
+/* ========================================
+   MODAL FOOTER
+======================================== */
+
+.trip-planner-modal-footer
+{
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 25px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+
+.trip-planner-close-btn
+{
+    padding: 10px 18px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #111827;
+
+    color: #ffffff;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+.trip-planner-close-btn:hover
+{
+    opacity: 0.9;
+}
+
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 600px)
+{
+    .trip-planner-modal
+    {
+        padding: 12px;
+    }
+
+
+    .trip-planner-modal-content
+    {
+        padding: 22px;
+
+        max-height: 90vh;
+    }
+
+
+    .trip-planner-modal-header h2
+    {
+        font-size: 20px;
+    }
+
+
+    .trip-planner-modal-header
+    {
+        align-items: flex-start;
+    }
+}
+
+
+/* ========================================
+   TRIP RECOMMENDATION ACTION
+======================================== */
+
+.trip-cultural-suggestion
+{
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+}
+
+
+.trip-cultural-info
+{
+    flex: 1;
+}
+
+
+.trip-add-btn
+{
+    flex-shrink: 0;
+
+    padding: 10px 15px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #111827;
+
+    color: #ffffff;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: opacity 0.2s ease;
+}
+
+
+.trip-add-btn:hover
+{
+    opacity: 0.9;
+}
+
+
+.trip-add-btn:disabled
+{
+    cursor: default;
+
+    opacity: 0.7;
+}
+
+
+.trip-add-btn-added
+{
+    background: #374151;
+}
+
+
+/* ========================================
+   TRIP ITINERARY
+======================================== */
+
+.trip-planner-itinerary
+{
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    margin-bottom: 25px;
+}
+
+
+.trip-itinerary-item
+{
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 15px;
+
+    background: #f9fafb;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 10px;
+}
+
+
+.trip-itinerary-content h4
+{
+    margin: 0 0 5px;
+}
+
+
+.trip-itinerary-content p
+{
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+
+.trip-remove-btn
+{
+    padding: 7px 12px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    cursor: pointer;
+}
+
+
+.trip-remove-btn:hover
+{
+    background: #f3f4f6;
+}
+
+
+.trip-empty-itinerary
+{
+    padding: 15px;
+
+    text-align: center;
+
+    color: #6b7280;
+
+    background: #f9fafb;
+
+    border: 1px dashed #d1d5db;
+
+    border-radius: 10px;
+}
+>>>>>>> Stashed changes
