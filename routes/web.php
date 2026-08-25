@@ -12,6 +12,7 @@ use App\Http\Controllers\EngagementController;
 use App\Http\Controllers\FeedbackController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommunityController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PostLikeController;
@@ -63,6 +64,8 @@ Route::middleware('auth')->group(function () {
         ->name('community.posts.like');
     Route::delete('/community/posts/{post}/like', [PostLikeController::class, 'unlike'])
         ->name('community.posts.unlike');
+    Route::post('/community/posts/{postId}/comments', [CommentController::class, 'store'])
+        ->name('comments.store');
 
     Route::get('/engagement/passport',[EngagementController::class, 'passport'])->name('engagement.passport');
 
