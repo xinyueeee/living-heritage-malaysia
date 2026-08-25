@@ -156,7 +156,7 @@ class EngagementController extends Controller
                     );
                 }
             )
-            ->orderBy('stamp_id')
+            ->inRandomOrder()
             ->first();
 
         return view('engagement.index', [

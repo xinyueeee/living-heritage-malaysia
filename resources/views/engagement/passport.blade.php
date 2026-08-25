@@ -168,14 +168,23 @@
                     </p>
                 </div>
 
-                <a
-                    href="{{ route(
-                        'engagement.passport.customize'
-                    ) }}"
-                    class="outline-btn"
-                >
-                    Customize Passport
-                </a>
+                <div class="passport-heading-actions">
+                    <button
+                        type="button"
+                        class="outline-btn"
+                        data-download-journey-card
+                    >
+                        Download Journey Card
+                    </button>
+                    <a
+                        href="{{ route(
+                            'engagement.passport.customize'
+                        ) }}"
+                        class="outline-btn"
+                    >
+                        Customize Passport
+                    </a>
+                </div>
             </div>
 
             @if ($passportStamps->isEmpty())
@@ -207,64 +216,63 @@
             @else
                 @php
                     /*
-                    * Each book spread contains eight stamps:
-                    * four on the left and four on the right.
+                    * Every flipbook page contains four stamps.
+                    * Two consecutive pages form one open book spread.
                     */
-                    $passportSpreads = $passportStamps
-                        ->chunk(8)
+                    $passportPages = $passportStamps
+                        ->chunk(4)
                         ->values();
+
+                    /*
+                    * Ensure the book has an even number of pages so the
+                    * final spread always has a left and right page.
+                    */
+                    if ($passportPages->count() % 2 !== 0) {
+                        $passportPages->push(collect());
+                    }
                 @endphp
 
                 <div
                     class="passport-viewer"
                     data-passport-viewer
-                    data-spread-count="{{ $passportSpreads->count() }}"
                 >
                     <button
                         type="button"
                         class="passport-page-button previous"
                         data-passport-previous
-                        aria-label="Previous passport pages"
+                        aria-label="Previous passport page"
                         disabled
                     >
                         &lsaquo;
                     </button>
 
                     <div
-                        class="passport-book-display"
-                        data-passport-book
+                        class="passport-flipbook"
+                        data-passport-flipbook
                     >
-                        <img
-                            src="{{ asset(
-                                'images/engagement/passport-book.webp'
-                            ) }}"
-                            class="passport-book-background"
-                            alt="Digital Cultural Passport"
-                        >
-
-                        @foreach (
-                            $passportSpreads as $spreadIndex => $spread
-                        )
-                            <div
-                                class="passport-book-spread"
-                                data-book-spread="{{ $spreadIndex }}"
-                                @if (! $loop->first) hidden @endif
+                        @foreach ($passportPages as $pageIndex => $pageStamps)
+                            <article
+                                class="
+                                    passport-flip-page
+                                    {{ $pageIndex % 2 === 0
+                                        ? 'passport-flip-page-left'
+                                        : 'passport-flip-page-right' }}
+                                "
+                                data-density="soft"
                             >
-                                {{-- Left passport page --}}
-                                <div
-                                    class="
-                                        passport-book-page
-                                        passport-book-page-left
-                                    "
-                                >
-                                    <span class="passport-book-page-title">
-                                        Cultural Collection
-                                    </span>
+                                <span
+                                    class="passport-page-background"
+                                    style="background-image: url('{{ asset(
+                                        $pageIndex % 2 === 0
+                                            ? 'images/engagement/passport-page-left.png'
+                                            : 'images/engagement/passport-page-right.png'
+                                    ) }}')"
+                                    aria-hidden="true"
+                                ></span>
 
+                                <div class="passport-flip-page-content">
                                     <div class="passport-book-stamp-grid">
-                                        @foreach (
-                                            $spread->take(4) as $userStamp
-                                        )
+                                        @foreach ($pageStamps as $userStamp)
                                             @include(
                                                 'engagement.partials.passport-book-stamp',
                                                 ['userStamp' => $userStamp]
@@ -272,30 +280,7 @@
                                         @endforeach
                                     </div>
                                 </div>
-
-                                {{-- Right passport page --}}
-                                <div
-                                    class="
-                                        passport-book-page
-                                        passport-book-page-right
-                                    "
-                                >
-                                    <span class="passport-book-page-title">
-                                        Cultural Collection
-                                    </span>
-
-                                    <div class="passport-book-stamp-grid">
-                                        @foreach (
-                                            $spread->slice(4, 4) as $userStamp
-                                        )
-                                            @include(
-                                                'engagement.partials.passport-book-stamp',
-                                                ['userStamp' => $userStamp]
-                                            )
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </div>
+                            </article>
                         @endforeach
                     </div>
 
@@ -303,8 +288,8 @@
                         type="button"
                         class="passport-page-button next"
                         data-passport-next
-                        aria-label="Next passport pages"
-                        @if ($passportSpreads->count() <= 1)
+                        aria-label="Next passport page"
+                        @if ($passportPages->count() <= 2)
                             disabled
                         @endif
                     >
@@ -316,8 +301,11 @@
                     class="passport-page-indicator"
                     data-passport-page-indicator
                 >
-                    Pages 1&ndash;2 of
-                    {{ $passportSpreads->count() * 2 }}
+                    Pages 1&ndash;2 of {{ $passportPages->count() }}
+                </p>
+
+                <p class="passport-drag-hint">
+                    Drag a page corner or use the arrow buttons to browse.
                 </p>
             @endif
         </div>
@@ -475,6 +463,72 @@
             </div>
         </div>
     </section>
+</div>
+
+{{-- Downloadable cultural journey card --}}
+<div class="journey-card-export-wrapper">
+    <article
+        class="journey-card-export"
+        data-journey-card
+    >
+        <div class="journey-card-decoration"></div>
+
+        <header class="journey-card-header">
+            <div>
+                <span>LIVING HERITAGE MALAYSIA</span>
+                <h2>My Cultural Journey</h2>
+            </div>
+
+            <span class="journey-card-year">
+                {{ now()->format('Y') }}
+            </span>
+        </header>
+
+        <div class="journey-card-profile">
+            <p>Cultural Explorer</p>
+
+            <h3>
+                {{ Auth::user()->user_name ?? 'Heritage Explorer' }}
+            </h3>
+
+            <div class="journey-card-progress">
+                <strong>{{ $collectedCount }}</strong>
+                <span>of {{ $totalCount }} stamps collected</span>
+            </div>
+        </div>
+
+        <div class="journey-card-stamps">
+            @forelse ($passportStamps as $userStamp)
+                <div class="journey-card-stamp">
+                    <img
+                        src="{{ $userStamp->stamp?->stamp_image
+                            ? asset($userStamp->stamp->stamp_image)
+                            : asset('images/default-stamp.png') }}"
+                        alt="{{ $userStamp->stamp?->category
+                            ?? 'Cultural stamp' }}"
+                    >
+
+                    <span>
+                        {{ $userStamp->stamp?->category
+                            ?? 'Cultural Stamp' }}
+                    </span>
+                </div>
+            @empty
+                <p class="journey-card-empty">
+                    Begin exploring Malaysia to collect your
+                    first cultural stamp.
+                </p>
+            @endforelse
+        </div>
+
+        <footer class="journey-card-footer">
+            <span>
+                {{ $collectionPercentage }}% collection completed
+            </span>
+
+            <strong>#LivingHeritageMalaysia</strong>
+        </footer>
+    </article>
 </div>
 @endsection
 
