@@ -71,7 +71,10 @@ class ProfileController extends Controller
                 'experience.category',
                 'experience.type',
                 'user',
+                'postComments.user',
             ])
+            ->withCount('postComments')
+            ->withExists(['likes as is_liked_by_user' => fn ($likes) => $likes->where('user_id', Auth::id())])
             ->where('user_id', Auth::id())
             ->latest('created_at')
             ->get();

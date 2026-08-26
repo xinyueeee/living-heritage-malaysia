@@ -64,5 +64,5 @@
 
 @push('scripts')
     @include('community.partials.photo-viewer-script')
-    @vite(['resources/js/pages/community-save.js', 'resources/js/pages/community-like.js'])
+    @vite(['resources/js/pages/community-save.js', 'resources/js/pages/community-like.js', 'resources/js/pages/community-comment.js'])
 @endpush

@@ -192,7 +192,47 @@ document.addEventListener('DOMContentLoaded', function () {
             |--------------------------------------------------------------------------
             | ADD NEW COMMENT TO LIST
             |--------------------------------------------------------------------------
+            | Built once so the same node can also be cloned into the hidden
+            | <template> below (see SYNC HIDDEN TEMPLATE).
             */
+
+            const commentItem =
+                document.createElement('div');
+
+            commentItem.className =
+                'comment-item';
+
+
+            commentItem.innerHTML = `
+
+                <img
+                    src="${data.user?.profile_photo ?? '/images/default-avatar.png'}"
+                    class="comment-avatar"
+                    alt="Avatar"
+                >
+
+                <div class="comment-content">
+
+                    <strong>
+                        ${escapeHtml(
+                            data.user?.user_name ?? 'Anonymous'
+                        )}
+                    </strong>
+
+                    <p>
+                        ${escapeHtml(
+                            data.comment ?? commentText
+                        )}
+                    </p>
+
+                    <small>
+                        Just now
+                    </small>
+
+                </div>
+
+            `;
+
 
             if (commentsList) {
 
@@ -202,45 +242,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (emptyMessage) {
                     emptyMessage.remove();
                 }
-
-
-                const commentItem =
-                    document.createElement('div');
-
-                commentItem.className =
-                    'comment-item';
-
-
-                commentItem.innerHTML = `
-
-                    <img
-                        src="${data.user?.profile_photo ?? '/images/default-avatar.png'}"
-                        class="comment-avatar"
-                        alt="Avatar"
-                    >
-
-                    <div class="comment-content">
-
-                        <strong>
-                            ${escapeHtml(
-                                data.user?.user_name ?? 'Anonymous'
-                            )}
-                        </strong>
-
-                        <p>
-                            ${escapeHtml(
-                                data.comment ?? commentText
-                            )}
-                        </p>
-
-                        <small>
-                            Just now
-                        </small>
-
-                    </div>
-
-                `;
-
 
                 commentsList.appendChild(
                     commentItem
@@ -270,6 +271,56 @@ document.addEventListener('DOMContentLoaded', function () {
                         ) || 0;
 
                     commentCount.textContent =
+                        currentCount + 1;
+
+                }
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SYNC HIDDEN TEMPLATE (Saved Posts page)
+            |--------------------------------------------------------------------------
+            | Saved Posts clones its post detail from a hidden <template> each
+            | time it's opened, so also add the comment there — otherwise
+            | reopening the same post loses whatever was added this session.
+            */
+
+            const template =
+                postId
+                    ? document.getElementById(`post-detail-${postId}`)
+                    : null;
+
+            if (template) {
+
+                const templateCommentsList =
+                    template.content.querySelector('.comments-list');
+
+                if (templateCommentsList) {
+
+                    templateCommentsList
+                        .querySelector('.no-comments')
+                        ?.remove();
+
+                    templateCommentsList.appendChild(
+                        commentItem.cloneNode(true)
+                    );
+
+                }
+
+                const templateCommentCount =
+                    template.content.querySelector('.comment-count');
+
+                if (templateCommentCount) {
+
+                    const currentCount =
+                        parseInt(
+                            templateCommentCount.textContent.trim(),
+                            10
+                        ) || 0;
+
+                    templateCommentCount.textContent =
                         currentCount + 1;
 
                 }

@@ -46,6 +46,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 count.textContent = data.likes_count;
             }
 
+            // Saved Posts clones its post detail from a hidden <template> each
+            // time it's opened, so also update the template's stored markup —
+            // otherwise reopening the same post reverts to the old like state.
+            const postId = form.action.match(/community\/posts\/(\d+)\/like/)?.[1];
+            const template = postId ? document.getElementById(`post-detail-${postId}`) : null;
+
+            if (template) {
+                const templateForm = template.content.querySelector('.post-like-form');
+                const templateButton = templateForm?.querySelector('.like-action');
+                const templateIcon = templateForm?.querySelector('.like-icon');
+                const templateCount = templateForm?.querySelector('.like-count');
+
+                if (templateForm) {
+                    templateForm.dataset.liked = nowLiked ? '1' : '0';
+                    templateButton?.classList.toggle('is-liked', nowLiked);
+
+                    if (templateIcon) {
+                        templateIcon.textContent = nowLiked ? '♥' : '♡';
+                    }
+
+                    if (templateCount) {
+                        templateCount.textContent = data.likes_count;
+                    }
+                }
+            }
         } catch (error) {
             console.error('Like error:', error);
         } finally {
