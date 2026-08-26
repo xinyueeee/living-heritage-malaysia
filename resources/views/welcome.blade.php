@@ -48,12 +48,12 @@
                     <span class="shortcut-icon"><x-home-icon name="gift" /></span>
                     <strong>Engagement &amp; Rewards</strong>
                     <span>Earn points and unlock rewards</span>
-                </a>
-                <span class="shortcut-item shortcut-disabled">
+                </span>
+                <a class="shortcut-item" href="{{ route('engagement.history') }}">
                     <span class="shortcut-icon"><x-home-icon name="heart" /></span>
                     <strong>My Activities</strong>
                     <span>See your cultural journey</span>
-                </span>
+                </a>
             </div>
         </section>
 
