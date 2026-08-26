@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 
 class AlbumController extends Controller
 {
@@ -21,7 +21,6 @@ class AlbumController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        // Get photo count for each album
         foreach ($albums as $album) {
             $album->photo_count = DB::table('album_photo')
                 ->where('album_id', $album->album_id)
@@ -141,13 +140,12 @@ class AlbumController extends Controller
     }
 
     /**
-     * Delete an album.
+     * Delete an album and all its photos from Supabase Storage.
      */
     public function destroy($albumId)
     {
         $user = Auth::user();
 
-        // Verify album belongs to user
         $album = DB::table('album')
             ->where('album_id', $albumId)
             ->where('user_id', $user->user_id)
@@ -157,17 +155,12 @@ class AlbumController extends Controller
             abort(404, 'Album not found.');
         }
 
-        // Get all photos to delete files
         $photos = DB::table('album_photo')
             ->where('album_id', $albumId)
             ->get();
 
-        // Delete physical files
-        foreach ($photos as $photo) {
-            if ($photo->storage_path) {
-                Storage::disk('public')->delete($photo->storage_path);
-            }
-        }
+        // Delete all photos from Supabase Storage
+        $this->deleteFromSupabaseStorage($photos);
 
         // Delete photo records from database
         DB::table('album_photo')
@@ -204,13 +197,12 @@ class AlbumController extends Controller
     }
 
     /**
-     * Store photos in the album.
+     * Store photos in the album using Supabase Storage.
      */
     public function storePhotos(Request $request, $albumId)
     {
         $user = Auth::user();
 
-        // Verify album belongs to user
         $album = DB::table('album')
             ->where('album_id', $albumId)
             ->where('user_id', $user->user_id)
@@ -220,53 +212,71 @@ class AlbumController extends Controller
             abort(404, 'Album not found.');
         }
 
-        // Validate
         $validated = $request->validate([
             'photos' => ['required', 'array', 'max:20'],
             'photos.*' => ['image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'],
         ]);
 
+        // Supabase Storage configuration
+        $baseUrl = rtrim(config('services.supabase.url'), '/');
+        $serviceRoleKey = config('services.supabase.service_role_key');
+
         $uploadedCount = 0;
         $firstPhotoUrl = null;
+        $uploadedPaths = [];
 
-        // Get all files
         $files = $request->file('photos');
-
-        // If it's a single file, make it an array
         if ($files && !is_array($files)) {
             $files = [$files];
         }
 
-        // Loop through and upload each file
         if ($files && count($files) > 0) {
             foreach ($files as $photo) {
-                // Check if file is valid
                 if ($photo && $photo->isValid()) {
-                    // Store the photo with unique name
                     $filename = time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
-                    $path = $photo->storeAs('album_photos', $filename, 'public');
-                    
-                    // Store the full URL
-                    $fullUrl = asset('storage/' . $path);
-                    
+                    $storagePath = 'album_photos/' . $filename;
+
+                    // Upload to Supabase Storage
+                    $response = Http::withHeaders([
+                        'Authorization' => "Bearer {$serviceRoleKey}",
+                        'apikey' => $serviceRoleKey,
+                        'Content-Type' => $photo->getMimeType(),
+                    ])
+                    ->withBody(
+                        file_get_contents($photo->getRealPath()),
+                        $photo->getMimeType()
+                    )
+                    ->post(
+                        "{$baseUrl}/storage/v1/object/community-images/{$storagePath}"
+                    );
+
+                    if ($response->failed()) {
+                        throw new \RuntimeException(
+                            'Failed to upload image to Supabase: ' . $response->body()
+                        );
+                    }
+
+                    // Get public URL
+                    $publicUrl = "{$baseUrl}/storage/v1/object/public/community-images/{$storagePath}";
+
+                    // Save to database
                     DB::table('album_photo')->insert([
                         'album_id' => $albumId,
-                        'photo_url' => $fullUrl,
-                        'storage_path' => $path,
+                        'photo_url' => $publicUrl,
+                        'storage_path' => $storagePath,
                         'created_at' => now(),
                     ]);
 
                     $uploadedCount++;
-                    
-                    // Store first photo URL for cover
+                    $uploadedPaths[] = $storagePath;
+
                     if (!$firstPhotoUrl) {
-                        $firstPhotoUrl = $fullUrl;
+                        $firstPhotoUrl = $publicUrl;
                     }
                 }
             }
         }
 
-        // If no files uploaded, show error
         if ($uploadedCount === 0) {
             return redirect()
                 ->back()
@@ -290,13 +300,12 @@ class AlbumController extends Controller
     }
 
     /**
-     * Delete a single photo from an album.
+     * Delete a single photo from an album and from Supabase Storage.
      */
     public function deletePhoto($albumId, $photoId)
     {
         $user = Auth::user();
 
-        // Verify album belongs to user
         $album = DB::table('album')
             ->where('album_id', $albumId)
             ->where('user_id', $user->user_id)
@@ -311,30 +320,30 @@ class AlbumController extends Controller
             ->where('album_id', $albumId)
             ->first();
 
-        if ($photo) {
-            // Delete the physical file
-            if ($photo->storage_path) {
-                Storage::disk('public')->delete($photo->storage_path);
-            }
-
-            // Delete from database
-            DB::table('album_photo')
-                ->where('album_photo_id', $photoId)
-                ->delete();
-
-            // Update cover if the deleted photo was the cover
-            $newCover = DB::table('album_photo')
-                ->where('album_id', $albumId)
-                ->orderBy('created_at')
-                ->first();
-
-            DB::table('album')
-                ->where('album_id', $albumId)
-                ->update([
-                    'cover_photo_url' => $newCover ? $newCover->photo_url : null,
-                    'updated_at' => now(),
-                ]);
+        if (!$photo) {
+            abort(404, 'Photo not found.');
         }
+
+        // Delete from Supabase Storage
+        $this->deleteSingleFromSupabaseStorage($photo->storage_path);
+
+        // Delete from database
+        DB::table('album_photo')
+            ->where('album_photo_id', $photoId)
+            ->delete();
+
+        // Update cover if the deleted photo was the cover
+        $newCover = DB::table('album_photo')
+            ->where('album_id', $albumId)
+            ->orderBy('created_at')
+            ->first();
+
+        DB::table('album')
+            ->where('album_id', $albumId)
+            ->update([
+                'cover_photo_url' => $newCover ? $newCover->photo_url : null,
+                'updated_at' => now(),
+            ]);
 
         return redirect()
             ->route('profile.albums.show', $albumId)
@@ -348,7 +357,6 @@ class AlbumController extends Controller
     {
         $user = Auth::user();
 
-        // Verify album belongs to user
         $album = DB::table('album')
             ->where('album_id', $albumId)
             ->where('user_id', $user->user_id)
@@ -377,5 +385,53 @@ class AlbumController extends Controller
         return redirect()
             ->route('profile.albums.show', $albumId)
             ->with('success', 'Album cover updated successfully!');
+    }
+
+    // ============================================================
+    // PRIVATE HELPER METHODS
+    // ============================================================
+
+    /**
+     * Delete photos from Supabase Storage.
+     */
+    private function deleteFromSupabaseStorage($photos)
+    {
+        if ($photos->isEmpty()) {
+            return;
+        }
+
+        $baseUrl = rtrim(config('services.supabase.url'), '/');
+        $serviceRoleKey = config('services.supabase.service_role_key');
+
+        foreach ($photos as $photo) {
+            if ($photo->storage_path) {
+                Http::withHeaders([
+                    'Authorization' => "Bearer {$serviceRoleKey}",
+                    'apikey' => $serviceRoleKey,
+                ])->delete(
+                    "{$baseUrl}/storage/v1/object/community-images/{$photo->storage_path}"
+                );
+            }
+        }
+    }
+
+    /**
+     * Delete a single photo from Supabase Storage.
+     */
+    private function deleteSingleFromSupabaseStorage($storagePath)
+    {
+        if (!$storagePath) {
+            return;
+        }
+
+        $baseUrl = rtrim(config('services.supabase.url'), '/');
+        $serviceRoleKey = config('services.supabase.service_role_key');
+
+        Http::withHeaders([
+            'Authorization' => "Bearer {$serviceRoleKey}",
+            'apikey' => $serviceRoleKey,
+        ])->delete(
+            "{$baseUrl}/storage/v1/object/community-images/{$storagePath}"
+        );
     }
 }
