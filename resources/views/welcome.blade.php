@@ -49,11 +49,11 @@
                     <strong>Engagement &amp; Rewards</strong>
                     <span>Earn points and unlock rewards</span>
                 </span>
-                <span class="shortcut-item shortcut-disabled">
+                <a class="shortcut-item" href="{{ route('engagement.history') }}">
                     <span class="shortcut-icon"><x-home-icon name="heart" /></span>
                     <strong>My Activities</strong>
                     <span>See your cultural journey</span>
-                </span>
+                </a>
             </div>
         </section>
 

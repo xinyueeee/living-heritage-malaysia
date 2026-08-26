@@ -32,5 +32,6 @@ class ExampleTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk();
+        $response->assertSee(route('engagement.history'), false);
     }
 }
