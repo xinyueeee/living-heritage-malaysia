@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Models;
-
+use App\Models\PostComment;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -61,7 +61,12 @@ class User extends Authenticatable
             'experience_id',
             'user_id',
             'experiences_id',
-        )->withPivot('saved_date');
+        )->withPivot(['saved_date', 'collection_id']);
+    }
+
+    public function savedExperienceCollections(): HasMany
+    {
+        return $this->hasMany(SavedExperienceCollection::class, 'user_id', 'user_id');
     }
     /**
      * A post has many likes.
@@ -85,6 +90,15 @@ class User extends Authenticatable
             'user_id',
             'post_id',
         )->withPivot('saved_at');
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(
+            PostComment::class,
+            'user_id',
+            'user_id'
+        );
     }
     
 }

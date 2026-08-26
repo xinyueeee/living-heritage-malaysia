@@ -11,12 +11,49 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
 </head>
+
+<script>
+async function updateNotificationBadge()
+{
+    try
+    {
+        const response = await fetch("{{ route('notifications.count') }}");
+        const data = await response.json();
+
+        const badge = document.getElementById("notificationBadge");
+
+        if (data.count > 0)
+        {
+            badge.style.display = "flex";
+            badge.textContent = data.count > 9 ? "9+" : data.count;
+        }
+        else
+        {
+            badge.style.display = "none";
+        }
+    }
+    catch (error)
+    {
+        console.error(error);
+    }
+}
+
+// Load immediately
+updateNotificationBadge();
+
+// Refresh every 10 seconds
+setInterval(updateNotificationBadge, 10000);
+</script>
 <body>
     @include('partials.header')
 
     <main>
         @yield('content')
     </main>
+
+    @auth
+        @include('components.saved-experience-picker', ['collections' => $savePickerCollections])
+    @endauth
 
     @include('partials.footer')
 

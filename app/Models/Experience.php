@@ -51,6 +51,6 @@ class Experience extends Model
             'user_id',
             'experiences_id',
             'user_id',
-        )->withPivot('saved_date');
+        )->withPivot(['saved_date', 'collection_id']);
     }
 }

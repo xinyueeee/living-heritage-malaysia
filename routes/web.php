@@ -8,15 +8,20 @@ use App\Http\Controllers\PersonalInformationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilePhotoController;
 use App\Http\Controllers\SavedExperienceController;
+use App\Http\Controllers\SavedExperienceCollectionController;
 use App\Http\Controllers\SavedPostController;
 use App\Http\Controllers\EngagementController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommunityController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\AlbumController;
 
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\PostLikeController;
+use App\Http\Controllers\ReminderController;
+use App\Http\Controllers\TripPlannerController;
 
 
 Route::get('/', [ExperienceController::class, 'home'])->name('home');
@@ -79,6 +84,14 @@ Route::post('/alerts/personalize', [AlertController::class, 'store'])
         ->name('experiences.saved.store');
     Route::delete('/experiences/{experience}/save', [SavedExperienceController::class, 'destroy'])
         ->name('experiences.saved.destroy');
+    Route::patch('/experiences/{experience}/save/collection', [SavedExperienceController::class, 'move'])
+        ->name('experiences.saved.move');
+    Route::post('/profile/saved-experience-collections', [SavedExperienceCollectionController::class, 'store'])
+        ->name('saved-experience-collections.store');
+    Route::patch('/profile/saved-experience-collections/{collection}', [SavedExperienceCollectionController::class, 'update'])
+        ->name('saved-experience-collections.update');
+    Route::delete('/profile/saved-experience-collections/{collection}', [SavedExperienceCollectionController::class, 'destroy'])
+        ->name('saved-experience-collections.destroy');
 
     Route::post('/community/posts/{post}/save', [SavedPostController::class, 'store'])
         ->name('community.posts.saved.store');
@@ -89,6 +102,8 @@ Route::post('/alerts/personalize', [AlertController::class, 'store'])
         ->name('community.posts.like');
     Route::delete('/community/posts/{post}/like', [PostLikeController::class, 'unlike'])
         ->name('community.posts.unlike');
+    Route::post('/community/posts/{postId}/comments', [CommentController::class, 'store'])
+        ->name('comments.store');
 
     Route::get('/engagement/passport',[EngagementController::class, 'passport'])->name('engagement.passport');
 
@@ -106,6 +121,40 @@ Route::post('/alerts/personalize', [AlertController::class, 'store'])
 
     Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
     Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
+
+    // Profile Albums
+    Route::get('/profile/albums', [AlbumController::class, 'index'])
+        ->name('profile.albums.index');
+
+    Route::get('/profile/albums/create', [AlbumController::class, 'create'])
+        ->name('profile.albums.create');
+
+    Route::post('/profile/albums', [AlbumController::class, 'store'])
+        ->name('profile.albums.store');
+
+    Route::get('/profile/albums/{album}', [AlbumController::class, 'show'])
+        ->name('profile.albums.show');
+        Route::get('/profile/albums/{album}/edit', [AlbumController::class, 'edit'])
+        ->name('profile.albums.edit');
+
+    Route::put('/profile/albums/{album}', [AlbumController::class, 'update'])
+        ->name('profile.albums.update');
+
+    Route::delete('/profile/albums/{album}', [AlbumController::class, 'destroy'])
+        ->name('profile.albums.destroy');
+
+    // Photo Management
+    Route::get('/profile/albums/{album}/photos/create', [AlbumController::class, 'createPhotos'])
+        ->name('profile.albums.photos.create');
+
+    Route::post('/profile/albums/{album}/photos', [AlbumController::class, 'storePhotos'])
+        ->name('profile.albums.photos.store');
+
+    Route::delete('/profile/albums/{album}/photos/{photo}', [AlbumController::class, 'deletePhoto'])
+        ->name('profile.albums.photos.destroy');
+    // Cover Photo
+    Route::patch('/profile/albums/{album}/cover/{photo}', [AlbumController::class, 'updateCover'])
+        ->name('profile.albums.cover.update');
 });
 
 
@@ -124,3 +173,34 @@ Route::post('/calendar/reminder', [NotificationController::class, 'storeReminder
 
 Route::get('/festival/login-required', function () {return view('festival.login-required');})->name('festival.login-required');
     
+
+Route::get(
+    '/reminders',
+    [ReminderController::class, 'index']
+)->middleware('auth')->name('festival.reminder');
+
+Route::get(
+    '/experience/{id}',
+    [ExperienceController::class, 'show']
+)->name('experience.show');
+
+
+Route::get('/notifications/count', [NotificationController::class, 'count'])
+    ->name('notifications.count')
+    ->middleware('auth');
+
+Route::post('/trip-planner/plan', [TripPlannerController::class, 'plan'])
+    ->name('trip.planner.plan')
+    ->middleware('auth');
+
+Route::post(
+    '/trip-planner/plan',
+    [TripPlannerController::class, 'plan']
+)->name('trip.planner.plan');
+
+Route::post(
+    '/trip-planner/add',
+    [TripPlannerController::class, 'add']
+)->name('trip.planner.add');
+
+

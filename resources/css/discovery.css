@@ -47,6 +47,12 @@
 .interactive-map-toolbar strong { color: var(--heritage-red); font-size: 1.25rem; }
 .interactive-map-shell { display: grid; grid-template-columns: 215px minmax(0, 1fr); overflow: hidden; border: 1px solid var(--heritage-border); border-radius: 12px; background: var(--heritage-paper); box-shadow: 0 12px 30px rgba(72, 37, 22, .11); }
 .map-legend { padding: 20px; border-right: 1px solid var(--heritage-border); }
+.map-state-control { display: grid; gap: 7px; margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--heritage-border); }
+.map-state-control label { color: var(--heritage-ink); font-size: .84rem; font-weight: 700; }
+.map-state-control select { width: 100%; padding: 9px 10px; border: 1px solid var(--heritage-border); border-radius: 7px; background: #fff; color: var(--heritage-ink); font: inherit; }
+.map-state-control select:focus-visible { border-color: var(--heritage-red); outline: 3px solid rgba(165, 42, 26, .15); }
+.map-state-clear { justify-self: start; padding: 0; border: 0; background: none; color: var(--heritage-red); font-weight: 700; cursor: pointer; }
+.map-state-control #map-state-source { margin: 2px 0 0; color: var(--heritage-muted); font-size: .66rem; line-height: 1.35; }
 .map-legend h2 { margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 1.18rem; }
 .map-legend > p { margin: 4px 0 15px; color: var(--heritage-muted); font-size: .76rem; }
 .map-category-filters { display: grid; gap: 9px; }
@@ -468,6 +474,20 @@
 .progress-placeholder span { display: block; width: 38%; height: 100%; background: #f2b93d; }
 .button-light-static { display: inline-flex; padding: 9px 15px; border-radius: 5px; background: #fff; color: var(--heritage-red); font-size: .78rem; font-weight: 700; }
 .badges-preview { text-align: center; }
+
+.badge-preview-grid img {
+    width: 58px;
+    height: 58px;
+    margin: auto;
+    border-radius: 50%;
+    object-fit: contain;
+}
+
+.badge-preview-grid small {
+    grid-column: 1 / -1;
+    color: rgba(255, 255, 255, 0.85);
+}
+
 .badge-preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
 .badge-preview-grid i {
     display: grid;
@@ -704,7 +724,11 @@
 .nearby-experiences-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; margin-bottom: 14px; }
 .nearby-experiences-heading h3 { margin: 0; font-size: 1.25rem; }
 .nearby-experiences-heading p { margin: 0; color: var(--heritage-muted); font-size: .8rem; }
+.nearby-experiences-tools { display: flex; align-items: center; gap: 8px; color: var(--heritage-muted); font-size: .8rem; font-weight: 700; }
+.nearby-experiences-tools select { min-width: 130px; padding: 8px 30px 8px 10px; border: 1px solid var(--heritage-border); border-radius: 7px; color: var(--heritage-ink); background: #fff; }
+.nearby-experiences-summary { margin: -6px 0 14px; color: var(--heritage-muted); font-size: .8rem; }
 .nearby-experiences-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.nearby-experiences-actions { display: flex; justify-content: center; gap: 12px; margin-top: 16px; }
 .nearby-experience-card { min-width: 0; overflow: hidden; border: 1px solid var(--heritage-border); border-radius: 8px; background: #fff; }
 .nearby-experience-image-frame { position: relative; height: 105px; overflow: hidden; }
 .nearby-experience-image { display: block; width: 100%; height: 100%; object-fit: cover; }
@@ -712,6 +736,14 @@
 .nearby-experience-content h4 { margin: 0 0 7px; font-size: .87rem; line-height: 1.3; }
 .nearby-experience-content p { margin: 4px 0; color: var(--heritage-muted); font-size: .73rem; line-height: 1.35; }
 .nearby-experience-content .nearby-experience-distance { color: #124e78; font-weight: 700; }
+.state-experiences { margin-top: 28px; padding: 24px; border: 1px solid var(--heritage-border); border-radius: 12px; background: var(--heritage-paper); }
+.state-experiences-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.state-experiences-heading h2 { margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 1.55rem; }
+.state-experiences-summary { margin: 7px 0 18px; color: var(--heritage-muted); }
+.state-experiences-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.state-experiences-list .nearby-experience-card { display: grid; grid-template-columns: 120px minmax(0, 1fr); }
+.state-experiences-list .nearby-experience-image-frame { height: 100%; min-height: 130px; }
+.experience-map .map-state-boundary:focus { outline: none; }
 
 @media (max-width: 980px) {
     .shortcut-grid { grid-template-columns: repeat(3, 1fr); }
@@ -723,6 +755,7 @@
     .discovery-search-field:nth-of-type(2) { border-right: 0; }
     .discovery-search button { grid-column: 1 / -1; min-height: 52px; }
     .nearby-experiences-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .state-experiences-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .interactive-map-shell { grid-template-columns: 1fr; }
     .map-legend { border-right: 0; border-bottom: 1px solid var(--heritage-border); }
     .map-category-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -768,11 +801,14 @@
     .experience-map-controls { width: 100%; justify-content: flex-start; }
     .experience-map { height: 390px; }
     .nearby-experiences-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
+    .nearby-experiences-tools { width: 100%; align-items: stretch; flex-direction: column; }
+    .nearby-experiences-tools select { width: 100%; }
     .nearby-experiences-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .map-preview-section { grid-template-columns: 1fr; }
     .map-preview-visual { min-height: 180px; }
     .interactive-map-hero-inner,
     .interactive-map-toolbar { align-items: flex-start; flex-direction: column; }
+    .state-experiences-heading { align-items: flex-start; flex-direction: column; }
     .trending-entry,
     .trending-heading { align-items: flex-start; flex-direction: column; }
     .map-category-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -806,6 +842,8 @@
     .experience-map-full { height: 390px; }
     .nearby-experiences-page .nearby-experience-card { grid-template-columns: 1fr; }
     .nearby-experiences-page .nearby-experience-image-frame { height: 180px; }
+    .state-experiences { padding: 18px; }
+    .state-experiences-list { grid-template-columns: 1fr; }
     .trending-hero { padding: 42px 0; }
     .trending-content { padding-top: 34px; }
     .trending-grid { grid-template-columns: 1fr; }

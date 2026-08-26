@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ExperienceIndexRequest;
 use App\Models\Experience;
+use App\Models\UserPassportStamp;
 use App\Services\Experience\ExperienceDiscoveryService;
 use App\Services\Experience\SavedExperienceService;
 use App\Services\Experience\TrendingExperienceService;
 use App\Services\Experience\WeatherForecastService;
 use App\Services\Experience\WeatherSuitabilityService;
+use App\Services\Festival\FestivalReminderService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Throwable;
@@ -21,14 +23,41 @@ class ExperienceController extends Controller
         private TrendingExperienceService $trendingExperienceService,
         private WeatherForecastService $weatherForecastService,
         private WeatherSuitabilityService $weatherSuitabilityService,
+        private FestivalReminderService $festivalReminderService,
     ) {}
 
     public function home(Request $request): View
     {
+        $user = $request->user();
+
+        $passportStampCount = 0;
+        $recentStamps = collect();
+
+        if ($user) {
+            $userId = $user->getKey();
+
+            $passportStampCount = UserPassportStamp::whereHas(
+                'passport',
+                fn ($query) => $query->where('user_id', $userId)
+            )->count();
+
+            $recentStamps = UserPassportStamp::with('stamp')
+                ->whereHas(
+                    'passport',
+                    fn ($query) => $query->where('user_id', $userId)
+                )
+                ->latest('collected_date')
+                ->limit(4)
+                ->get();
+        }
         return view('welcome', [
             ...$this->experienceDiscoveryService->getHomePageData(),
             'savedExperienceIds' => $this->savedExperienceService
                 ->getSavedExperienceIds($request->user()),
+            'savedExperienceCollectionNames' => $this->savedExperienceService
+                ->getSavedExperienceCollectionNames($request->user()),
+            'passportStampCount' => $passportStampCount,
+            'recentStamps' => $recentStamps,
         ]);
     }
 
@@ -42,6 +71,8 @@ class ExperienceController extends Controller
                 ->getDiscoveryPageData($filters),
             'savedExperienceIds' => $this->savedExperienceService
                 ->getSavedExperienceIds($request->user()),
+            'savedExperienceCollectionNames' => $this->savedExperienceService
+                ->getSavedExperienceCollectionNames($request->user()),
         ]);
     }
 
@@ -53,6 +84,8 @@ class ExperienceController extends Controller
             ),
             'savedExperienceIds' => $this->savedExperienceService
                 ->getSavedExperienceIds($request->user()),
+            'savedExperienceCollectionNames' => $this->savedExperienceService
+                ->getSavedExperienceCollectionNames($request->user()),
         ]);
     }
 
@@ -74,6 +107,13 @@ class ExperienceController extends Controller
         $this->experienceDiscoveryService->recordExperienceView($request->user(), $experience);
         $experience->loadMissing(['category', 'type']);
         $isSaved = $this->savedExperienceService->isSaved($request->user(), $experience);
+        $savedCollectionName = $isSaved
+            ? ($this->savedExperienceService->getSavedExperienceCollectionNames($request->user())[$experience->getKey()] ?? null)
+            : null;
+        $festivalReminderEligible = $this->festivalReminderService->isEligible($experience);
+        $festivalReminderSet = $festivalReminderEligible && $request->user()
+            ? $this->festivalReminderService->existsFor($request->user(), $experience)
+            : false;
 
         try {
             $weatherGuide = $this->weatherForecastService->guideForExperience($experience);
@@ -95,6 +135,13 @@ class ExperienceController extends Controller
             ];
         }
 
-        return view('experiences.show', compact('experience', 'isSaved', 'weatherSuitability'));
+        return view('experiences.show', compact(
+            'experience',
+            'isSaved',
+            'savedCollectionName',
+            'weatherSuitability',
+            'festivalReminderEligible',
+            'festivalReminderSet',
+        ));
     }
 }

@@ -2,7 +2,15 @@
 
 @section('content')
 
+<div class="experience-alert-actions">
 
+            <a href="{{ route('festival.calendar') }}"
+               class="experience-alert-back-btn">
+
+                ← Back to Festival Calendar
+            </a>
+
+    </div>
 <div class="personalized-alert-page">
 
     <div class="alert-header">

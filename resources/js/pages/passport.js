@@ -1,4 +1,117 @@
+import { PageFlip } from 'page-flip';
+import { toBlob } from 'html-to-image';
+
 document.addEventListener('DOMContentLoaded', () => {
+    /*
+     * Download Cultural Journey Card as a PNG.
+     */
+    const journeyCard = document.querySelector(
+        '[data-journey-card]'
+    );
+
+    const downloadJourneyButton = document.querySelector(
+        '[data-download-journey-card]'
+    );
+
+    const waitForCardImages = async () => {
+        if (!journeyCard) {
+            return;
+        }
+
+        const images = Array.from(
+            journeyCard.querySelectorAll('img')
+        );
+
+        await Promise.all(
+            images.map((image) => {
+                if (image.complete) {
+                    return Promise.resolve();
+                }
+
+                return new Promise((resolve) => {
+                    image.addEventListener('load', resolve, {
+                        once: true,
+                    });
+
+                    image.addEventListener('error', resolve, {
+                        once: true,
+                    });
+                });
+            })
+        );
+    };
+
+    const createJourneyCardBlob = async () => {
+        if (!journeyCard) {
+            throw new Error('Journey card was not found.');
+        }
+
+        await waitForCardImages();
+
+        if (document.fonts?.ready) {
+            await document.fonts.ready;
+        }
+
+        return toBlob(journeyCard, {
+            width: 1200,
+            height: 630,
+            pixelRatio: 1,
+            cacheBust: true,
+            backgroundColor: '#f2dfc2',
+        });
+    };
+
+    downloadJourneyButton?.addEventListener(
+        'click',
+        async () => {
+            const originalText =
+                downloadJourneyButton.textContent;
+
+            downloadJourneyButton.disabled = true;
+            downloadJourneyButton.textContent =
+                'Creating Card...';
+
+            try {
+                const blob = await createJourneyCardBlob();
+
+                if (!blob) {
+                    throw new Error(
+                        'The journey card could not be generated.'
+                    );
+                }
+
+                const downloadUrl =
+                    URL.createObjectURL(blob);
+
+                const downloadLink =
+                    document.createElement('a');
+
+                downloadLink.href = downloadUrl;
+                downloadLink.download =
+                    'my-cultural-journey.png';
+
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                downloadLink.remove();
+
+                URL.revokeObjectURL(downloadUrl);
+            } catch (error) {
+                console.error(
+                    'Journey card download failed:',
+                    error
+                );
+
+                alert(
+                    'Sorry, the journey card could not be downloaded.'
+                );
+            } finally {
+                downloadJourneyButton.disabled = false;
+                downloadJourneyButton.textContent =
+                    originalText;
+            }
+        }
+    );
+
     /*
      * Available-stamp filters.
      */
@@ -193,8 +306,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /*
-     * Passport book page flipping.
-     */
+    * Interactive draggable passport book.
+    */
     const viewer = document.querySelector(
         '[data-passport-viewer]'
     );
@@ -203,9 +316,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const spreads = Array.from(
-        viewer.querySelectorAll('[data-book-spread]')
+    const flipbookElement = viewer.querySelector(
+        '[data-passport-flipbook]'
     );
+
+    const pageElements = flipbookElement?.querySelectorAll(
+        '.passport-flip-page'
+    );
+
+    if (! flipbookElement || ! pageElements?.length) {
+        return;
+    }
 
     const previousButton = viewer.querySelector(
         '[data-passport-previous]'
@@ -219,91 +340,81 @@ document.addEventListener('DOMContentLoaded', () => {
         '[data-passport-page-indicator]'
     );
 
-    let currentSpread = 0;
-    let isTurning = false;
+    const pageFlip = new PageFlip(
+        flipbookElement,
+        {
+            width: 699,
+            height: 848,
 
-    const updateBook = (newSpread, direction) => {
-        if (
-            isTurning
-            || newSpread < 0
-            || newSpread >= spreads.length
-            || newSpread === currentSpread
-        ) {
-            return;
+            size: 'stretch',
+
+            minWidth: 220,
+            maxWidth: 430,
+            minHeight: 267,
+            maxHeight: 522,
+
+            autoSize: true,
+            showCover: false,
+            usePortrait: true,
+
+            drawShadow: true,
+            maxShadowOpacity: 0.35,
+
+            flippingTime: 1100,
+
+            useMouseEvents: true,
+            showPageCorners: true,
+            disableFlipByClick: true,
+
+            mobileScrollSupport: true,
+            swipeDistance: 30,
+        }
+    );
+
+    const updatePassportControls = () => {
+        const currentPage = pageFlip.getCurrentPageIndex();
+        const totalPages = pageFlip.getPageCount();
+        const isPortrait =
+            pageFlip.getOrientation() === 'portrait';
+
+        const firstVisiblePage = currentPage + 1;
+
+        const lastVisiblePage = isPortrait
+            ? firstVisiblePage
+            : Math.min(firstVisiblePage + 1, totalPages);
+
+        if (pageIndicator) {
+            pageIndicator.textContent = isPortrait
+                ? `Page ${firstVisiblePage} of ${totalPages}`
+                : `Pages ${firstVisiblePage}–${lastVisiblePage} of ${totalPages}`;
         }
 
-        isTurning = true;
+        if (previousButton) {
+            previousButton.disabled = currentPage <= 0;
+        }
 
-        previousButton.disabled = true;
-        nextButton.disabled = true;
-
-        const currentElement = spreads[currentSpread];
-        const newElement = spreads[newSpread];
-
-        const exitClass =
-            direction === 'next'
-                ? 'passport-spread-exit-next'
-                : 'passport-spread-exit-previous';
-
-        const enterClass =
-            direction === 'next'
-                ? 'passport-spread-enter-next'
-                : 'passport-spread-enter-previous';
-
-        /*
-        * First half: close the current pages.
-        */
-        currentElement.classList.add(exitClass);
-
-        window.setTimeout(() => {
-            currentElement.hidden = true;
-            currentElement.classList.remove(exitClass);
-
-            /*
-            * Second half: open the new pages.
-            */
-            newElement.hidden = false;
-            newElement.classList.add(enterClass);
-
-            currentSpread = newSpread;
-
-            const firstPage =
-                (currentSpread * 2) + 1;
-
-            const secondPage =
-                firstPage + 1;
-
-            const totalPages =
-                spreads.length * 2;
-
-            pageIndicator.textContent =
-                `Pages ${firstPage}–${secondPage} of ${totalPages}`;
-
-            window.setTimeout(() => {
-                newElement.classList.remove(enterClass);
-
-                previousButton.disabled =
-                    currentSpread === 0;
-
-                nextButton.disabled =
-                    currentSpread === spreads.length - 1;
-
-                isTurning = false;
-            }, 360);
-        }, 300);
+        if (nextButton) {
+            nextButton.disabled =
+                lastVisiblePage >= totalPages;
+        }
     };
 
+    pageFlip.on('init', updatePassportControls);
+    pageFlip.on('flip', updatePassportControls);
+    pageFlip.on(
+        'changeOrientation',
+        updatePassportControls
+    );
+
+    pageFlip.loadFromHTML(pageElements);
+
     previousButton?.addEventListener('click', () => {
-        updateBook(
-            currentSpread - 1,
-            'previous'
-        );
+        pageFlip.flipPrev('top');
     });
 
     nextButton?.addEventListener('click', () => {
-        updateBook(
-            currentSpread + 1,
-            'next'
-        );
+        pageFlip.flipNext('top');
     });
+
+    updatePassportControls();
 });

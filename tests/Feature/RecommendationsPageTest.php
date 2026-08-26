@@ -106,6 +106,9 @@ class RecommendationsPageTest extends TestCase
         $savedExperienceService->shouldReceive('getSavedExperienceIds')
             ->once()
             ->andReturn([]);
+        $savedExperienceService->shouldReceive('getSavedExperienceCollectionNames')
+            ->once()
+            ->andReturn([]);
         $this->app->instance(SavedExperienceService::class, $savedExperienceService);
 
         $response = $this->actingAs($user)->get('/recommendations');

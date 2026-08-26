@@ -63,16 +63,20 @@
                         <div class="notification-card-content">
 
                             <h3>
-                                {{ $notification->message }}
+                                {{ $notification->experience->experiences_name ?? 'Experience' }}
+                                -
+                                {{ $notification->countdown_message }}
                             </h3>
 
                             <p>
-                                Reminder for your
-                                selected festival.
+                                Your selected visit date:
+                                <strong>
+                                    {{ $notification->selected_date->format('d M Y') }}
+                                </strong>
                             </p>
 
                             <small>
-                                Scheduled:
+                                🔔 Reminder will be sent:
                                 {{ $notification->scheduled_at->format('d M Y, h:i A') }}
                             </small>
 
@@ -88,6 +92,7 @@
 
     </div>
 
+    
 </div>
 
 @endsection

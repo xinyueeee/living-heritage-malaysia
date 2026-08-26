@@ -27,10 +27,12 @@
         ]);
 
         return [
+            'id' => $experience->experiences_id,
             'name' => $experience->experiences_name,
             'latitude' => (float) $experience->latitude,
             'longitude' => (float) $experience->longitude,
             'startDate' => $experience->start_date?->format('d M Y'),
+            'startDateSort' => $experience->start_date?->format('Y-m-d'),
             'endDate' => $experience->end_date?->format('d M Y'),
             'location' => $experience->location_name,
             'shortDescription' => $experience->short_description,

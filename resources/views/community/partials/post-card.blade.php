@@ -1,5 +1,9 @@
 {{-- Expects: $post (App\Models\Post), $isSaved (bool) --}}
-<article class="post-card">
+
+<article
+    class="post-card"
+    id="post-{{ $post->post_id }}"
+>
 
     <!-- ===================================================
          POST HEADER
@@ -14,6 +18,7 @@
             class="avatar"
             alt="Avatar"
         >
+
 
         <!-- User Information -->
 
@@ -32,14 +37,13 @@
                 </span>
 
                 <span class="post-location">
-
                     {{ $post->experience?->location_name ?? 'Malaysia' }}
-
                 </span>
 
             </small>
 
         </div>
+
 
         <!-- More Button -->
 
@@ -61,6 +65,7 @@
 
     <div class="post-body">
 
+
         <!-- ===================================================
              EXPERIENCE INFORMATION
         =================================================== -->
@@ -69,45 +74,35 @@
 
             <div class="post-experience-info">
 
-                <!-- Experience Title -->
-
                 <h3 class="post-experience-name">
-
                     {{ $post->experience->experiences_name }}
-
                 </h3>
 
-                <!-- Experience Meta -->
 
                 <div class="post-experience-meta">
 
                     @if($post->experience->location_name)
 
                         <span class="experience-meta-item">
-
-                            📍
-                            {{ $post->experience->location_name }}
-
+                            📍 {{ $post->experience->location_name }}
                         </span>
 
                     @endif
+
 
                     @if($post->experience->type?->type_name)
 
                         <span class="experience-meta-item">
-
                             {{ $post->experience->type->type_name }}
-
                         </span>
 
                     @endif
 
+
                     @if($post->experience->category?->category_name)
 
                         <span class="experience-meta-item">
-
                             {{ $post->experience->category->category_name }}
-
                         </span>
 
                     @endif
@@ -127,9 +122,7 @@
         @if($post->content)
 
             <div class="post-caption">
-
                 {{ $post->content }}
-
             </div>
 
         @endif
@@ -151,6 +144,7 @@
 
             @endphp
 
+
             @if(is_array($images) && count($images) > 0)
 
                 @php
@@ -169,6 +163,7 @@
 
                 @endphp
 
+
                 <div
                     class="post-gallery post-gallery-{{ count($displayImages) }}"
                     data-images='@json($galleryImages)'
@@ -186,7 +181,6 @@
                                 alt="Community Post Image"
                             >
 
-                            <!-- +X MORE -->
 
                             @if(
                                 $index === 2
@@ -194,9 +188,7 @@
                             )
 
                                 <div class="more-images">
-
                                     +{{ $totalImages - 3 }}
-
                                 </div>
 
                             @endif
@@ -221,54 +213,100 @@
 
     <div class="post-footer">
 
-        <!-- Like -->
-              <!-- Like -->
+
+        <!-- ===================================================
+             LIKE
+        =================================================== -->
+
         @auth
+
             @php
                 $isLiked = (bool) ($post->is_liked_by_user ?? false);
             @endphp
 
-            <form method="POST" action="{{ route('community.posts.like', $post) }}" class="post-like-form" data-liked="{{ $isLiked ? '1' : '0' }}">
+
+            <form
+                method="POST"
+                action="{{ route('community.posts.like', $post) }}"
+                class="post-like-form"
+                data-liked="{{ $isLiked ? '1' : '0' }}"
+            >
+
                 @csrf
 
                 @if($isLiked)
                     @method('DELETE')
                 @endif
 
-                <button type="submit" class="post-action like-action {{ $isLiked ? 'is-liked' : '' }}">
-                    <span class="action-icon like-icon">{{ $isLiked ? '♥' : '♡' }}</span>
-                    <span class="like-count">{{ $post->like_count ?? 0 }}</span>
+
+                <button
+                    type="submit"
+                    class="post-action like-action {{ $isLiked ? 'is-liked' : '' }}"
+                >
+
+                    <span class="action-icon like-icon">
+                        {{ $isLiked ? '♥' : '♡' }}
+                    </span>
+
+                    <span class="like-count">
+                        {{ $post->like_count ?? 0 }}
+                    </span>
+
                 </button>
+
             </form>
+
         @else
-            <a href="{{ route('login') }}" class="post-action like-action">
-                <span class="action-icon like-icon">♡</span>
-                <span class="like-count">{{ $post->like_count ?? 0 }}</span>
-             </a>
-         @endauth
-         
+
+            <a
+                href="{{ route('login') }}"
+                class="post-action like-action"
+            >
+
+                <span class="action-icon like-icon">
+                    ♡
+                </span>
+
+                <span class="like-count">
+                    {{ $post->like_count ?? 0 }}
+                </span>
+
+            </a>
+
+        @endauth
 
 
 
-        <!-- Comment -->
+        <!-- ===================================================
+             COMMENT BUTTON
+        =================================================== -->
 
         <button
             type="button"
-            class="post-action"
+            class="post-action comment-toggle"
+            data-post-id="{{ $post->post_id }}"
+            aria-expanded="false"
+            aria-label="View comments"
         >
 
-            
-
-            <span>
+            <span class="action-icon">
                 💬
             </span>
 
-           
+            <span class="comment-count">
+                {{ $post->post_comments_count ?? 0 }}
+            </span>
+
         </button>
 
-        <!-- Save -->
+
+
+        <!-- ===================================================
+             SAVE
+        =================================================== -->
 
         @auth
+
             <form
                 method="POST"
                 action="{{ route('community.posts.saved.store', $post) }}"
@@ -276,25 +314,162 @@
                 data-saved="{{ $isSaved ? '1' : '0' }}"
                 data-post-id="{{ $post->post_id }}"
             >
+
                 @csrf
-                @if ($isSaved)
+
+                @if($isSaved)
                     @method('DELETE')
                 @endif
+
+
                 <button
                     type="submit"
                     class="post-action post-save-action {{ $isSaved ? 'is-saved' : '' }}"
                 >
-                    <span class="action-icon">🔖</span>
+
+                    <span class="action-icon">
+                        🔖
+                    </span>
+
                     <span class="post-save-label">
                         {{ $isSaved ? 'Saved' : 'Save' }}
                     </span>
+
                 </button>
+
             </form>
+
         @else
-            <button type="button" class="post-action" disabled>
-                <span class="action-icon">🔖</span>
-                <span>Save</span>
+
+            <button
+                type="button"
+                class="post-action"
+                disabled
+            >
+
+                <span class="action-icon">
+                    🔖
+                </span>
+
+                <span>
+                    Save
+                </span>
+
             </button>
+
+        @endauth
+
+    </div>
+
+
+
+    <!-- ===================================================
+         COMMENTS SECTION
+         HIDDEN BY DEFAULT
+    =================================================== -->
+
+    <div
+        id="comments-{{ $post->post_id }}"
+        class="comment-section comments-hidden"
+    >
+
+
+        <!-- ===================================================
+             EXISTING COMMENTS
+        =================================================== -->
+
+        <div class="comments-list">
+
+            @forelse($post->postComments as $comment)
+
+                <div class="comment-item">
+
+
+                    <!-- Commenter's Avatar -->
+
+                    <img
+                        src="{{ $comment->user->profile_photo ?? asset('images/default-avatar.png') }}"
+                        class="comment-avatar"
+                        alt="Avatar"
+                    >
+
+
+                    <!-- Comment Content -->
+
+                    <div class="comment-content">
+
+                        <strong>
+                            {{ $comment->user->user_name ?? 'Anonymous' }}
+                        </strong>
+
+
+                        <p>
+                            {{ $comment->comment }}
+                        </p>
+
+
+                        <small>
+                            {{ \Carbon\Carbon::parse($comment->created_at)->diffForHumans() }}
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+            @empty
+
+                <p class="no-comments">
+                    No comments yet. Be the first to comment!
+                </p>
+
+            @endforelse
+
+        </div>
+
+
+
+        <!-- ===================================================
+             ENTER COMMENT
+        =================================================== -->
+
+        @auth
+
+            <form
+                method="POST"
+                action="{{ route('comments.store', $post->post_id) }}"
+                class="comment-form"
+            >
+
+                @csrf
+
+
+                <input
+                    type="text"
+                    name="comment"
+                    placeholder="Write a comment..."
+                    maxlength="1000"
+                    autocomplete="off"
+                    required
+                >
+
+
+                <button type="submit"
+                    class="comment-submit-btn">
+                    Post
+                </button>
+
+            </form>
+
+        @else
+
+            <a
+                href="{{ route('login') }}"
+                class="comment-login"
+            >
+                Login to comment
+            </a>
+
         @endauth
 
     </div>

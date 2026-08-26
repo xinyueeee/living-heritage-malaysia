@@ -32,6 +32,14 @@
 
             <div class="interactive-map-shell">
                 <aside class="map-legend" aria-labelledby="map-legend-heading">
+                    <div class="map-state-control">
+                        <label for="map-state-select">Explore by state</label>
+                        <select id="map-state-select" disabled>
+                            <option value="">All Malaysia</option>
+                        </select>
+                        <button id="clear-map-state" class="map-state-clear" type="button" hidden>Show All Malaysia</button>
+                        <p id="map-state-source">State boundaries: Department of Statistics Malaysia.</p>
+                    </div>
                     <h2 id="map-legend-heading">Map Categories</h2>
                     <p>Show or hide marker groups.</p>
                     <div id="map-category-filters" class="map-category-filters"></div>
@@ -45,6 +53,18 @@
                 ></div>
             </div>
 
+            <section id="state-experiences" class="state-experiences" aria-labelledby="state-experiences-heading" hidden>
+                <div class="state-experiences-heading">
+                    <div>
+                        <p class="eyebrow">Exploring Malaysia</p>
+                        <h2 id="state-experiences-heading">All Malaysia</h2>
+                    </div>
+                    <button class="map-control-button" type="button" data-clear-map-state hidden>Show All Malaysia</button>
+                </div>
+                <p id="state-experiences-summary" class="state-experiences-summary" role="status" aria-live="polite"></p>
+                <div id="state-experiences-list" class="state-experiences-list"></div>
+            </section>
+
             <noscript>
                 <p class="experience-map-fallback">Enable JavaScript to use the interactive map. You can still return to the Experience List.</p>
             </noscript>
@@ -55,9 +75,20 @@
                         <p class="eyebrow">Around You</p>
                         <h2 id="nearby-experiences-heading">Nearby Cultural Experiences</h2>
                     </div>
-                    <p id="nearby-experiences-summary">Sorted by nearest</p>
+                    <div class="nearby-experiences-tools">
+                        <label for="nearby-sort">Sort by</label>
+                        <select id="nearby-sort">
+                            <option value="nearest" selected>Nearest</option>
+                            <option value="soonest">Soonest Date</option>
+                        </select>
+                    </div>
                 </div>
+                <p id="nearby-experiences-summary" class="nearby-experiences-summary" role="status" aria-live="polite">Sorted by nearest</p>
                 <div id="nearby-experiences-list" class="nearby-experiences-list"></div>
+                <div class="nearby-experiences-actions">
+                    <button id="nearby-view-more" class="map-control-button" type="button" hidden>View More</button>
+                    <button id="nearby-show-less" class="map-state-clear" type="button" hidden>Show Less</button>
+                </div>
             </section>
         </div>
     </div>
