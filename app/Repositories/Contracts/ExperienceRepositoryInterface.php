@@ -29,6 +29,9 @@ interface ExperienceRepositoryInterface
     /** @return SupportCollection<int, string> */
     public function getCulturalExperienceLocations(): SupportCollection;
 
+    /** @return SupportCollection<int, string> */
+    public function getExperienceLocationsForType(int $typeId): SupportCollection;
+
     public function findCulturalExperienceByName(string $name): ?Experience;
 
     /** @param list<int> $ids */

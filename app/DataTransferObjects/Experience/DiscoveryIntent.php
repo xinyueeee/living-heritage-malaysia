@@ -7,6 +7,7 @@ final readonly class DiscoveryIntent
     public const INTENTS = ['find', 'recommend', 'explain', 'refine', 'compare', 'details', 'unknown'];
 
     /**
+     * @param  ?string  $type  A real experience type name, such as Festival.
      * @param  list<string>  $excludedCategories
      * @param  list<int>  $experienceReferences
      * @param  list<string>  $experienceNames
@@ -21,5 +22,6 @@ final readonly class DiscoveryIntent
         public array $experienceReferences = [],
         public array $experienceNames = [],
         public bool $excludePreviousResults = false,
+        public ?string $type = null,
     ) {}
 }

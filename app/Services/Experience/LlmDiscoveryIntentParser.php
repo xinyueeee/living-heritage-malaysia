@@ -45,9 +45,11 @@ class LlmDiscoveryIntentParser implements DiscoveryIntentParserInterface
             fn ($value) => $this->realTaxonomyValue($value, $categories->pluck('category_name')),
         )->filter()->values()->all();
         $location = $this->realLocation($parsed['location'] ?? null, $locations);
+        $type = $this->typeFromMessage($message);
 
         return new DiscoveryIntent(
             intent: $parsed['intent'],
+            type: $type,
             keyword: $this->nullableString($parsed['keyword'] ?? null),
             location: $location,
             category: $category,
@@ -62,11 +64,12 @@ class LlmDiscoveryIntentParser implements DiscoveryIntentParserInterface
 
     private function systemPrompt(Collection $categories, Collection $locations): string
     {
-        return 'Return JSON only. Interpret a Malaysian Cultural Experience discovery request. '
+        return 'Return JSON only. Interpret a Malaysian Cultural Experience or Festival discovery request. '
             .'Allowed intents: '.implode(', ', DiscoveryIntent::INTENTS).'. '
             .'Allowed categories: '.$categories->pluck('category_name')->join(', ').'. '
             .'Allowed locations: '.$locations->join(', ').'. '
-            .'Keys: intent, keyword, location, category, excluded_categories, sort_preference, '
+            .'Recognize the experience type Festival when the user asks for festival(s); do not use that word as a keyword or generic category. '
+            .'Keys: intent, type, keyword, location, category, excluded_categories, sort_preference, '
             .'experience_references (zero-based), experience_names, exclude_previous_results. '
             .'Never invent an experience, category, or location.';
     }
@@ -109,5 +112,10 @@ class LlmDiscoveryIntentParser implements DiscoveryIntentParserInterface
     private function nullableString(mixed $value): ?string
     {
         return is_string($value) && filled($value) ? trim($value) : null;
+    }
+
+    private function typeFromMessage(string $message): ?string
+    {
+        return preg_match('/\bfestivals?\b/i', $message) === 1 ? 'Festival' : null;
     }
 }

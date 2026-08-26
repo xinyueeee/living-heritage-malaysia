@@ -35,15 +35,22 @@ class CulturalDiscoveryAssistantService
 
         $categories = $this->experienceRepository->getCategories()->where('type_id', $type->type_id)->values();
         $locations = $this->experienceRepository->getCulturalExperienceLocations();
+        if ($type->type_name !== 'Cultural Experience') {
+            $locations = $locations
+                ->merge($this->experienceRepository->getExperienceLocationsForType((int) $type->type_id))
+                ->unique()
+                ->values();
+        }
         $context = $this->contextService->current();
         if ($context === [] && $contextExperienceId) {
             $context['last_experience_ids'] = [$contextExperienceId];
         }
 
         $parsed = $this->intentParser->parse($message, $context, $categories, $locations);
-        if ($requestedTypeName === 'Festival' && $this->isGenericFestivalRequest($message)) {
+        if ($requestedTypeName === 'Festival' && Str::lower((string) $parsed->category) === 'festival') {
             $parsed = new DiscoveryIntent(
                 intent: $parsed->intent,
+                type: 'Festival',
                 location: $parsed->location,
                 category: null,
                 excludedCategories: $parsed->excludedCategories,
@@ -121,14 +128,6 @@ class CulturalDiscoveryAssistantService
         }
 
         return $this->find($parsed, $user, $categories, $typeId, $typeName, $excludedIds);
-    }
-
-    private function isGenericFestivalRequest(string $message): bool
-    {
-        return preg_match(
-            '/^(?:please\s+)?(?:(?:show|find|list|give)(?:\s+me)?(?:\s+some|\s+all|\s+the)?\s+)?festivals?(?:\s+please)?[?.!]*$/i',
-            trim($message),
-        ) === 1;
     }
 
     private function recommend(?Authenticatable $user, array $excludedIds = []): array

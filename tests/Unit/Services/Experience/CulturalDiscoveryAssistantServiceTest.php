@@ -66,7 +66,7 @@ class CulturalDiscoveryAssistantServiceTest extends TestCase
         $this->assertStringContainsString('could not find', $result['message']);
     }
 
-    public function test_generic_festival_request_uses_the_festival_type_without_a_keyword_or_category(): void
+    public function test_festival_request_uses_type_and_location_without_a_keyword_or_generic_category(): void
     {
         $festivalType = (new ExperienceType)->forceFill(['type_id' => 2, 'type_name' => 'Festival']);
         $festivalCategory = (new Category)->forceFill([
@@ -77,7 +77,7 @@ class CulturalDiscoveryAssistantServiceTest extends TestCase
         $festival = (new Experience)->forceFill([
             'experiences_id' => 20,
             'experiences_name' => 'Melaka Cultural Festival',
-            'location_name' => 'Melaka',
+            'location_name' => 'Kuala Lumpur',
             'category_id' => 10,
             'type_id' => 2,
             'image_url' => null,
@@ -89,8 +89,10 @@ class CulturalDiscoveryAssistantServiceTest extends TestCase
         $repository->shouldReceive('findExperienceTypeByName')->with('Festival')->andReturn($festivalType);
         $repository->shouldReceive('getCategories')->andReturn(new Collection([$festivalCategory]));
         $repository->shouldReceive('getCulturalExperienceLocations')->andReturn(collect(['Melaka']));
+        $repository->shouldReceive('getExperienceLocationsForType')->with(2)->andReturn(collect(['Kuala Lumpur']));
         $repository->shouldReceive('searchExperiences')->once()->with(
             Mockery::on(fn (array $filters) => $filters['type'] === 2
+                && $filters['location'] === 'Kuala Lumpur'
                 && ! isset($filters['search'])
                 && ! isset($filters['category'])),
             5,
@@ -98,11 +100,42 @@ class CulturalDiscoveryAssistantServiceTest extends TestCase
         $activity = Mockery::mock(UserDiscoveryActivityService::class);
         $activity->shouldReceive('recordSearch')->once();
 
-        $result = $this->service($repository, activity: $activity)->respond('show me Festivals');
+        $result = $this->service($repository, activity: $activity)->respond('Find festival in Kuala Lumpur');
 
         $this->assertSame('find', $result['intent']);
         $this->assertSame('Melaka Cultural Festival', $result['experiences']->first()['name']);
         $this->assertStringContainsString('Festival', $result['message']);
+    }
+
+    public function test_unmatched_festival_location_keeps_the_type_and_reports_an_honest_empty_result(): void
+    {
+        $festivalType = (new ExperienceType)->forceFill(['type_id' => 2, 'type_name' => 'Festival']);
+        $festivalCategory = (new Category)->forceFill([
+            'category_id' => 10,
+            'category_name' => 'Festival',
+            'type_id' => 2,
+        ]);
+
+        $repository = Mockery::mock(ExperienceRepositoryInterface::class);
+        $repository->shouldReceive('findExperienceTypeByName')->with('Festival')->andReturn($festivalType);
+        $repository->shouldReceive('getCategories')->andReturn(new Collection([$festivalCategory]));
+        $repository->shouldReceive('getCulturalExperienceLocations')->andReturn(collect(['Melaka']));
+        $repository->shouldReceive('getExperienceLocationsForType')->with(2)->andReturn(collect());
+        $repository->shouldReceive('searchExperiences')->once()->with(
+            Mockery::on(fn (array $filters) => $filters['type'] === 2
+                && $filters['location'] === 'Melaka'
+                && ! isset($filters['search'])
+                && ! isset($filters['category'])),
+            5,
+        )->andReturn(new LengthAwarePaginator([], 0, 5));
+        $activity = Mockery::mock(UserDiscoveryActivityService::class);
+        $activity->shouldReceive('recordSearch')->once();
+
+        $result = $this->service($repository, activity: $activity)->respond('Show me festivals in Melaka');
+
+        $this->assertSame('find', $result['intent']);
+        $this->assertCount(0, $result['experiences']);
+        $this->assertStringContainsString('matching Festival', $result['message']);
     }
 
     public function test_penang_alias_uses_the_database_location_spelling(): void

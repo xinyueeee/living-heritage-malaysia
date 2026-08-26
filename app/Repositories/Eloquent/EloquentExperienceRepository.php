@@ -177,6 +177,17 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
             ->pluck('location_name');
     }
 
+    public function getExperienceLocationsForType(int $typeId): SupportCollection
+    {
+        return Experience::query()
+            ->where('type_id', $typeId)
+            ->whereNotNull('location_name')
+            ->where('location_name', '<>', '')
+            ->distinct()
+            ->orderBy('location_name')
+            ->pluck('location_name');
+    }
+
     public function findCulturalExperienceByName(string $name): ?Experience
     {
         $matches = Experience::query()

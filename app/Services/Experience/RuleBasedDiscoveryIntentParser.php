@@ -30,7 +30,11 @@ class RuleBasedDiscoveryIntentParser implements DiscoveryIntentParserInterface
             return new DiscoveryIntent(intent: 'find', keyword: trim($message));
         }
 
+        $type = $this->matchType($normalized);
         $category = $this->matchCategory($normalized, $categories);
+        if ($type === 'Festival' && Str::lower((string) $category) === 'festival') {
+            $category = null;
+        }
         $location = $this->matchLocation($normalized, $locations);
         $references = $this->references($normalized);
         $intent = $this->intent($normalized, $context);
@@ -42,10 +46,11 @@ class RuleBasedDiscoveryIntentParser implements DiscoveryIntentParserInterface
             $location ??= $context['location'] ?? null;
         }
 
-        $hasStructuredFilter = filled($category) || filled($location) || $excludedCategories !== [];
+        $hasStructuredFilter = filled($type) || filled($category) || filled($location) || $excludedCategories !== [];
 
         return new DiscoveryIntent(
             intent: $intent,
+            type: $type,
             keyword: in_array($intent, ['find', 'refine'], true) && ! $hasStructuredFilter
                 ? $this->keyword($message, $context, $intent)
                 : null,
@@ -57,6 +62,11 @@ class RuleBasedDiscoveryIntentParser implements DiscoveryIntentParserInterface
             experienceNames: $names,
             excludePreviousResults: Str::contains($normalized, ['something different', 'show me more', 'more options', 'another one']),
         );
+    }
+
+    private function matchType(string $message): ?string
+    {
+        return Str::contains($message, ['festival', 'festivals']) ? 'Festival' : null;
     }
 
     private function intent(string $message, array $context): string
@@ -89,7 +99,7 @@ class RuleBasedDiscoveryIntentParser implements DiscoveryIntentParserInterface
 
     private function matchCategory(string $message, Collection $categories): ?string
     {
-        foreach ($categories as $category) {
+        foreach ($categories->sortByDesc(fn ($category) => mb_strlen((string) $category->category_name)) as $category) {
             $name = (string) $category->category_name;
             $aliases = self::CATEGORY_ALIASES[Str::lower($name)] ?? [Str::lower($name)];
 
