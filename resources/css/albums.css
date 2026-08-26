@@ -1,0 +1,445 @@
+/* =========================================================
+   MY ALBUMS
+   ========================================================= */
+
+.album-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+}
+
+.album-page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.album-eyebrow {
+    margin: 0 0 6px;
+    color: var(--primary);
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+}
+
+.album-page-header h1,
+.album-form-header h1,
+.album-detail-title h1 {
+    margin: 0 0 8px;
+    font-family: Georgia, serif;
+    color: var(--ink);
+}
+
+.album-page-header p,
+.album-form-header p,
+.album-detail-title p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.album-primary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 18px;
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    background: var(--primary);
+    color: #fff;
+    font-size: .88rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.album-primary-btn:hover {
+    opacity: .9;
+}
+
+.album-secondary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--muted);
+    font-size: .88rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.album-secondary-btn:hover {
+    background: var(--cream);
+}
+
+
+/* =========================================================
+   ALBUM GRID
+   ========================================================= */
+
+.album-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.album-card {
+    display: block;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    color: var(--ink);
+    text-decoration: none;
+    box-shadow: 0 5px 16px rgba(80, 47, 25, .05);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.album-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 22px rgba(80, 47, 25, .1);
+}
+
+.album-cover {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #f2ece6;
+}
+
+.album-cover img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.album-cover-placeholder {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        #fdf3e7,
+        #fbe6d3
+    );
+}
+
+.album-cover-placeholder span {
+    font-size: 2.5rem;
+}
+
+.album-card-content {
+    padding: 18px;
+}
+
+.album-card-content h2 {
+    margin: 0 0 7px;
+    font-family: Georgia, serif;
+    font-size: 1.15rem;
+}
+
+.album-card-content p {
+    margin: 0 0 12px;
+    color: var(--muted);
+    font-size: .86rem;
+    line-height: 1.5;
+
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.album-photo-count {
+    color: var(--primary);
+    font-size: .8rem;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.album-empty {
+    padding: 70px 30px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    text-align: center;
+}
+
+.album-empty-icon {
+    margin-bottom: 16px;
+    color: var(--primary);
+    font-size: 3rem;
+}
+
+.album-empty h2 {
+    margin: 0 0 8px;
+    font-family: Georgia, serif;
+}
+
+.album-empty p {
+    max-width: 500px;
+    margin: 0 auto 24px;
+    color: var(--muted);
+}
+
+
+/* =========================================================
+   CREATE ALBUM
+   ========================================================= */
+
+.album-create-page {
+    max-width: 760px;
+}
+
+.album-form-card {
+    padding: 32px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: 0 5px 16px rgba(80, 47, 25, .06);
+}
+
+.album-back-link {
+    display: inline-block;
+    margin-bottom: 28px;
+    color: var(--primary);
+    font-size: .85rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.album-form-header {
+    margin-bottom: 28px;
+}
+
+.album-form {
+    display: grid;
+    gap: 20px;
+}
+
+.album-form-group {
+    display: grid;
+    gap: 7px;
+}
+
+.album-form-group label {
+    color: var(--ink);
+    font-size: .85rem;
+    font-weight: 700;
+}
+
+.album-form-group input,
+.album-form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 13px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: #fff;
+    color: var(--ink);
+    font: inherit;
+}
+
+.album-form-group textarea {
+    resize: vertical;
+}
+
+.album-form-group input:focus,
+.album-form-group textarea:focus {
+    border-color: var(--primary);
+    outline: 2px solid rgba(157, 61, 45, .14);
+}
+
+.album-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+
+/* =========================================================
+   MESSAGES
+   ========================================================= */
+
+.album-success-message {
+    margin-bottom: 20px;
+    padding: 12px 15px;
+    border: 1px solid #b9d8c4;
+    border-radius: 8px;
+    background: #effaf2;
+    color: #195b33;
+    font-size: .88rem;
+}
+
+.album-error-message {
+    margin-bottom: 20px;
+    padding: 12px 15px;
+    border: 1px solid #d88e82;
+    border-radius: 8px;
+    background: #fff0ed;
+    color: #762a20;
+    font-size: .88rem;
+}
+
+.album-error-message ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+
+/* =========================================================
+   ALBUM DETAIL
+   ========================================================= */
+
+.album-detail-header {
+    margin-bottom: 30px;
+}
+
+.album-detail-title {
+    margin-top: 8px;
+}
+
+.album-detail-title h1 {
+    font-size: clamp(2rem, 4vw, 2.6rem);
+}
+
+
+/* =========================================================
+   PHOTO GRID
+   ========================================================= */
+
+.album-photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.album-photo-item {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 6px;
+    background: #f2ece6;
+}
+
+.album-photo-item img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .2s ease;
+}
+
+.album-photo-item:hover img {
+    transform: scale(1.04);
+}
+
+
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+    .album-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .album-page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .album-page-header .album-primary-btn {
+        width: 100%;
+    }
+
+}
+
+@media (max-width: 560px) {
+
+    .album-page {
+        padding: 32px 16px 60px;
+    }
+
+    .album-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .album-photo-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .album-form-card {
+        padding: 22px;
+    }
+
+    .album-form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .album-form-actions a,
+    .album-form-actions button {
+        width: 100%;
+    }
+
+}
+
+/* =========================================================
+   DROP ZONE
+   ========================================================= */
+
+.album-drop-zone {
+    position: relative;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 48px 24px;
+    background: var(--surface);
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.album-drop-zone:hover {
+    border-color: var(--primary);
+    background: #fdf3ed;
+}
+
+.album-drop-zone .album-drop-zone-content {
+    pointer-events: none;
+}
+
+.album-file-input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* File preview grid */
+#filePreview {
+    display: none;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}

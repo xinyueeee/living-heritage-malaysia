@@ -16,6 +16,7 @@ export default defineConfig({
                 'resources/js/pages/interests.js',
                 'resources/js/pages/community-save.js',
                 'resources/js/pages/community-like.js',
+                'resources/js/pages/community-comment.js',
                 'resources/js/pages/post-detail-modal.js',
                 'resources/css/engagement.css',
                 'resources/js/pages/engagement.js',

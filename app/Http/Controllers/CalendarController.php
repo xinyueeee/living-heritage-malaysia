@@ -25,6 +25,8 @@ class CalendarController extends Controller
                 'start_date',
                 'end_date'
             )
+            ->where('type_id', 2)
+            ->whereNotNull('start_date')
             ->get();
 
 

@@ -39,7 +39,9 @@ class ExperienceDiscoveryService
                 ->searchExperiences($filters, self::DISCOVERY_PAGE_SIZE),
             'mapExperiences' => $this->experienceRepository
                 ->getMappableExperiences($filters),
-            'categories' => $this->experienceRepository->getCategories(),
+            'categories' => $this->experienceRepository->getCategoriesForType(
+                isset($filters['type']) ? (int) $filters['type'] : null,
+            ),
             'types' => $this->experienceRepository->getExperienceTypes(),
         ];
     }

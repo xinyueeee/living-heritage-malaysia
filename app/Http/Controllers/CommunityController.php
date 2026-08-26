@@ -5,13 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Models\Experience;
 use App\Services\Community\SavedPostService;
+use App\Services\Engagement\CommunityEngagementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use Illuminate\View\View;
-
-use App\Services\Engagement\CommunityEngagementService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class CommunityController extends Controller
 {
@@ -19,6 +18,7 @@ class CommunityController extends Controller
         private SavedPostService $savedPostService,
         private CommunityEngagementService $communityEngagementService
     ) {}
+
 
     /**
      * Display Community Feed
@@ -30,14 +30,33 @@ class CommunityController extends Controller
                 'experience.category',
                 'experience.type',
                 'user',
+                'postComments.user',
             ])
-            ->withCount('likes')
+            ->withCount([
+                'likes',
+                'postComments',
+            ])
+
+            ->when($request->user(), function ($query, $user) {
+                $query->withExists([
+                    'likes as is_liked_by_user' => fn ($likes) => $likes
+                        ->where('user_id', $user->user_id),
+                ]);
+            })
+
             ->latest('created_at')
             ->get();
 
-        $savedPostIds = $this->savedPostService->getSavedPostIds($request->user());
+        $savedPostIds = $this->savedPostService
+            ->getSavedPostIds($request->user());
 
-        return view('community.index', compact('posts', 'savedPostIds'));
+        return view(
+            'community.index',
+            compact(
+                'posts',
+                'savedPostIds'
+            )
+        );
     }
 
 
@@ -124,9 +143,6 @@ class CommunityController extends Controller
         |--------------------------------------------------------------------------
         | EXPERIENCE
         |--------------------------------------------------------------------------
-        |
-        | Experience is optional.
-        |
         */
 
         $experienceId = $request->input('experience_id');
@@ -143,7 +159,6 @@ class CommunityController extends Controller
         */
 
         $imagePaths = [];
-
 
         if ($request->hasFile('images')) {
 
@@ -221,18 +236,35 @@ class CommunityController extends Controller
             $request,
             $imagePaths
         ) {
+
             Post::create([
-                'user_id' => $userId,
-                'experience_id' => $experienceId,
-                'content' => $request->input('content'),
-                'post_images' => json_encode($imagePaths),
+                'user_id' =>
+                    $userId,
+
+                'experience_id' =>
+                    $experienceId,
+
+                'content' =>
+                    $request->input('content'),
+
+                'post_images' =>
+                    json_encode($imagePaths),
             ]);
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | RECORD EXPERIENCE COMPLETION
+            |--------------------------------------------------------------------------
+            */
+
             if ($experienceId !== null) {
-                $this->communityEngagementService->recordCompletion(
-                    $userId,
-                    (int) $experienceId
-                );
+
+                $this->communityEngagementService
+                    ->recordCompletion(
+                        $userId,
+                        (int) $experienceId
+                    );
             }
         });
 
@@ -245,10 +277,6 @@ class CommunityController extends Controller
 
         return redirect()
             ->route('community.index')
-            ->with(
-                'success',
-                'Post published successfully!'
-            );
+            ->with('success', 'Post published successfully!');
     }
-
 }

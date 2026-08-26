@@ -289,3 +289,8 @@
     .recommendations-page .recommendation-card .card-image { height: 210px; }
     .recommendations-browse-more { min-height: 64px; padding: 0 26px; font-size: 1.12rem; text-align: center; }
 }
+
+@media (max-width: 340px) {
+    .recommendations-title-row { min-width: 0; }
+    .recommendations-title-row h1 { min-width: 0; font-size: 1.75rem; overflow-wrap: anywhere; }
+}

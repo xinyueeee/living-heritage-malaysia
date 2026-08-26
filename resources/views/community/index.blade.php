@@ -5,7 +5,9 @@
 @section('content')
 
 <div class="community-page">
-    <section class="community-hero">
+    <section 
+        class="community-hero"
+        style="--community-hero-image: url('{{ asset('images/community/community-hero.png') }}')">
         <div class="container community-hero-content">
             <div class="community-intro">
                 <p class="community-eyebrow">
@@ -131,6 +133,7 @@
     @include('community.partials.photo-viewer-script')
     @vite([
         'resources/js/pages/community-save.js',
-        'resources/js/pages/community-like.js'
+        'resources/js/pages/community-like.js',
+        'resources/js/pages/community-comment.js'
     ])
 @endpush

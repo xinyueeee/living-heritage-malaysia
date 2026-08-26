@@ -127,6 +127,8 @@ document.addEventListener('DOMContentLoaded', function () {
         photoViewerImage.src =
             currentImages[currentIndex];
 
+        photoViewerImage.hidden = false;
+
 
         photoViewerCounter.textContent =
             `${currentIndex + 1} / ${currentImages.length}`;
@@ -173,8 +175,9 @@ document.addEventListener('DOMContentLoaded', function () {
             '';
 
 
-        photoViewerImage.src =
-            '';
+        photoViewerImage.removeAttribute('src');
+
+        photoViewerImage.hidden = true;
 
     }
 
