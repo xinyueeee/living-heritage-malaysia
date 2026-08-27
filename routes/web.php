@@ -48,7 +48,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/personal-information', [PersonalInformationController::class, 'show'])
         ->name('profile.personal-information');
     Route::patch('/profile/personal-information/{field}', [PersonalInformationController::class, 'update'])
-        ->whereIn('field', ['user_name', 'user_email', 'bio', 'gender', 'birthday'])
+        ->whereIn('field', ['user_name', 'bio', 'gender', 'birthday'])
         ->name('profile.personal-information.update');
     Route::post('/profile/photo', [ProfilePhotoController::class, 'store'])->name('profile.photo.store');
     Route::patch('/profile/photo/{photo}/restore', [ProfilePhotoController::class, 'restore'])->name('profile.photo.restore');

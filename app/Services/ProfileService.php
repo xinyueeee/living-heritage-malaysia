@@ -24,7 +24,6 @@ class ProfileService
      */
     private const EDITABLE_FIELDS = [
         'user_name',
-        'user_email',
         'bio',
         'gender',
         'birthday',

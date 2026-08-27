@@ -4,8 +4,9 @@
 
 @section('content')
 
-    <section class="profile-hero">
-        <div class="container profile-hero-content">
+    <section class="profile-hero-photo" style="background-image: url('{{ asset('images/profile/profile-hero.png') }}');">
+        <div class="profile-hero-photo-overlay"></div>
+        <div class="container profile-hero-photo-content">
             <h1>My Posts</h1>
             <p>View the posts you have shared with the community.</p>
         </div>
