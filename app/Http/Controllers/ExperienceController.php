@@ -97,10 +97,17 @@ class ExperienceController extends Controller
             ->getMapPageData($request->validated()));
     }
 
-    public function trending(): View
+    public function trending(Request $request): View
     {
+        $requestedSort = $request->query('sort');
+        $sort = in_array($requestedSort, [
+            TrendingExperienceService::SORT_POPULAR,
+            TrendingExperienceService::SORT_DATE,
+        ], true) ? $requestedSort : TrendingExperienceService::SORT_POPULAR;
+
         return view('experiences.trending', [
-            'trendingExperiences' => $this->trendingExperienceService->getTrendingExperiences(),
+            'trendingExperiences' => $this->trendingExperienceService->getTrendingExperiences(sort: $sort),
+            'sort' => $sort,
         ]);
     }
 
