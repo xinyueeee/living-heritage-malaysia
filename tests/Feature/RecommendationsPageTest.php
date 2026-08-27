@@ -11,6 +11,7 @@ use App\Services\Experience\SavedExperienceService;
 use App\Services\Experience\UserDiscoveryActivityService;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Mockery;
 use Tests\TestCase;
@@ -117,6 +118,69 @@ class RecommendationsPageTest extends TestCase
         $response->assertSee('Heritage');
         $response->assertSee("Because you're interested in Heritage");
         $response->assertDontSee('Log in and choose your cultural interests');
+    }
+
+    /**
+     * The recommendation scoring service is asked for up to 12 ranked
+     * results (instead of the previous 6) and the page paginates them 6 per
+     * page — the ranking/scoring logic itself is untouched.
+     */
+    public function test_recommendations_page_shows_up_to_twelve_results_across_two_pages(): void
+    {
+        $experiences = collect(range(1, 10))->map(function (int $id): Experience {
+            $experience = (new Experience)->forceFill([
+                'experiences_id' => $id,
+                'experiences_name' => "Experience {$id}",
+                'category_id' => 3,
+                'type_id' => 1,
+                'status' => 'Available',
+                'location_name' => 'Penang',
+            ]);
+            $experience->setRelation('category', (new Category)->forceFill([
+                'category_id' => 3,
+                'category_name' => 'Heritage',
+            ]));
+            $experience->setRelation('type', (new ExperienceType)->forceFill([
+                'type_id' => 1,
+                'type_name' => 'Cultural Experience',
+            ]));
+
+            return $experience;
+        });
+
+        $repository = Mockery::mock(ExperienceRepositoryInterface::class);
+        $repository->shouldReceive('getRecommendationCandidates')
+            ->twice()
+            ->with(120)
+            ->andReturn(new EloquentCollection($experiences->all()));
+        $repository->shouldReceive('getPopularityCounts')
+            ->twice()
+            ->andReturn(collect());
+        $this->app->instance(ExperienceRepositoryInterface::class, $repository);
+
+        $firstPage = $this->get('/recommendations');
+        $firstPage->assertOk();
+        $firstPageNames = $this->experienceNamesShown($firstPage->getContent());
+        $this->assertCount(6, $firstPageNames);
+
+        $secondPage = $this->get('/recommendations?page=2');
+        $secondPage->assertOk();
+        $secondPageNames = $this->experienceNamesShown($secondPage->getContent());
+        $this->assertCount(4, $secondPageNames);
+
+        // All 12 requested (10 available) show up exactly once across the two pages.
+        $this->assertEmpty($firstPageNames->intersect($secondPageNames));
+        $this->assertSame(
+            $experiences->pluck('experiences_name')->sort()->values()->all(),
+            $firstPageNames->merge($secondPageNames)->sort()->values()->all(),
+        );
+    }
+
+    private function experienceNamesShown(string $html): Collection
+    {
+        preg_match_all('/Experience \d+/', $html, $matches);
+
+        return collect($matches[0])->unique()->values();
     }
 
     private function experience(): Experience

@@ -7,6 +7,8 @@
     <meta name="description" content="Discover authentic cultural experiences across Malaysia.">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Living Heritage Malaysia')</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/home/logo-transparent.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/home/logo-transparent.png') }}">
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif

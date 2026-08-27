@@ -17,6 +17,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5 5 0 0 0-7.1 0L12 6.3l-1.7-1.7a5 5 0 0 0-7.1 7.1L12 21l8.8-9.3a5 5 0 0 0 0-7.1z"/></svg>
         <span class="profile-sidebar-label">Saved Experiences</span>
     </a>
+    <a href="{{ route('profile.recent-activity') }}" @class(['active' => $active === 'recent-activity']) title="Recent Activity" aria-label="Recent Activity">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        <span class="profile-sidebar-label">Recent Activity</span>
+    </a>
     <a href="{{ route('profile.my-posts') }}" @class(['active' => $active === 'my-posts']) title="My Posts" aria-label="My Posts">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v18H3z"/><path d="M7 7h10"/><path d="M7 11h10"/><path d="M7 15h6"/>
         </svg>
@@ -27,13 +31,10 @@
         <span class="profile-sidebar-label">Saved Posts</span>
     </a>
     
-    <a href="{{ route('profile.albums.index') }}"@class(['active' => $active === 'albums'])title="My Albums"aria-label="My Albums">
-        <svg viewBox="0 0 24 24"fill="none"stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/>circle cx="8.5" cy="9" r="1.5"/>
-        <path d="M21 15l-5-5L5 20"/>
-    </svg>
-
-    <span class="profile-sidebar-label">My Albums</span>
-</a>
+    <a href="{{ route('profile.albums.index') }}" @class(['active' => $active === 'albums']) title="My Albums" aria-label="My Albums">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="M21 15l-5-5L5 20"/></svg>
+        <span class="profile-sidebar-label">My Albums</span>
+    </a>
 
     <a href="{{ route('profile.achievements') }}" @class(['active' => $active === 'achievements']) title="Achievements & Stats" aria-label="Achievements & Stats">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a1 1 0 0 0-1 1 4 4 0 0 0 4 4"/><path d="M17 6h3a1 1 0 0 1 1 1 4 4 0 0 1-4 4"/></svg>

@@ -35,7 +35,7 @@
         </div>
     </section>
 
-    <section class="progress-section container">
+    <section class="progress-section container" id="cultural-journey">
         <div class="progress-header">
             <h2>Your Cultural Journey</h2>
             <p>Track your cultural experiences, stamps, and achievements.</p>
