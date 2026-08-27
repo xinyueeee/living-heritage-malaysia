@@ -3,8 +3,9 @@
 @section('title', 'Personal Information - Living Heritage Malaysia')
 
 @section('content')
-    <section class="profile-hero">
-        <div class="container profile-hero-content">
+    <section class="profile-hero-photo" style="background-image: url('{{ asset('images/profile/profile-hero.png') }}');">
+        <div class="profile-hero-photo-overlay"></div>
+        <div class="container profile-hero-photo-content">
             <h1>Personal Information</h1>
             <p>Update your details — one field at a time.</p>
         </div>
@@ -37,19 +38,7 @@
                 <div class="profile-field" data-field="user_email">
                     <div class="profile-field-label">Email Address</div>
                     <div class="profile-field-display">
-                        <span class="profile-field-value" data-raw="{{ $user->user_email }}">{{ $user->user_email }}</span>
-                        <button type="button" class="profile-field-edit-btn" data-action="edit" aria-label="Edit email address">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
-                        </button>
-                        <span class="profile-field-success" hidden>Saved</span>
-                    </div>
-                    <div class="profile-field-form" hidden>
-                        <input type="email" class="profile-field-input" maxlength="100" value="{{ $user->user_email }}" aria-label="Email Address">
-                        <div class="profile-field-actions">
-                            <button type="button" class="button button-primary" data-action="save">Save</button>
-                            <button type="button" class="profile-field-cancel" data-action="cancel">Cancel</button>
-                        </div>
-                        <p class="profile-field-error" hidden></p>
+                        <span class="profile-field-value">{{ $user->user_email }}</span>
                     </div>
                 </div>
 
