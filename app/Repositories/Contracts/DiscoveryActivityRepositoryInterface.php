@@ -46,6 +46,7 @@ interface DiscoveryActivityRepositoryInterface
         CarbonInterface $until,
         CarbonInterface $eligibleOn,
         int $limit,
+        string $sort,
     ): Collection;
 
     /**

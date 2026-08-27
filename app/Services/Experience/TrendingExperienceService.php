@@ -9,6 +9,10 @@ use InvalidArgumentException;
 
 class TrendingExperienceService
 {
+    public const SORT_POPULAR = 'popular';
+
+    public const SORT_DATE = 'date';
+
     private const DEFAULT_DAYS = 7;
 
     private const DEFAULT_LIMIT = 10;
@@ -21,6 +25,7 @@ class TrendingExperienceService
     public function getTrendingExperiences(
         int $days = self::DEFAULT_DAYS,
         int $limit = self::DEFAULT_LIMIT,
+        string $sort = self::SORT_POPULAR,
     ): Collection {
         if ($days < 1 || $days > 365) {
             throw new InvalidArgumentException('Trending days must be between 1 and 365.');
@@ -30,12 +35,16 @@ class TrendingExperienceService
             throw new InvalidArgumentException('Trending limit must be between 1 and 100.');
         }
 
+        $sort = in_array($sort, [self::SORT_POPULAR, self::SORT_DATE], true)
+            ? $sort
+            : self::SORT_POPULAR;
+
         $until = CarbonImmutable::now('UTC');
         $since = $until->subDays($days);
         $eligibleOn = $until->startOfDay();
 
         return $this->activityRepository
-            ->getTrendingExperiences($since, $until, $eligibleOn, $limit)
+            ->getTrendingExperiences($since, $until, $eligibleOn, $limit, $sort)
             ->each(function ($experience) {
                 $experience->setAttribute(
                     'meaningful_view_count',

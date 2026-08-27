@@ -19,7 +19,17 @@
                     <p class="eyebrow">Trending Now</p>
                     <h2 id="trending-list-heading">What people are exploring</h2>
                 </div>
-                <a href="{{ route('experiences.index') }}">Browse all experiences <span aria-hidden="true">&rarr;</span></a>
+                <div class="trending-heading-actions">
+                    <form class="trending-sort-form" method="GET" action="{{ route('experiences.trending') }}">
+                        <label for="trending-sort">Sort by</label>
+                        <select id="trending-sort" name="sort" onchange="this.form.submit()">
+                            <option value="popular" @selected($sort === 'popular')>Most Popular</option>
+                            <option value="date" @selected($sort === 'date')>Nearest Event Date</option>
+                        </select>
+                        <noscript><button type="submit">Apply</button></noscript>
+                    </form>
+                    <a href="{{ route('experiences.index') }}">Browse all experiences <span aria-hidden="true">&rarr;</span></a>
+                </div>
             </div>
 
             @if ($trendingExperiences->isEmpty())
@@ -30,15 +40,18 @@
                     <a class="button button-primary" href="{{ route('experiences.index') }}">Discover Experiences</a>
                 </div>
             @else
-                <ol class="trending-grid" aria-label="Trending experiences ranked by views in the last 7 days">
+                <ol class="trending-grid" aria-label="Popular experiences ordered by {{ $sort === 'date' ? 'nearest event date' : 'views in the last 7 days' }}">
                     @foreach ($trendingExperiences as $experience)
                         @php($viewCount = (int) $experience->meaningful_view_count)
-                        <li class="trending-card-wrap">
+                        <li @class(['trending-card-wrap', 'trending-card-wrap-anytime' => !$experience->start_date])>
                             <span class="trending-rank" aria-label="Rank {{ $loop->iteration }}">#{{ $loop->iteration }}</span>
                             @include('components.experience-card', [
                                 'experience' => $experience,
                                 'hideFavourite' => true,
                             ])
+                            @if (!$experience->start_date)
+                                <p class="trending-date-anytime">Available anytime</p>
+                            @endif
                             <p class="trending-view-count">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                                     <path d="M13.5 2.5c.6 4-2.4 5.2-2.4 8.1 0 1.2.7 2.1 1.7 2.6-.1-2.1 1.2-3.2 2.5-4.1 1.9 1.7 3.2 3.8 3.2 6.3A6.5 6.5 0 0 1 5.5 15c0-3.8 2.1-7.3 5.8-10.4.1 2.1.8 3.2 2.2 4.1" stroke-linecap="round" stroke-linejoin="round"/>

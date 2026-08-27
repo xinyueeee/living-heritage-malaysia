@@ -129,8 +129,9 @@ class EloquentDiscoveryActivityRepository implements DiscoveryActivityRepository
         CarbonInterface $until,
         CarbonInterface $eligibleOn,
         int $limit,
+        string $sort,
     ): Collection {
-        return Experience::query()
+        $query = Experience::query()
             ->with(['category', 'type'])
             ->join(
                 'experience_view_history',
@@ -140,17 +141,27 @@ class EloquentDiscoveryActivityRepository implements DiscoveryActivityRepository
             )
             ->whereBetween('experience_view_history.viewed_at', [$since, $until])
             ->where(function ($query) use ($eligibleOn) {
-                $query->whereDate('experiences.end_date', '>=', $eligibleOn)
-                    ->orWhere(function ($query) use ($eligibleOn) {
-                        $query->whereNull('experiences.end_date')
-                            ->whereDate('experiences.start_date', '>=', $eligibleOn);
+                $query->whereHas('type', fn ($query) => $query->where('type_name', 'Festival'))
+                    ->where(function ($query) use ($eligibleOn) {
+                        $query->whereDate('experiences.end_date', '>=', $eligibleOn)
+                            ->orWhere(function ($query) use ($eligibleOn) {
+                                $query->whereNull('experiences.end_date')
+                                    ->whereDate('experiences.start_date', '>=', $eligibleOn);
+                            });
                     });
+                $query->orWhereHas('type', fn ($query) => $query->where('type_name', 'Cultural Experience'));
             })
             ->groupBy('experiences.experiences_id')
             ->select('experiences.*')
             ->selectRaw('COUNT(experience_view_history.id) AS meaningful_view_count')
-            ->selectRaw('MAX(experience_view_history.viewed_at) AS most_recent_view_at')
-            ->orderByDesc('meaningful_view_count')
+            ->selectRaw('MAX(experience_view_history.viewed_at) AS most_recent_view_at');
+
+        if ($sort === 'date') {
+            $query->orderByRaw('CASE WHEN experiences.start_date IS NULL THEN 1 ELSE 0 END')
+                ->orderBy('experiences.start_date');
+        }
+
+        return $query->orderByDesc('meaningful_view_count')
             ->orderByDesc('most_recent_view_at')
             ->orderBy('experiences.experiences_id')
             ->limit($limit)
