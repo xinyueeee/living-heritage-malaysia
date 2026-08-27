@@ -44,6 +44,34 @@ class WeatherSuitabilityServiceTest extends TestCase
         $this->assertSame('NOT_IDEAL', $result['status']);
     }
 
+    #[DataProvider('hazeConditionProvider')]
+    public function test_haze_conditions_continue_to_require_caution(string $condition): void
+    {
+        $result = $this->analyse('Tiada Hujan', $condition, 'Tiada Hujan');
+
+        $this->assertSame('CAUTION', $result['status']);
+    }
+
+    /** @return array<string, array{string}> */
+    public static function hazeConditionProvider(): array
+    {
+        return [
+            'haze' => ['Jerebu'],
+            'hazy' => ['Berjerebu'],
+        ];
+    }
+
+    public function test_unknown_condition_keeps_the_existing_conservative_caution_classification(): void
+    {
+        $result = $this->analyse(
+            'Tiada Hujan',
+            'Some future MET Malaysia phrase',
+            'Tiada Hujan',
+        );
+
+        $this->assertSame('CAUTION', $result['status']);
+    }
+
     #[DataProvider('unavailableStatusProvider')]
     public function test_non_available_forecast_statuses_are_unavailable(string $forecastStatus): void
     {

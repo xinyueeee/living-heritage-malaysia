@@ -8,6 +8,7 @@ use App\Models\UserPassportStamp;
 use App\Services\Experience\ExperienceDiscoveryService;
 use App\Services\Experience\SavedExperienceService;
 use App\Services\Experience\TrendingExperienceService;
+use App\Services\Experience\WeatherConditionFormatter;
 use App\Services\Experience\WeatherForecastService;
 use App\Services\Experience\WeatherSuitabilityService;
 use App\Services\Festival\FestivalReminderService;
@@ -21,6 +22,7 @@ class ExperienceController extends Controller
         private ExperienceDiscoveryService $experienceDiscoveryService,
         private SavedExperienceService $savedExperienceService,
         private TrendingExperienceService $trendingExperienceService,
+        private WeatherConditionFormatter $weatherConditionFormatter,
         private WeatherForecastService $weatherForecastService,
         private WeatherSuitabilityService $weatherSuitabilityService,
         private FestivalReminderService $festivalReminderService,
@@ -144,11 +146,14 @@ class ExperienceController extends Controller
             ];
         }
 
+        $weatherConditionDisplay = $this->weatherConditionFormatter->periods($weatherSuitability);
+
         return view('experiences.show', compact(
             'experience',
             'isSaved',
             'savedCollectionName',
             'weatherSuitability',
+            'weatherConditionDisplay',
             'festivalReminderEligible',
             'festivalReminderSet',
         ));
