@@ -84,6 +84,7 @@
 .recommendations-section-heading { gap: 12px; margin-bottom: 18px; }
 .recommendations-section-heading > .home-icon { width: 27px; height: 27px; flex: 0 0 27px; color: var(--recommendations-red); }
 .recommendations-section-heading h2 { margin: 0; font-size: 1.48rem; line-height: 1.2; }
+.recommendations-activity-viewall { margin-left: auto; color: var(--heritage-red); font-weight: 700; white-space: nowrap; }
 
 .recommendations-interest-grid {
     display: grid;

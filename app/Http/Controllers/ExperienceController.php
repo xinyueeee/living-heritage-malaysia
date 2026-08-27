@@ -50,6 +50,7 @@ class ExperienceController extends Controller
                 ->limit(4)
                 ->get();
         }
+
         return view('welcome', [
             ...$this->experienceDiscoveryService->getHomePageData(),
             'savedExperienceIds' => $this->savedExperienceService
@@ -80,7 +81,8 @@ class ExperienceController extends Controller
     {
         return view('recommendations.index', [
             ...$this->experienceDiscoveryService->getRecommendationsPageData(
-                $request->user()?->getAuthIdentifier()
+                $request->user()?->getAuthIdentifier(),
+                (int) $request->query('page', 1),
             ),
             'savedExperienceIds' => $this->savedExperienceService
                 ->getSavedExperienceIds($request->user()),

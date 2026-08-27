@@ -2,7 +2,9 @@
 
 namespace App\Repositories\Contracts;
 
+use App\Models\Experience;
 use Carbon\CarbonInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 interface DiscoveryActivityRepositoryInterface
@@ -38,11 +40,39 @@ interface DiscoveryActivityRepositoryInterface
         int $limit,
     ): Collection;
 
-    /** @return Collection<int, \App\Models\Experience> */
+    /** @return Collection<int, Experience> */
     public function getTrendingExperiences(
         CarbonInterface $since,
         CarbonInterface $until,
         CarbonInterface $eligibleOn,
         int $limit,
     ): Collection;
+
+    /**
+     * The full, paginated view history for the dedicated Recent Activity
+     * page — unlike getRecentExperienceViews (a bounded signal for the
+     * recommendation profile), this is not limited to a lookback window.
+     *
+     * @return LengthAwarePaginator<int, Experience>
+     */
+    public function paginateExperienceViews(
+        string $userId,
+        int $perPage,
+        int $page,
+    ): LengthAwarePaginator;
+
+    /**
+     * The full, paginated search history for the dedicated Recent Activity
+     * page.
+     *
+     * @return LengthAwarePaginator<int, object>
+     */
+    public function paginateSearches(
+        string $userId,
+        int $perPage,
+        int $page,
+    ): LengthAwarePaginator;
+
+    /** Deletes only this user's discovery search/view history — no other table or user is touched. */
+    public function deleteActivityForUser(string $userId): void;
 }

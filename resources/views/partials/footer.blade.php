@@ -5,12 +5,6 @@
                 <img src="{{ asset('images/home/logo-transparent.png') }}" alt="Living Heritage Malaysia">
             </a>
             <p>A community-driven platform celebrating and preserving Malaysia's living heritage.</p>
-            <div class="footer-socials" aria-label="Social media links">
-                <a href="#" aria-label="Facebook" aria-disabled="true">f</a>
-                <a href="#" aria-label="Instagram" aria-disabled="true">◎</a>
-                <a href="#" aria-label="YouTube" aria-disabled="true">▶</a>
-                <a href="#" aria-label="TikTok" aria-disabled="true">♪</a>
-            </div>
         </div>
 
         <div class="footer-column">
@@ -27,24 +21,23 @@
         <div class="footer-column">
             <h3>Support</h3>
             <ul>
-                <li><a href="#" aria-disabled="true">About Us</a></li>
-                <li><a href="#" aria-disabled="true">Help Center</a></li>
-                <li><a href="#" aria-disabled="true">Contact Us</a></li>
-                <li><a href="#" aria-disabled="true">Privacy Policy</a></li>
-                <li><a href="#" aria-disabled="true">Terms of Use</a></li>
+                <li><a href="{{ route('pages.about') }}">About Us</a></li>
+                <li><a href="{{ route('pages.help-center') }}">Help Center</a></li>
+                <li><a href="{{ route('pages.contact-us') }}">Contact Us</a></li>
+                <li><a href="{{ route('pages.privacy-policy') }}">Privacy Policy</a></li>
+                <li><a href="{{ route('pages.terms-of-use') }}">Terms of Use</a></li>
             </ul>
         </div>
 
         <div class="footer-column footer-newsletter">
-            <h3>Newsletter</h3>
-            <p>Subscribe to get updates on festivals and cultural experiences.</p>
-            <form class="newsletter-form" onsubmit="return false">
-                <label class="sr-only" for="newsletter-email">Email address</label>
-                <input id="newsletter-email" type="email" placeholder="Enter your email" autocomplete="email">
-                <button type="submit" aria-label="Subscribe">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
-                </button>
-            </form>
+            <h3>Festival Alerts</h3>
+            @auth
+                <p>Get notified by email when new experiences match your interests.</p>
+                <a class="button-light-static" href="{{ route('alerts.create') }}">Set Up Alerts</a>
+            @else
+                <p>Log in to get personalized festival &amp; experience alerts by email.</p>
+                <a class="button-light-static" href="{{ route('festival.login-required') }}">Log In for Alerts</a>
+            @endauth
         </div>
     </div>
 

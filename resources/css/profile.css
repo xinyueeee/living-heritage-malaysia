@@ -112,6 +112,8 @@
 .profile-achievement-info p.profile-achievement-title { margin: 0; font-weight: 700; color: var(--ink); }
 .profile-achievement-info p.profile-achievement-desc { margin: 2px 0 0; color: var(--muted); font-size: .85rem; }
 .profile-achievement-date { flex-shrink: 0; color: var(--muted); font-size: .8rem; }
+.recent-activity-link:hover .profile-achievement-title { color: var(--primary); text-decoration: underline; }
+.recent-activity-clear-form { display: flex; justify-content: flex-end; margin-bottom: 16px; }
 .profile-empty { padding: 10px 0; color: var(--muted); font-size: .9rem; }
 .profile-saved-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 .profile-saved-grid .experience-card { display: flex; min-width: 0; flex-direction: column; background: var(--surface); }
