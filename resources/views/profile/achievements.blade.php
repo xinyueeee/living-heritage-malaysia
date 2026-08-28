@@ -3,9 +3,8 @@
 @section('title', 'Achievements & Stats - Living Heritage Malaysia')
 
 @section('content')
-    <section class="profile-hero-photo" style="background-image: url('{{ asset('images/profile/profile-hero.png') }}');">
-        <div class="profile-hero-photo-overlay"></div>
-        <div class="container profile-hero-photo-content">
+    <section class="profile-hero">
+        <div class="container profile-hero-content">
             <h1>Achievements &amp; Stats</h1>
             <p>Track your exploration progress and celebrate your cultural journey.</p>
         </div>

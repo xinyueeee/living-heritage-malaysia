@@ -18,6 +18,7 @@ class UpdatePersonalInformationRequest extends FormRequest
     {
         return match ($this->route('field')) {
             'user_name' => ['value' => ['required', 'string', 'max:100']],
+            'user_email' => ['value' => ['required', 'email', 'max:100']],
             'bio' => ['value' => ['nullable', 'string', 'max:500']],
             'gender' => ['value' => ['nullable', 'string', 'in:Male,Female,Other,Prefer not to say']],
             'birthday' => ['value' => ['nullable', 'date', 'before:today']],

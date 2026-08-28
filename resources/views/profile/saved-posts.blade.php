@@ -3,9 +3,8 @@
 @section('title', 'Saved Posts - Living Heritage Malaysia')
 
 @section('content')
-    <section class="profile-hero-photo" style="background-image: url('{{ asset('images/profile/profile-hero.png') }}');">
-        <div class="profile-hero-photo-overlay"></div>
-        <div class="container profile-hero-photo-content">
+    <section class="profile-hero">
+        <div class="container profile-hero-content">
             <h1>Saved Posts</h1>
             <p>Community posts you've bookmarked to come back to later.</p>
         </div>

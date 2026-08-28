@@ -3,9 +3,25 @@
 @section('title', 'My Profile - Living Heritage Malaysia')
 
 @section('content')
-    <section class="profile-hero-photo" style="background-image: url('{{ asset('images/profile/profile-hero.png') }}');">
-        <div class="profile-hero-photo-overlay"></div>
-        <div class="container profile-hero-photo-content">
+    <section class="profile-hero">
+        <div class="profile-hero-illustration" aria-hidden="true">
+            <svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+                <style>
+                    .ph-line { fill: none; stroke: var(--primary); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+                    .ph-accent { fill: none; stroke: var(--gold); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+                </style>
+                <line class="ph-line" x1="0" y1="190" x2="400" y2="190" />
+                <path class="ph-line" d="M20 190v-60h30v-20h30v20h30v60" />
+                <path class="ph-accent" d="M110 190v-90l30-25 30 25v90" />
+                <path class="ph-line" d="M190 190V80h60v110" />
+                <path class="ph-accent" d="M200 80v-25l10-15 10 15v25" />
+                <path class="ph-accent" d="M230 80v-25l10-15 10 15v25" />
+                <path class="ph-line" d="M270 190v-70l25-20 25 20v70" />
+                <circle class="ph-accent" cx="60" cy="50" r="12" />
+                <circle class="ph-accent" cx="340" cy="70" r="9" />
+            </svg>
+        </div>
+        <div class="container profile-hero-content">
             <h1>My Profile</h1>
             <p>Manage your information, interests and track your cultural journey.</p>
         </div>
