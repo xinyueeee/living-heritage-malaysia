@@ -22,8 +22,6 @@ class ProfilePhotoController extends Controller
 
         return response()->json([
             'photo_url' => $user->profile_photo,
-            'photo_id' => $user->latest_photo_id,
-            'uploaded_at' => optional($user->latest_photo_uploaded_at)->format('j M Y'),
         ]);
     }
 

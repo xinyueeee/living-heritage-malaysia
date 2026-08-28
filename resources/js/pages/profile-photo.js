@@ -50,20 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             img.src = `${photoUrl}?t=${Date.now()}`;
 
-            try {
-                const existing = JSON.parse(wrap.dataset.photoHistory || '[]').map((p) => ({ ...p, is_current: false }));
-                const newPhoto = {
-                    id: response.data.photo_id ?? null,
-                    url: photoUrl,
-                    uploaded_at: response.data.uploaded_at ?? null,
-                    is_current: true,
-                };
-                wrap.dataset.photoHistory = JSON.stringify([newPhoto, ...existing]);
-            } catch (parseError) {
-                // Leave the stored history untouched; the modal will just
-                // pick up the fresh list next time the page reloads.
-            }
-
             if (successEl) {
                 successEl.hidden = false;
                 clearTimeout(successTimeout);
