@@ -124,8 +124,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await window.axios.patch(`/profile/photo/${photo.id}/restore`);
             const newUrl = response.data.photo_url;
+            const restoredDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-            photos = photos.map((p) => ({ ...p, is_current: p.url === newUrl }));
+            const others = photos.filter((p) => p.id !== photo.id).map((p) => ({ ...p, is_current: false }));
+            const restored = { ...photo, is_current: true, uploaded_at: restoredDate };
+            photos = [restored, ...others];
+            currentIndex = 0;
             wrap.dataset.photoHistory = JSON.stringify(photos);
 
             const avatarImg = wrap.querySelector('[data-avatar-image]');
