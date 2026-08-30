@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Experience;
+use App\Models\Notification;
 use App\Models\User;
 use App\Services\Experience\ExperienceDiscoveryService;
 use App\Services\Experience\SavedExperienceService;
@@ -54,6 +55,7 @@ class FestivalReminderExperienceIntegrationTest extends TestCase
             ->assertOk()
             ->assertSee('Set Festival Reminder')
             ->assertSee(route('calendar.reminder'), false)
+            ->assertSee('data-selected-date="2026-09-10"', false)
             ->assertSee('View Festival Alerts');
 
         $this->actingAs($this->user('user-one'))->get(route('experiences.show', 2))
@@ -65,32 +67,143 @@ class FestivalReminderExperienceIntegrationTest extends TestCase
     public function test_existing_backend_persists_once_and_refresh_renders_reminder_set(): void
     {
         $user = $this->user('user-one');
-        $payload = ['experience_id' => 1];
+        $payload = ['experience_id' => 1, 'selected_date' => '2026-09-10'];
 
         $this->actingAs($user)->postJson(route('calendar.reminder'), $payload)
-            ->assertOk()->assertJson(['success' => true, 'already_set' => false]);
+            ->assertOk()->assertJson(['success' => true, 'already_added' => false]);
         $this->actingAs($user)->postJson(route('calendar.reminder'), $payload)
-            ->assertOk()->assertJson(['success' => true, 'already_set' => true]);
+            ->assertOk()->assertJson(['success' => false, 'already_added' => true]);
 
         $this->assertDatabaseCount('notification', 1);
         $this->assertDatabaseHas('notification', [
             'user_id' => 'user-one',
             'experience_id' => 1,
             'notification_type' => 'festival_reminder',
-            'scheduled_at' => '2026-09-09 09:00:00',
+            'scheduled_at' => '2026-09-07 09:00:00',
         ]);
+        $this->assertSame('2026-09-10', Notification::firstOrFail()->selected_date->format('Y-m-d'));
         $this->actingAs($user)->get(route('experiences.show', 1))
             ->assertOk()->assertSee('Reminder Set')->assertSee('data-reminder-set="true"', false);
     }
 
+    public function test_calendar_and_experience_details_use_the_same_duplicate_contract(): void
+    {
+        $user = $this->user('user-one');
+
+        $this->actingAs($user)->get(route('festival.calendar'))
+            ->assertOk()
+            ->assertSee('selected_date: selectedDate', false)
+            ->assertSee('data.already_added', false)
+            ->assertSee('Reminder Already Set');
+
+        $this->actingAs($user)->postJson(route('calendar.reminder'), [
+            'experience_id' => 1,
+            'selected_date' => '2026-09-10',
+        ])->assertOk()->assertJson(['success' => true, 'already_added' => false]);
+
+        $this->actingAs($user)->get(route('experiences.show', 1))
+            ->assertOk()
+            ->assertSee('Reminder Set')
+            ->assertSee('data-reminder-set="true"', false);
+
+        $this->actingAs($user)->postJson(route('calendar.reminder'), [
+            'experience_id' => 1,
+            'selected_date' => '2026-09-10 18:45:00',
+        ])->assertOk()->assertJson(['success' => false, 'already_added' => true]);
+
+        $this->assertDatabaseCount('notification', 1);
+    }
+
+    public function test_multi_day_festival_allows_one_reminder_per_distinct_selected_date(): void
+    {
+        $user = $this->user('user-one');
+
+        foreach (['2026-09-10', '2026-09-11'] as $selectedDate) {
+            $this->actingAs($user)->postJson(route('calendar.reminder'), [
+                'experience_id' => 1,
+                'selected_date' => $selectedDate,
+            ])->assertOk()->assertJson(['success' => true, 'already_added' => false]);
+        }
+
+        $this->actingAs($user)->postJson(route('calendar.reminder'), [
+            'experience_id' => 1,
+            'selected_date' => '2026-09-11 23:59:59',
+        ])->assertOk()->assertJson(['success' => false, 'already_added' => true]);
+
+        $this->assertDatabaseCount('notification', 2);
+        $this->assertSame(
+            ['2026-09-07 09:00:00', '2026-09-08 09:00:00'],
+            Notification::query()->orderBy('selected_date')->pluck('scheduled_at')
+                ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d H:i:s'))->all(),
+        );
+    }
+
+    public function test_ongoing_festival_uses_today_and_normalizes_it_for_duplicates(): void
+    {
+        $user = $this->user('user-one');
+
+        $this->actingAs($user)->get(route('experiences.show', 4))
+            ->assertOk()
+            ->assertSee('data-selected-date="2026-08-25"', false);
+
+        $this->actingAs($user)->postJson(route('calendar.reminder'), [
+            'experience_id' => 4,
+            'selected_date' => '2026-08-25',
+        ])->assertOk()->assertJson(['success' => true, 'already_added' => false]);
+
+        $this->actingAs($user)->postJson(route('calendar.reminder'), [
+            'experience_id' => 4,
+            'selected_date' => '2026-08-25T20:30:00',
+        ])->assertOk()->assertJson(['success' => false, 'already_added' => true]);
+
+        $this->assertDatabaseCount('notification', 1);
+        $this->assertSame('2026-08-25', Notification::firstOrFail()->selected_date->format('Y-m-d'));
+    }
+
+    public function test_single_day_festival_rejects_a_different_selected_date(): void
+    {
+        $user = $this->user('user-one');
+
+        $this->actingAs($user)->postJson(route('calendar.reminder'), [
+            'experience_id' => 5,
+            'selected_date' => '2026-09-20',
+        ])->assertOk()->assertJson(['success' => true, 'already_added' => false]);
+
+        $this->actingAs($user)->postJson(route('calendar.reminder'), [
+            'experience_id' => 5,
+            'selected_date' => '2026-09-21',
+        ])->assertUnprocessable();
+
+        $this->assertDatabaseCount('notification', 1);
+    }
+
+    public function test_current_calendar_contract_requires_a_valid_selected_date(): void
+    {
+        $user = $this->user('user-one');
+
+        $this->actingAs($user)->postJson(route('calendar.reminder'), ['experience_id' => 1])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('selected_date');
+
+        $this->actingAs($user)->postJson(route('calendar.reminder'), [
+            'experience_id' => 1,
+            'selected_date' => '2026-09-13',
+        ])->assertUnprocessable()->assertJsonFragment([
+            'message' => 'Please select a date within the festival period.',
+        ]);
+
+        $this->assertDatabaseCount('notification', 0);
+    }
+
     public function test_reminder_state_is_owned_by_authenticated_user(): void
     {
-        $this->actingAs($this->user('user-one'))->postJson(route('calendar.reminder'), ['experience_id' => 1]);
+        $payload = ['experience_id' => 1, 'selected_date' => '2026-09-10'];
+        $this->actingAs($this->user('user-one'))->postJson(route('calendar.reminder'), $payload);
 
         $this->actingAs($this->user('user-two'))->get(route('experiences.show', 1))
             ->assertOk()->assertSee('Set Festival Reminder')->assertDontSee('data-reminder-set="true"', false);
-        $this->actingAs($this->user('user-two'))->postJson(route('calendar.reminder'), ['experience_id' => 1])
-            ->assertOk()->assertJson(['already_set' => false]);
+        $this->actingAs($this->user('user-two'))->postJson(route('calendar.reminder'), $payload)
+            ->assertOk()->assertJson(['already_added' => false]);
 
         $this->assertDatabaseCount('notification', 2);
         $this->assertDatabaseHas('notification', ['user_id' => 'user-one', 'experience_id' => 1]);
@@ -103,16 +216,25 @@ class FestivalReminderExperienceIntegrationTest extends TestCase
             ->assertOk()
             ->assertSee(route('festival.login-required'), false)
             ->assertSee('Set Festival Reminder');
-        $this->postJson(route('calendar.reminder'), ['experience_id' => 1])->assertUnauthorized();
+        $this->postJson(route('calendar.reminder'), [
+            'experience_id' => 1,
+            'selected_date' => '2026-09-10',
+        ])->assertUnauthorized();
         $this->assertDatabaseCount('notification', 0);
     }
 
     public function test_backend_rejects_non_festival_and_past_festival_without_internal_details(): void
     {
         $user = $this->user('user-one');
-        $this->actingAs($user)->postJson(route('calendar.reminder'), ['experience_id' => 2])
+        $this->actingAs($user)->postJson(route('calendar.reminder'), [
+            'experience_id' => 2,
+            'selected_date' => '2026-09-10',
+        ])
             ->assertUnprocessable()->assertJsonMissing(['success' => true]);
-        $response = $this->actingAs($user)->postJson(route('calendar.reminder'), ['experience_id' => 3]);
+        $response = $this->actingAs($user)->postJson(route('calendar.reminder'), [
+            'experience_id' => 3,
+            'selected_date' => '2026-08-01',
+        ]);
         $response->assertUnprocessable()->assertJsonFragment([
             'message' => 'This festival is no longer eligible for a reminder.',
         ]);
@@ -156,6 +278,7 @@ class FestivalReminderExperienceIntegrationTest extends TestCase
             $table->id('notification_id');
             $table->uuid('user_id');
             $table->unsignedBigInteger('experience_id')->nullable();
+            $table->date('selected_date')->nullable();
             $table->string('notification_type')->nullable();
             $table->boolean('is_read')->default(false);
             $table->timestamp('scheduled_at')->nullable();
@@ -182,6 +305,8 @@ class FestivalReminderExperienceIntegrationTest extends TestCase
             ['experiences_id' => 1, 'type_id' => 2, 'category_id' => 2, 'experiences_name' => 'Upcoming Festival', 'start_date' => '2026-09-10', 'end_date' => '2026-09-12', 'created_at' => now(), 'updated_at' => now()],
             ['experiences_id' => 2, 'type_id' => 1, 'category_id' => 1, 'experiences_name' => 'Cultural Place', 'start_date' => null, 'end_date' => null, 'created_at' => now(), 'updated_at' => now()],
             ['experiences_id' => 3, 'type_id' => 2, 'category_id' => 2, 'experiences_name' => 'Past Festival', 'start_date' => '2026-08-01', 'end_date' => '2026-08-02', 'created_at' => now(), 'updated_at' => now()],
+            ['experiences_id' => 4, 'type_id' => 2, 'category_id' => 2, 'experiences_name' => 'Ongoing Festival', 'start_date' => '2026-08-20', 'end_date' => '2026-08-30', 'created_at' => now(), 'updated_at' => now()],
+            ['experiences_id' => 5, 'type_id' => 2, 'category_id' => 2, 'experiences_name' => 'Single Day Festival', 'start_date' => '2026-09-20', 'end_date' => '2026-09-20', 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 

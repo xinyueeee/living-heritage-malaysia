@@ -568,9 +568,9 @@ const data =
 
             showReminderDialog(
                 "warning",
-                "Event Already Added",
+                "Reminder Already Set",
                 data.message ||
-                "This event has already been added to your reminders."
+                "A reminder has already been created for this festival date."
             );
 
             return;
@@ -764,5 +764,4 @@ loadEvents();
 </script>
 
 @endpush
-
 

@@ -30,19 +30,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
                 },
-                body: JSON.stringify({ experience_id: Number(button.dataset.experienceId) }),
+                body: JSON.stringify({
+                    experience_id: Number(button.dataset.experienceId),
+                    selected_date: button.dataset.selectedDate,
+                }),
             });
             const data = await response.json();
+            if (response.ok && data.already_added) {
+                button.dataset.reminderSet = 'true';
+                button.classList.add('is-set');
+                button.innerHTML = '<span aria-hidden="true">✓</span> Reminder Set';
+                showDialog('Reminder already set', 'A reminder has already been created for this festival date.');
+                return;
+            }
             if (!response.ok || !data.success) throw new Error(data.message || 'The reminder could not be added.');
 
             button.dataset.reminderSet = 'true';
             button.classList.add('is-set');
             button.innerHTML = '<span aria-hidden="true">✓</span> Reminder Set';
             showDialog(
-                data.already_set ? 'Reminder already set' : 'Reminder Added',
-                data.already_set
-                    ? 'A reminder has already been created for this festival.'
-                    : "You'll be reminded before this festival begins.",
+                'Reminder Added',
+                "You'll be reminded before this festival begins.",
             );
         } catch {
             showDialog('Reminder unavailable', 'The reminder could not be added right now. Please try again later.');
