@@ -11,6 +11,7 @@ use App\Models\UserAchievement;
 use App\Models\UserPassportStamp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class EngagementController extends Controller
 {
@@ -157,6 +158,7 @@ class EngagementController extends Controller
             )
             ->inRandomOrder()
             ->first();
+            
 
         return view('engagement.index', [
             'latestPassportStamps' => $latestPassportStamps,
@@ -474,6 +476,70 @@ class EngagementController extends Controller
 
         return redirect()
             ->route('engagement.achievements');
+    }
+
+    public function leaderboard()
+    {
+        $stampLeaders = DB::table('users')
+            ->join(
+                'digital_cultural_passport',
+                'users.user_id',
+                '=',
+                'digital_cultural_passport.user_id'
+            )
+            ->join(
+                'user_passport_stamp',
+                'digital_cultural_passport.passport_id',
+                '=',
+                'user_passport_stamp.passport_id'
+            )
+            ->select([
+                'users.user_id',
+                'users.user_name',
+                'users.profile_photo',
+            ])
+            ->selectRaw(
+                'COUNT(DISTINCT user_passport_stamp.stamp_id) AS score'
+            )
+            ->groupBy([
+                'users.user_id',
+                'users.user_name',
+                'users.profile_photo',
+            ])
+            ->orderByDesc('score')
+            ->orderBy('users.user_name')
+            ->limit(10)
+            ->get();
+
+        $experienceLeaders = DB::table('users')
+            ->join(
+                'completed_experience',
+                'users.user_id',
+                '=',
+                'completed_experience.user_id'
+            )
+            ->select([
+                'users.user_id',
+                'users.user_name',
+                'users.profile_photo',
+            ])
+            ->selectRaw(
+                'COUNT(DISTINCT completed_experience.experience_id) AS score'
+            )
+            ->groupBy([
+                'users.user_id',
+                'users.user_name',
+                'users.profile_photo',
+            ])
+            ->orderByDesc('score')
+            ->orderBy('users.user_name')
+            ->limit(10)
+            ->get();
+
+        return view('engagement.leaderboard', [
+            'stampLeaders' => $stampLeaders,
+            'experienceLeaders' => $experienceLeaders,
+        ]);
     }
 
     public function history(Request $request)

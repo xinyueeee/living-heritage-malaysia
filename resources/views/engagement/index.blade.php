@@ -36,11 +36,22 @@
     </section>
 
     <section class="progress-section container" id="cultural-journey">
-        <div class="progress-header">
-            <h2>Your Cultural Journey</h2>
-            <p>Track your cultural experiences, stamps, and achievements.</p>
-        </div>
+        <div class="journey-section-header">
+            <div>
+                <h2>Your Cultural Journey</h2>
 
+                <p>
+                    Track your cultural experiences, stamps, and achievements.
+                </p>
+            </div>
+
+            <a
+                href="{{ route('engagement.leaderboard') }}"
+                class="outline-btn"
+            >
+                View Overall Leaderboard
+            </a>
+        </div>
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon">📅</div>
@@ -272,6 +283,7 @@
             @endforelse
         </div>
     </section>
+    
 
     <section class="history-section container">
         <div class="section-top">
@@ -289,33 +301,48 @@
             @forelse ($recentExperienceHistory as $history)
                 @php
                     $experience = $history->experience;
-                    $imagePath = $experience?->image_url;
 
-                    $imageSource = $imagePath
-                        ? (
-                            \Illuminate\Support\Str::startsWith(
-                                $imagePath,
-                                ['http://', 'https://']
-                            )
-                                ? $imagePath
-                                : asset(ltrim($imagePath, '/'))
+                    $imagePath = is_string($experience?->image_url)
+                        ? ltrim(
+                            str_replace('\\', '/', trim($experience->image_url)),
+                            '/'
                         )
-                        : asset('images/default-experience.png');
+                        : null;
+
+                    $isExternalImage = filled($imagePath)
+                        && (
+                            str_starts_with(strtolower($imagePath), 'http://')
+                            || str_starts_with(strtolower($imagePath), 'https://')
+                        );
+
+                    $isSafeLocalImage = filled($imagePath)
+                        && ! $isExternalImage
+                        && ! str_contains($imagePath, '../')
+                        && is_file(public_path($imagePath));
+
+                    $imageSource = $isExternalImage
+                        ? $imagePath
+                        : ($isSafeLocalImage ? asset($imagePath) : null);
                 @endphp
 
                 <article class="recent-journey-card">
                     <div class="recent-journey-image">
-                        <img
-                            src="{{ $imageSource }}"
-                            alt="{{ $experience?->experiences_name
-                                ?? 'Cultural experience' }}"
-                            onerror="
-                                this.onerror = null;
-                                this.src = '{{ asset(
-                                    'images/default-experience.png'
-                                ) }}';
-                            "
-                        >
+                        @if ($imageSource)
+                            <img
+                                src="{{ $imageSource }}"
+                                alt="{{ $experience?->experiences_name
+                                    ?? 'Cultural experience' }}"
+                                referrerpolicy="no-referrer"
+                            >
+                        @else
+                            <div
+                                class="experience-image-placeholder"
+                                role="img"
+                                aria-label="Image unavailable"
+                            >
+                                <span aria-hidden="true">📷</span>
+                            </div>
+                        @endif
 
                         <span class="recent-journey-status">
                             Completed

@@ -137,6 +137,15 @@ class AchievementProgressService
                 => $categoryCounts->get('Sports', 0)
                     + $categoryCounts->get('Sports Festival', 0),
 
+            'nature_festival'
+                => $categoryCounts->get('Nature Festival', 0),
+
+            'music_festival'
+                => $categoryCounts->get('Music Festival', 0),
+
+            'sports_festival'
+                => $categoryCounts->get('Sports Festival', 0),
+
             default => 0,
         };
     }
