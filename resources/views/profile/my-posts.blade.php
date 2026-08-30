@@ -4,8 +4,9 @@
 
 @section('content')
 
-    <section class="profile-hero">
-        <div class="container profile-hero-content">
+    <section class="profile-hero-photo" style="background-image: url('{{ asset('images/profile/profile-hero.png') }}');">
+        <div class="profile-hero-photo-overlay"></div>
+        <div class="container profile-hero-photo-content">
             <h1>My Posts</h1>
             <p>View the posts you have shared with the community.</p>
         </div>
@@ -64,5 +65,5 @@
 
 @push('scripts')
     @include('community.partials.photo-viewer-script')
-    @vite(['resources/js/pages/community-save.js', 'resources/js/pages/community-like.js'])
+    @vite(['resources/js/pages/community-save.js', 'resources/js/pages/community-like.js', 'resources/js/pages/community-comment.js'])
 @endpush

@@ -1,26 +1,26 @@
 <?php
 
+use App\Http\Controllers\AlbumController;
+use App\Http\Controllers\AlertController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ExperienceController;
+use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\CommunityController;
+use App\Http\Controllers\DiscoveryActivityController;
 use App\Http\Controllers\DiscoveryAssistantController;
+use App\Http\Controllers\EngagementController;
+use App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\InterestController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PersonalInformationController;
+use App\Http\Controllers\PostLikeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilePhotoController;
-use App\Http\Controllers\SavedExperienceController;
 use App\Http\Controllers\SavedExperienceCollectionController;
+use App\Http\Controllers\SavedExperienceController;
 use App\Http\Controllers\SavedPostController;
-use App\Http\Controllers\EngagementController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CommunityController;
-use App\Http\Controllers\CalendarController;
-use App\Http\Controllers\NotificationController;
-
-use App\Http\Controllers\AlertController;
-use App\Http\Controllers\PostLikeController;
-use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\TripPlannerController;
-
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ExperienceController::class, 'home'])->name('home');
 Route::get('/experiences', [ExperienceController::class, 'index'])->name('experiences.index');
@@ -46,30 +46,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/personal-information', [PersonalInformationController::class, 'show'])
         ->name('profile.personal-information');
     Route::patch('/profile/personal-information/{field}', [PersonalInformationController::class, 'update'])
-        ->whereIn('field', ['user_name', 'user_email', 'bio', 'gender', 'birthday'])
+        ->whereIn('field', ['user_name', 'bio', 'gender', 'birthday'])
         ->name('profile.personal-information.update');
     Route::post('/profile/photo', [ProfilePhotoController::class, 'store'])->name('profile.photo.store');
     Route::patch('/profile/photo/{photo}/restore', [ProfilePhotoController::class, 'restore'])->name('profile.photo.restore');
     Route::get('/profile/interests', [InterestController::class, 'show'])->name('profile.interests');
     Route::put('/profile/interests', [InterestController::class, 'update'])->name('profile.interests.update');
 
-    Route::get('/alerts/personalize', [AlertController::class, 'create'])
-    ->name('alerts.create');
+    Route::get('/profile/recent-activity', [DiscoveryActivityController::class, 'index'])->name('profile.recent-activity');
+    Route::delete('/profile/recent-activity', [DiscoveryActivityController::class, 'clear'])->name('profile.recent-activity.clear');
 
-    Route::post('/alerts/personalize', [AlertController::class, 'store'])
-        ->name('alerts.store');
-        if (app()->isLocal()) {
-            Route::get('/alerts/test-matching', [AlertController::class, 'testMatchingEvents'])
-                ->name('alerts.test-matching');
-            Route::get('/alerts/test-email', [AlertController::class, 'testEmail'])
-                ->name('alerts.test-email');
-        }
-
-
-    Route::get(
-        '/trip-planner',
-        [TripPlannerController::class, 'index']
-    )->name('trip.planner.index');
+   
 
 
     Route::get(
@@ -126,6 +113,24 @@ Route::middleware('auth')->group(function () {
 #Route::get('/engagement/history', [EngagementController::class, 'history'])->name('engagement.history');
 
 
+    Route::get('/alerts/personalize', [AlertController::class, 'create'])
+        ->name('alerts.create');
+
+    Route::post('/alerts/personalize', [AlertController::class, 'store'])
+        ->name('alerts.store');
+    if (app()->isLocal()) {
+        Route::get('/alerts/test-matching', [AlertController::class, 'testMatchingEvents'])
+            ->name('alerts.test-matching');
+        Route::get('/alerts/test-email', [AlertController::class, 'testEmail'])
+            ->name('alerts.test-email');
+    }
+
+    // Route::get('/engagement', [EngagementController::class, 'index'])->name('engagement.index');
+    // Route::get('/engagement/passport', [EngagementController::class, 'passport'])->name('engagement.passport');
+    // Route::get('/engagement/achievements', [EngagementController::class, 'achievements'])->name('engagement.achievements');
+    // Route::get('/engagement/history', [EngagementController::class, 'history'])->name('engagement.history');
+
+
     Route::get('/profile/saved-experiences', [SavedExperienceController::class, 'index'])
         ->name('profile.saved-experiences');
     Route::get('/profile/my-posts', [ProfileController::class, 'myPosts'])->name('profile.my-posts');
@@ -149,34 +154,74 @@ Route::middleware('auth')->group(function () {
         ->name('community.posts.saved.store');
     Route::delete('/community/posts/{post}/save', [SavedPostController::class, 'destroy'])
         ->name('community.posts.saved.destroy');
-    
+
     Route::post('/community/posts/{post}/like', [PostLikeController::class, 'like'])
         ->name('community.posts.like');
     Route::delete('/community/posts/{post}/like', [PostLikeController::class, 'unlike'])
         ->name('community.posts.unlike');
+    Route::post('/community/posts/{postId}/comments', [CommentController::class, 'store'])
+        ->name('comments.store');
 
-    Route::get('/engagement/passport',[EngagementController::class, 'passport'])->name('engagement.passport');
+    Route::get('/engagement/passport', [EngagementController::class, 'passport'])->name('engagement.passport');
 
-    Route::patch('/engagement/passport/notifications/read',[EngagementController::class, 'acknowledgeStampNotifications'])->name('engagement.passport.notifications.read');
+    Route::patch('/engagement/passport/notifications/read', [EngagementController::class, 'acknowledgeStampNotifications'])->name('engagement.passport.notifications.read');
 
-    Route::get('/engagement/passport/customize',[EngagementController::class, 'customizePassport'])->name('engagement.passport.customize');
+    Route::get('/engagement/passport/customize', [EngagementController::class, 'customizePassport'])->name('engagement.passport.customize');
 
-    Route::put('/engagement/passport/customize',[EngagementController::class, 'updatePassportCustomization'])->name('engagement.passport.customization.update');
+    Route::put('/engagement/passport/customize', [EngagementController::class, 'updatePassportCustomization'])->name('engagement.passport.customization.update');
 
-    Route::get('/engagement/achievements',[EngagementController::class, 'achievements'])->name('engagement.achievements');
+    Route::get('/engagement/achievements', [EngagementController::class, 'achievements'])->name('engagement.achievements');
 
-    Route::patch('/engagement/achievements/notifications/read',[EngagementController::class, 'acknowledgeAchievementNotifications'])->name('engagement.achievements.notifications.read');
+    Route::patch('/engagement/achievements/notifications/read', [EngagementController::class, 'acknowledgeAchievementNotifications'])->name('engagement.achievements.notifications.read');
 
-    Route::get('/engagement/history',[EngagementController::class, 'history'])->name('engagement.history');
+    Route::get('/engagement/history', [EngagementController::class, 'history'])->name('engagement.history');
 
     Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
     Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
+
+    // Profile Albums
+    Route::get('/profile/albums', [AlbumController::class, 'index'])
+        ->name('profile.albums.index');
+
+    Route::get('/profile/albums/create', [AlbumController::class, 'create'])
+        ->name('profile.albums.create');
+
+    Route::post('/profile/albums', [AlbumController::class, 'store'])
+        ->name('profile.albums.store');
+
+    Route::get('/profile/albums/{album}', [AlbumController::class, 'show'])
+        ->name('profile.albums.show');
+    Route::get('/profile/albums/{album}/edit', [AlbumController::class, 'edit'])
+        ->name('profile.albums.edit');
+
+    Route::put('/profile/albums/{album}', [AlbumController::class, 'update'])
+        ->name('profile.albums.update');
+
+    Route::delete('/profile/albums/{album}', [AlbumController::class, 'destroy'])
+        ->name('profile.albums.destroy');
+
+    // Photo Management
+    Route::get('/profile/albums/{album}/photos/create', [AlbumController::class, 'createPhotos'])
+        ->name('profile.albums.photos.create');
+
+    Route::post('/profile/albums/{album}/photos', [AlbumController::class, 'storePhotos'])
+        ->name('profile.albums.photos.store');
+
+    Route::delete('/profile/albums/{album}/photos/{photo}', [AlbumController::class, 'deletePhoto'])
+        ->name('profile.albums.photos.destroy');
+    // Cover Photo
+    Route::patch('/profile/albums/{album}/cover/{photo}', [AlbumController::class, 'updateCover'])
+        ->name('profile.albums.cover.update');
 });
 
+Route::view('/about', 'pages.about')->name('pages.about');
+Route::view('/help-center', 'pages.help-center')->name('pages.help-center');
+Route::view('/contact-us', 'pages.contact-us')->name('pages.contact-us');
+Route::view('/privacy-policy', 'pages.privacy-policy')->name('pages.privacy-policy');
+Route::view('/terms-of-use', 'pages.terms-of-use')->name('pages.terms-of-use');
 
 Route::get('/festival/calendar', [CalendarController::class, 'index'])->name('festival.calendar');
 Route::get('/calendar/events', [CalendarController::class, 'calendarEvents']);
-
 
 Route::get('/notifications', [NotificationController::class, 'index'])
     ->name('notifications.index')
@@ -186,24 +231,23 @@ Route::post('/calendar/reminder', [NotificationController::class, 'storeReminder
     ->name('calendar.reminder')
     ->middleware('auth');
 
+Route::get('/festival/login-required', function () {
+    return view('festival.login-required');
+})->name('festival.login-required');
 
-Route::get('/festival/login-required', function () {return view('festival.login-required');})->name('festival.login-required');
-    
 
-Route::get(
-    '/reminders',
-    [ReminderController::class, 'index']
-)->middleware('auth')->name('festival.reminder');
 
 Route::get(
     '/experience/{id}',
     [ExperienceController::class, 'show']
 )->name('experience.show');
 
-
 Route::get('/notifications/count', [NotificationController::class, 'count'])
     ->name('notifications.count')
     ->middleware('auth');
 
 
-
+Route::post(
+    '/trip-planner/add',
+    [TripPlannerController::class, 'add']
+)->name('trip.planner.add');

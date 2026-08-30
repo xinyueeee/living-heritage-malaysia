@@ -53,6 +53,6 @@
             >
             <button type="submit">Send</button>
         </form>
-        <p class="discovery-assistant__status" data-assistant-status aria-live="polite"></p>
+        <p class="discovery-assistant__status" data-assistant-status role="status" aria-live="polite"></p>
     </div>
 </section>

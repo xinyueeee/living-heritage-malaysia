@@ -670,6 +670,10 @@
 
     cursor: pointer;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 
 .personalized-alert-page form button[type="submit"] {
     grid-column: 1 / -1;
@@ -1650,4 +1654,52 @@
     .save-alert-btn {
         width: 100%;
     }
+
+
+.trip-itinerary-content p
+{
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+
+.trip-remove-btn
+{
+    padding: 7px 12px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    cursor: pointer;
+}
+
+
+.trip-remove-btn:hover
+{
+    background: #f3f4f6;
+}
+
+
+.trip-empty-itinerary
+{
+    padding: 15px;
+
+    text-align: center;
+
+    color: #6b7280;
+
+    background: #f9fafb;
+
+    border: 1px dashed #d1d5db;
+
+    border-radius: 10px;
+
 }

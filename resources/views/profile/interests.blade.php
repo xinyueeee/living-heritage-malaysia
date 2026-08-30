@@ -3,8 +3,9 @@
 @section('title', 'My Interests - Living Heritage Malaysia')
 
 @section('content')
-    <section class="profile-hero">
-        <div class="container profile-hero-content">
+    <section class="profile-hero-photo" style="background-image: url('{{ asset('images/profile/profile-hero.png') }}');">
+        <div class="profile-hero-photo-overlay"></div>
+        <div class="container profile-hero-photo-content">
             <h1>My Interests</h1>
             <p>Pick the cultural categories you're most interested in — we'll use these for your recommendations.</p>
         </div>

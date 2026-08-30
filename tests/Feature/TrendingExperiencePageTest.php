@@ -19,7 +19,7 @@ class TrendingExperiencePageTest extends TestCase
             $this->experience(11, 'Most Viewed Heritage Walk', 3),
             $this->experience(12, 'Single View Craft Workshop', 1),
         ]);
-        $this->mockTrendingService($experiences);
+        $this->mockTrendingService($experiences, 'popular');
 
         $response = $this->get(route('experiences.trending'));
 
@@ -34,12 +34,52 @@ class TrendingExperiencePageTest extends TestCase
 
     public function test_trending_page_has_a_clear_empty_state(): void
     {
-        $this->mockTrendingService(collect());
+        $this->mockTrendingService(collect(), 'popular');
 
         $this->get(route('experiences.trending'))
             ->assertOk()
             ->assertSee('No trending experiences yet')
             ->assertSee(route('experiences.index'), false);
+    }
+
+    public function test_date_sort_is_passed_to_the_service_and_preserved_in_the_dropdown(): void
+    {
+        $experiences = collect([
+            $this->experience(12, 'Nearest Festival', 1),
+            $this->experience(11, 'More Popular Later Festival', 3),
+        ]);
+        $this->mockTrendingService($experiences, 'date');
+
+        $this->get(route('experiences.trending', ['sort' => 'date']))
+            ->assertOk()
+            ->assertSeeInOrder(['#1', 'Nearest Festival', '#2', 'More Popular Later Festival'])
+            ->assertSee('value="date" selected', false)
+            ->assertSee('Nearest Event Date');
+    }
+
+    public function test_invalid_sort_query_safely_selects_and_uses_most_popular(): void
+    {
+        $this->mockTrendingService(collect(), 'popular');
+
+        $this->get(route('experiences.trending', ['sort' => 'start_date desc']))
+            ->assertOk()
+            ->assertSee('value="popular" selected', false)
+            ->assertDontSee('value="date" selected', false);
+    }
+
+    public function test_undated_cultural_experience_displays_available_anytime_without_a_fake_date(): void
+    {
+        $experience = $this->experience(13, 'Anytime Craft Experience', 2);
+        $experience->start_date = null;
+        $experience->end_date = null;
+        $experience->type->type_name = 'Cultural Experience';
+        $this->mockTrendingService(collect([$experience]), 'date');
+
+        $this->get(route('experiences.trending', ['sort' => 'date']))
+            ->assertOk()
+            ->assertSee('Available anytime')
+            ->assertDontSee('01 Jan 1970')
+            ->assertDontSee('N/A date');
     }
 
     public function test_trending_route_precedes_model_binding_and_existing_routes_remain_registered(): void
@@ -57,12 +97,12 @@ class TrendingExperiencePageTest extends TestCase
     }
 
     /** @param Collection<int, Experience> $experiences */
-    private function mockTrendingService(Collection $experiences): void
+    private function mockTrendingService(Collection $experiences, string $sort): void
     {
         $service = Mockery::mock(TrendingExperienceService::class);
         $service->shouldReceive('getTrendingExperiences')
             ->once()
-            ->withNoArgs()
+            ->with(7, 10, $sort)
             ->andReturn($experiences);
         $this->app->instance(TrendingExperienceService::class, $service);
     }

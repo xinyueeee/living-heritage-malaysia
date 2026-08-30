@@ -18,6 +18,7 @@ flowchart TB
     subgraph Application["BUSINESS / APPLICATION LAYER"]
         Discovery["Discovery services\nSearch/listing · Recommendations\nActivity tracking · Assistant/context"]
         Parsers["Intent parser abstraction\nRule-based + optional LLM + fallback"]
+        ResponseGeneration["Grounded response generator abstraction\nOptional AI + deterministic fallback"]
         ProfileServices["ProfileService\nProfileAchievementsService"]
         CommunityServices["SavedPostService\nCommunityEngagementService"]
         EngagementServices["AchievementProgressService"]
@@ -58,6 +59,7 @@ flowchart TB
     Controllers --> EngagementServices
     Controllers --> SavedExperience
     Discovery --> Parsers
+    Discovery --> ResponseGeneration
     Discovery --> Contracts
     SavedExperience --> Contracts
     Contracts --> Repositories
@@ -68,7 +70,8 @@ flowchart TB
     Controllers -. "auth and upload infrastructure\nnot yet fully service-wrapped" .-> Auth
     Controllers -.-> Storage
     SupabaseJS --> Auth
-    Parsers -. "only when enabled; rule fallback otherwise" .-> AI
+    Parsers -. "optional intent interpretation" .-> AI
+    ResponseGeneration -. "database context only; deterministic fallback" .-> AI
     Frontend --> MapUI
     MapUI --> Tiles
     Controllers --> Mail
@@ -81,7 +84,7 @@ flowchart TB
     classDef external fill:#f2eef8,stroke:#70518f,color:#2f2340,stroke-width:2px;
     class Blade,Frontend,MapUI,SupabaseJS presentation;
     class Routes,Requests,Controllers,Composer mvc;
-    class Discovery,Parsers,ProfileServices,CommunityServices,EngagementServices,SavedExperience application;
+    class Discovery,Parsers,ResponseGeneration,ProfileServices,CommunityServices,EngagementServices,SavedExperience application;
     class Contracts,Repositories access;
     class Models,Database persistence;
     class Auth,Storage,Tiles,AI,Mail external;

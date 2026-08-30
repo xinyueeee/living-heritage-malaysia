@@ -115,7 +115,10 @@
                         @endif
                     </dl>
 
-                    <x-weather-visit-guide :weather-suitability="$weatherSuitability" />
+                    <x-weather-visit-guide
+                        :weather-suitability="$weatherSuitability"
+                        :weather-condition-display="$weatherConditionDisplay"
+                    />
 
                     <section class="experience-description" aria-labelledby="experience-description-heading">
                         <h2 id="experience-description-heading">About this experience</h2>
@@ -194,6 +197,7 @@
         .weather-periods div { min-width: 0; padding: 14px; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
         .weather-periods dt { color: var(--muted); font-size: .72rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
         .weather-periods dd { margin: 4px 0 0; overflow-wrap: anywhere; font-weight: 700; }
+        .weather-condition-secondary { display: block; margin-top: 3px; color: var(--muted); font-size: .82rem; font-weight: 500; line-height: 1.35; }
         .weather-temperature { margin: 0 0 12px; color: var(--muted); }
         .weather-source { margin: 0; color: var(--muted); font-size: .76rem; }
         .weather-source a { color: var(--primary); font-weight: 700; }

@@ -7,6 +7,7 @@ use App\Models\ExperienceViewHistory;
 use App\Models\SearchHistory;
 use App\Repositories\Contracts\DiscoveryActivityRepositoryInterface;
 use Carbon\CarbonInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -128,8 +129,9 @@ class EloquentDiscoveryActivityRepository implements DiscoveryActivityRepository
         CarbonInterface $until,
         CarbonInterface $eligibleOn,
         int $limit,
+        string $sort,
     ): Collection {
-        return Experience::query()
+        $query = Experience::query()
             ->with(['category', 'type'])
             ->join(
                 'experience_view_history',
@@ -139,20 +141,83 @@ class EloquentDiscoveryActivityRepository implements DiscoveryActivityRepository
             )
             ->whereBetween('experience_view_history.viewed_at', [$since, $until])
             ->where(function ($query) use ($eligibleOn) {
-                $query->whereDate('experiences.end_date', '>=', $eligibleOn)
-                    ->orWhere(function ($query) use ($eligibleOn) {
-                        $query->whereNull('experiences.end_date')
-                            ->whereDate('experiences.start_date', '>=', $eligibleOn);
+                $query->whereHas('type', fn ($query) => $query->where('type_name', 'Festival'))
+                    ->where(function ($query) use ($eligibleOn) {
+                        $query->whereDate('experiences.end_date', '>=', $eligibleOn)
+                            ->orWhere(function ($query) use ($eligibleOn) {
+                                $query->whereNull('experiences.end_date')
+                                    ->whereDate('experiences.start_date', '>=', $eligibleOn);
+                            });
                     });
+                $query->orWhereHas('type', fn ($query) => $query->where('type_name', 'Cultural Experience'));
             })
             ->groupBy('experiences.experiences_id')
             ->select('experiences.*')
             ->selectRaw('COUNT(experience_view_history.id) AS meaningful_view_count')
-            ->selectRaw('MAX(experience_view_history.viewed_at) AS most_recent_view_at')
-            ->orderByDesc('meaningful_view_count')
+            ->selectRaw('MAX(experience_view_history.viewed_at) AS most_recent_view_at');
+
+        if ($sort === 'date') {
+            $query->orderByRaw('CASE WHEN experiences.start_date IS NULL THEN 1 ELSE 0 END')
+                ->orderBy('experiences.start_date');
+        }
+
+        return $query->orderByDesc('meaningful_view_count')
             ->orderByDesc('most_recent_view_at')
             ->orderBy('experiences.experiences_id')
             ->limit($limit)
             ->get();
+    }
+
+    public function paginateExperienceViews(
+        string $userId,
+        int $perPage,
+        int $page,
+    ): LengthAwarePaginator {
+        $latestViews = DB::table('experience_view_history')
+            ->where('user_id', $userId)
+            ->groupBy('experience_id')
+            ->select([
+                'experience_id',
+                DB::raw('MAX(viewed_at) as viewed_at'),
+            ]);
+
+        // Real Experience models (not a narrow projection) so the page can
+        // reuse the existing experience-card component as-is.
+        return Experience::query()
+            ->joinSub($latestViews, 'recent_views', function ($join) {
+                $join->on('experiences.experiences_id', '=', 'recent_views.experience_id');
+            })
+            ->with(['category', 'type'])
+            ->addSelect(['experiences.*', 'recent_views.viewed_at as activity_at'])
+            ->orderByDesc('recent_views.viewed_at')
+            ->paginate($perPage, ['*'], 'views_page', $page);
+    }
+
+    public function paginateSearches(
+        string $userId,
+        int $perPage,
+        int $page,
+    ): LengthAwarePaginator {
+        return DB::table('search_history')
+            ->leftJoin('category', 'search_history.category_id', '=', 'category.category_id')
+            ->leftJoin('experience_type', 'search_history.type_id', '=', 'experience_type.type_id')
+            ->where('search_history.user_id', $userId)
+            ->orderByDesc('search_history.searched_at')
+            ->paginate($perPage, [
+                'search_history.id',
+                'search_history.keyword',
+                'search_history.location',
+                'search_history.category_id',
+                'search_history.type_id',
+                'category.category_name',
+                'experience_type.type_name',
+                'search_history.searched_at as activity_at',
+            ], 'searches_page', $page);
+    }
+
+    public function deleteActivityForUser(string $userId): void
+    {
+        SearchHistory::where('user_id', $userId)->delete();
+        ExperienceViewHistory::where('user_id', $userId)->delete();
     }
 }
