@@ -3,6 +3,7 @@ import './pages/experience-map';
 import './pages/discovery-assistant';
 import './pages/saved-experience-collections';
 import './pages/festival-reminder';
+import './pages/album.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const menuButton = document.querySelector('.menu-toggle');

@@ -86,17 +86,16 @@
     @else
 
         <div class="album-photo-grid">
-            @foreach($photos as $index => $photo)  <!-- ✅ Use $index to track position -->
+            @foreach($photos as $photo)  
                 <div class="album-photo-item" style="position: relative;">
                     <img
                         src="{{ $photo->photo_url }}"
                         alt="{{ $album->album_name }}"
                         style="width: 100%; height: 100%; object-fit: cover;"
-                        onerror="this.src='{{ asset('images/placeholder.jpg') }}'; this.onerror=null;"
                     >
                     
-                    <!-- ✅ ONLY show Cover badge on FIRST photo -->
-                    @if($index === 0)
+                    
+                    @if($album->cover_photo_url === $photo->photo_url)
                         <span style="position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.7); color: #FFD700; padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; display: flex; align-items: center; gap: 4px;">
                             ⭐ Cover
                         </span>
@@ -122,7 +121,7 @@
                     </form>
 
                     <!-- Set as Cover Button - ✅ Only show if NOT the cover -->
-                    @if($index !== 0)
+                    @if($album->cover_photo_url !== $photo->photo_url)
                         <form 
                             action="{{ route('profile.albums.cover.update', ['album' => $album->album_id, 'photo' => $photo->album_photo_id]) }}" 
                             method="POST" 
