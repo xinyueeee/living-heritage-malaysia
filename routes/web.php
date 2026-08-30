@@ -107,12 +107,6 @@ Route::middleware('auth')->group(function () {
         [TripPlannerController::class, 'nearbyTrips']
     )->middleware('auth')->name('trip.planner.nearby.trips');
 
-#Route::get('/engagement', [EngagementController::class, 'index'])->name('engagement.index');
-#Route::get('/engagement/passport', [EngagementController::class, 'passport'])->name('engagement.passport');
-#Route::get('/engagement/achievements', [EngagementController::class, 'achievements'])->name('engagement.achievements');
-#Route::get('/engagement/history', [EngagementController::class, 'history'])->name('engagement.history');
-
-
     Route::get('/alerts/personalize', [AlertController::class, 'create'])
         ->name('alerts.create');
 
@@ -124,11 +118,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/alerts/test-email', [AlertController::class, 'testEmail'])
             ->name('alerts.test-email');
     }
-
-    // Route::get('/engagement', [EngagementController::class, 'index'])->name('engagement.index');
-    // Route::get('/engagement/passport', [EngagementController::class, 'passport'])->name('engagement.passport');
-    // Route::get('/engagement/achievements', [EngagementController::class, 'achievements'])->name('engagement.achievements');
-    // Route::get('/engagement/history', [EngagementController::class, 'history'])->name('engagement.history');
 
 
     Route::get('/profile/saved-experiences', [SavedExperienceController::class, 'index'])
@@ -175,6 +164,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/engagement/achievements/notifications/read', [EngagementController::class, 'acknowledgeAchievementNotifications'])->name('engagement.achievements.notifications.read');
 
     Route::get('/engagement/history', [EngagementController::class, 'history'])->name('engagement.history');
+
+    Route::get('/engagement/leaderboard',[EngagementController::class, 'leaderboard'])->name('engagement.leaderboard');
 
     Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
     Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
