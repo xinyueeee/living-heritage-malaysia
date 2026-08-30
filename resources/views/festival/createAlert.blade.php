@@ -18,8 +18,8 @@
             <h1>Personalized Alerts</h1>
             <p>
                 Choose the types of experiences you are interested in.
-                We'll let you know when new experiences in your selected
-                categories are available.
+                We'll email you when a new experience in your selected
+                categories is starting within the next 7 days.
             </p>
         </div>
     </div>

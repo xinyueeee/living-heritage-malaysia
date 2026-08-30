@@ -57,6 +57,57 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/recent-activity', [DiscoveryActivityController::class, 'index'])->name('profile.recent-activity');
     Route::delete('/profile/recent-activity', [DiscoveryActivityController::class, 'clear'])->name('profile.recent-activity.clear');
 
+   
+
+
+    Route::get(
+        '/trip-planner/create',
+        [TripPlannerController::class, 'create']
+    )->name('trip.planner.create');
+
+
+    Route::get(
+        '/trip-planner/my-trips',
+        [TripPlannerController::class, 'myTrips']
+    )->name('trip.planner.my-trips');
+
+    Route::get(
+        '/trip-planner',
+        [TripPlannerController::class, 'index']
+    )->name('trip.planner.index');
+
+    Route::get(
+        '/trip-planner/events',
+        [TripPlannerController::class, 'events']
+    )->name('trip.planner.events');
+
+
+    Route::post(
+        '/trip-planner/add',
+        [TripPlannerController::class, 'addToTrip']
+    )->name('trip.planner.add');
+
+    Route::delete(
+        '/trip-planner/remove',
+        [TripPlannerController::class, 'removeFromTrip']
+    )->name('trip.planner.remove');
+
+    Route::get(
+        '/trip-planner/nearby',
+        [TripPlannerController::class, 'nearby']
+    )->name('trip.planner.nearby');
+
+    Route::delete(
+        '/trip-planner/{trip}',
+        [TripPlannerController::class, 'destroy']
+    )->name('trip.planner.destroy');
+            
+
+    Route::get(
+        '/trip-planner/nearby/trips',
+        [TripPlannerController::class, 'nearbyTrips']
+    )->middleware('auth')->name('trip.planner.nearby.trips');
+
     Route::get('/alerts/personalize', [AlertController::class, 'create'])
         ->name('alerts.create');
 
@@ -119,6 +170,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/engagement/history', [EngagementController::class, 'history'])->name('engagement.history');
 
+    Route::get('/engagement/leaderboard',[EngagementController::class, 'leaderboard'])->name('engagement.leaderboard');
+
     Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
     Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
 
@@ -178,10 +231,6 @@ Route::get('/festival/login-required', function () {
     return view('festival.login-required');
 })->name('festival.login-required');
 
-Route::get(
-    '/reminders',
-    [ReminderController::class, 'index']
-)->middleware('auth')->name('festival.reminder');
 
 Route::get(
     '/experience/{id}',
@@ -192,16 +241,3 @@ Route::get('/notifications/count', [NotificationController::class, 'count'])
     ->name('notifications.count')
     ->middleware('auth');
 
-Route::post('/trip-planner/plan', [TripPlannerController::class, 'plan'])
-    ->name('trip.planner.plan')
-    ->middleware('auth');
-
-Route::post(
-    '/trip-planner/plan',
-    [TripPlannerController::class, 'plan']
-)->name('trip.planner.plan');
-
-Route::post(
-    '/trip-planner/add',
-    [TripPlannerController::class, 'add']
-)->name('trip.planner.add');
