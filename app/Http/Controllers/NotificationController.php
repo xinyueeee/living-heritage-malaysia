@@ -289,29 +289,37 @@ class NotificationController extends Controller
     */
 
     public function count()
-    {
-        $count = Notification::where(
-            'user_id',
-            auth()->id()
-        )
-        ->where(
-            'notification_type',
-            'festival_reminder'
-        )
-        ->where(
-            'is_read',
-            false
-        )
-        ->where(
-            'scheduled_at',
-            '<=',
-            now()
-        )
-        ->count();
+{
+    $count = Notification::where(
+        'user_id',
+        auth()->id()
+    )
+    ->where(
+        'notification_type',
+        'festival_reminder'
+    )
+    ->where(
+        'is_read',
+        false
+    )
+    ->where(
+        'scheduled_at',
+        '<=',
+        now()
+    )
+    ->whereNotNull(
+        'selected_date'
+    )
+    ->whereDate(
+        'selected_date',
+        '>=',
+        today()
+    )
+    ->count();
 
 
-        return response()->json([
-            'count' => $count
-        ]);
-    }
+    return response()->json([
+        'count' => $count
+    ]);
+}
 }

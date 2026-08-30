@@ -14,7 +14,8 @@ class TripPlan extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'user_id',
+        'user_id', 
+        'trip_name', 'area',
         'trip_date',
         'status',
     ];
@@ -39,12 +40,6 @@ class TripPlan extends Model
         );
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Trip Items
-    |--------------------------------------------------------------------------
-    */
 
     public function items(): HasMany
     {

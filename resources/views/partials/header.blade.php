@@ -16,28 +16,20 @@
             <li><a @class(['active' => request()->routeIs('home')]) href="{{ route('home') }}">Home</a></li>
             <li><a @class(['active' => request()->routeIs('experiences.*')]) href="{{ route('experiences.index') }}">Discover</a></li>
             <li><a @class(['active' => request()->routeIs('community.*')])href="{{ route('community.index') }}">Community</a></li>
-            <li> <a @class(['active' => request()->routeIs('festival.*')]) href="{{ route('festival.calendar') }}">Festival Alert</a></li>
+            <li><a @class(['active' => request()->routeIs('festival.*')]) href="{{ route('festival.calendar') }}">Festival Alert</a></li>
+            <li><a @class(['active' => request()->routeIs('trip.planner.*')]) href="{{ route('trip.planner.index') }}">Trip Planner</a></li>
             <li><a @class(['active' => request()->routeIs('engagement.*')])href="{{ route('engagement.index') }}">Engagement &amp; Rewards</a></li>
             <li><a @class(['active' => request()->routeIs('profile')]) href="{{ route('profile') }}">Profile</a></li>
 
 
             <li class="nav-auth">
                 @auth
-
-
-                @php
-                    $unreadCount = \Illuminate\Support\Facades\DB::table('notification')
-                        ->where('user_id', auth()->id())
-                        ->where('notification_type', 'festival_reminder')
-                        ->where('is_read', false)
-                        ->where('scheduled_at', '<=', now())
-                        ->count();
-                @endphp
                 <a class="nav-bell"
+
                 href="{{ route('notifications.index') }}"
                 aria-label="Notifications">
-
-                    <svg viewBox="0 0 24 24"
+                
+                <svg viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
                         stroke-width="2"
@@ -53,9 +45,9 @@
                     <span
                         id="notificationBadge"
                         class="nav-bell-badge"
-                        style="{{ $unreadCount > 0 ? '' : 'display: none;' }}"
+                        style="display: none;"
                     >
-                        {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                        0
                     </span>
 
                 </a>
@@ -65,3 +57,61 @@
         </ul>
     </nav>
 </header>
+
+@push('scripts')
+
+<script>
+async function updateNotificationBadge()
+{
+    try
+    {
+        const response = await fetch(
+            "{{ route('notifications.count') }}"
+        );
+
+        const data = await response.json();
+
+        const badge =
+            document.getElementById('notificationBadge');
+
+        if (!badge)
+        {
+            return;
+        }
+
+        if (data.count > 0)
+        {
+            badge.style.display = 'flex';
+
+            badge.textContent =
+                data.count > 9
+                    ? '9+'
+                    : data.count;
+        }
+        else
+        {
+            badge.style.display = 'none';
+        }
+    }
+    catch (error)
+    {
+        console.error(
+            'Notification count error:',
+            error
+        );
+    }
+}
+
+
+// Check immediately
+updateNotificationBadge();
+
+
+// Check every 10 seconds
+setInterval(
+    updateNotificationBadge,
+    10000
+);
+</script>
+
+@endpush
