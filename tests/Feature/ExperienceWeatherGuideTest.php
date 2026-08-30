@@ -34,7 +34,9 @@ class ExperienceWeatherGuideTest extends TestCase
             ->assertSeeText('Weather-Aware Visit Guide')
             ->assertSeeText('Plan with Caution')
             ->assertSeeText('26 August 2026')
+            ->assertSeeText('No Rain')
             ->assertSeeText('Tiada Hujan')
+            ->assertSeeText('Rain in Several Areas')
             ->assertSeeText('Hujan di beberapa tempat')
             ->assertSeeText('24°C – 34°C')
             ->assertSeeText('MET Malaysia via')
@@ -42,6 +44,34 @@ class ExperienceWeatherGuideTest extends TestCase
             ->assertDontSeeText('Ds058')
             ->assertDontSeeText('weather_forecast:location_query')
             ->assertDontSeeText('cache hit');
+    }
+
+    public function test_each_period_displays_english_then_original_bahasa_melayu(): void
+    {
+        $this->mockWeatherGuide($this->availableGuide(
+            morning: 'Tiada Hujan',
+            afternoon: 'Ribut petir',
+            night: 'Hujan',
+        ));
+
+        $this->get(route('experiences.show', 1))
+            ->assertOk()
+            ->assertSeeInOrder(['Morning', 'No Rain', 'Tiada Hujan'])
+            ->assertSeeInOrder(['Afternoon', 'Thunderstorms', 'Ribut petir'])
+            ->assertSeeInOrder(['Night', 'Rain', 'Hujan'])
+            ->assertSeeText('24°C – 34°C')
+            ->assertSeeText('Weather data: MET Malaysia via');
+    }
+
+    public function test_unknown_condition_displays_only_its_original_non_blank_text(): void
+    {
+        $unknown = 'Some future MET Malaysia phrase';
+        $this->mockWeatherGuide($this->availableGuide($unknown, 'Tiada Hujan', 'Tiada Hujan'));
+
+        $response = $this->get(route('experiences.show', 1));
+
+        $response->assertOk()->assertSeeText($unknown);
+        $this->assertSame(1, substr_count($response->getContent(), $unknown));
     }
 
     /** @param array{string, string, string} $conditions */

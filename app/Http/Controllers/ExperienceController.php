@@ -8,6 +8,7 @@ use App\Models\UserPassportStamp;
 use App\Services\Experience\ExperienceDiscoveryService;
 use App\Services\Experience\SavedExperienceService;
 use App\Services\Experience\TrendingExperienceService;
+use App\Services\Experience\WeatherConditionFormatter;
 use App\Services\Experience\WeatherForecastService;
 use App\Services\Experience\WeatherSuitabilityService;
 use App\Services\Festival\FestivalReminderService;
@@ -21,6 +22,7 @@ class ExperienceController extends Controller
         private ExperienceDiscoveryService $experienceDiscoveryService,
         private SavedExperienceService $savedExperienceService,
         private TrendingExperienceService $trendingExperienceService,
+        private WeatherConditionFormatter $weatherConditionFormatter,
         private WeatherForecastService $weatherForecastService,
         private WeatherSuitabilityService $weatherSuitabilityService,
         private FestivalReminderService $festivalReminderService,
@@ -50,6 +52,7 @@ class ExperienceController extends Controller
                 ->limit(4)
                 ->get();
         }
+
         return view('welcome', [
             ...$this->experienceDiscoveryService->getHomePageData(),
             'savedExperienceIds' => $this->savedExperienceService
@@ -80,7 +83,8 @@ class ExperienceController extends Controller
     {
         return view('recommendations.index', [
             ...$this->experienceDiscoveryService->getRecommendationsPageData(
-                $request->user()?->getAuthIdentifier()
+                $request->user()?->getAuthIdentifier(),
+                (int) $request->query('page', 1),
             ),
             'savedExperienceIds' => $this->savedExperienceService
                 ->getSavedExperienceIds($request->user()),
@@ -95,10 +99,17 @@ class ExperienceController extends Controller
             ->getMapPageData($request->validated()));
     }
 
-    public function trending(): View
+    public function trending(Request $request): View
     {
+        $requestedSort = $request->query('sort');
+        $sort = in_array($requestedSort, [
+            TrendingExperienceService::SORT_POPULAR,
+            TrendingExperienceService::SORT_DATE,
+        ], true) ? $requestedSort : TrendingExperienceService::SORT_POPULAR;
+
         return view('experiences.trending', [
-            'trendingExperiences' => $this->trendingExperienceService->getTrendingExperiences(),
+            'trendingExperiences' => $this->trendingExperienceService->getTrendingExperiences(sort: $sort),
+            'sort' => $sort,
         ]);
     }
 
@@ -135,11 +146,14 @@ class ExperienceController extends Controller
             ];
         }
 
+        $weatherConditionDisplay = $this->weatherConditionFormatter->periods($weatherSuitability);
+
         return view('experiences.show', compact(
             'experience',
             'isSaved',
             'savedCollectionName',
             'weatherSuitability',
+            'weatherConditionDisplay',
             'festivalReminderEligible',
             'festivalReminderSet',
         ));

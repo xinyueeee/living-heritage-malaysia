@@ -4,9 +4,14 @@
 @import './profile.css';
 @import './auth.css';
 @import './festival.css';
+<<<<<<< ours
 @import './tripPlanner.css';
 
 
+=======
+@import './discovery-assistant.css';
+@import './pages.css';
+>>>>>>> theirs
 
 :root {
     --primary: #A52A1A;

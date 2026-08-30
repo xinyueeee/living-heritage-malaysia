@@ -60,6 +60,9 @@
                 <div class="recommendations-section-heading">
                     <x-home-icon name="clock" />
                     <h2 id="recommendations-activity-title">Based on your recent activity</h2>
+                    @auth
+                        <a class="recommendations-activity-viewall" href="{{ route('profile.recent-activity') }}">View All Recent Activity <span aria-hidden="true">&rarr;</span></a>
+                    @endauth
                 </div>
 
                 <div class="recommendations-activity-panel">
@@ -109,6 +112,8 @@
                             ])
                         @endforeach
                     </div>
+
+                    {{ $recommendedExperiences->onEachSide(1)->links('components.pagination') }}
                 @endif
             </section>
 

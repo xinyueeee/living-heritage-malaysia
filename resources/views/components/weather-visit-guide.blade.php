@@ -37,15 +37,30 @@
         <dl class="weather-periods">
             <div>
                 <dt>Morning</dt>
-                <dd>{{ $weatherSuitability['morning_forecast'] ?? 'Not provided' }}</dd>
+                <dd>
+                    {{ $weatherConditionDisplay['morning']['primary'] }}
+                    @if ($weatherConditionDisplay['morning']['secondary'])
+                        <span class="weather-condition-secondary">{{ $weatherConditionDisplay['morning']['secondary'] }}</span>
+                    @endif
+                </dd>
             </div>
             <div>
                 <dt>Afternoon</dt>
-                <dd>{{ $weatherSuitability['afternoon_forecast'] ?? 'Not provided' }}</dd>
+                <dd>
+                    {{ $weatherConditionDisplay['afternoon']['primary'] }}
+                    @if ($weatherConditionDisplay['afternoon']['secondary'])
+                        <span class="weather-condition-secondary">{{ $weatherConditionDisplay['afternoon']['secondary'] }}</span>
+                    @endif
+                </dd>
             </div>
             <div>
                 <dt>Night</dt>
-                <dd>{{ $weatherSuitability['night_forecast'] ?? 'Not provided' }}</dd>
+                <dd>
+                    {{ $weatherConditionDisplay['night']['primary'] }}
+                    @if ($weatherConditionDisplay['night']['secondary'])
+                        <span class="weather-condition-secondary">{{ $weatherConditionDisplay['night']['secondary'] }}</span>
+                    @endif
+                </dd>
             </div>
         </dl>
 

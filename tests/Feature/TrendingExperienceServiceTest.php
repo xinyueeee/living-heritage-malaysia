@@ -48,10 +48,9 @@ class TrendingExperienceServiceTest extends TestCase
 
         $trending = app(TrendingExperienceService::class)->getTrendingExperiences();
 
-        $this->assertSame([1, 2, 3, 8], $trending->pluck('experiences_id')->all());
-        $this->assertSame([3, 2, 2, 1], $trending->pluck('meaningful_view_count')->all());
+        $this->assertSame([5, 1, 2, 3, 8], $trending->pluck('experiences_id')->all());
+        $this->assertSame([4, 3, 2, 2, 1], $trending->pluck('meaningful_view_count')->all());
         $this->assertNotContains(4, $trending->pluck('experiences_id')); // Past despite recent views.
-        $this->assertNotContains(5, $trending->pluck('experiences_id')); // Both dates null.
         $this->assertNotContains(6, $trending->pluck('experiences_id')); // Zero views.
         $this->assertNotContains(7, $trending->pluck('experiences_id')); // Only an eight-day-old view.
         $this->assertTrue($trending->every->relationLoaded('category'));
@@ -92,6 +91,45 @@ class TrendingExperienceServiceTest extends TestCase
         $trending = app(TrendingExperienceService::class)->getTrendingExperiences(limit: 2);
 
         $this->assertSame([1, 2], $trending->pluck('experiences_id')->all());
+    }
+
+    public function test_nearest_date_orders_dated_festivals_then_undated_cultural_experiences(): void
+    {
+        $this->insertViews(1, [['user-current', now()->subHour()]]);
+        $this->insertViews(2, [
+            ['user-a', now()->subHours(3)],
+            ['user-b', now()->subHours(2)],
+        ]);
+        $this->insertViews(3, [
+            ['user-c', now()->subHours(4)],
+            ['user-d', now()->subHours(3)],
+            ['user-e', now()->subHour()],
+        ]);
+        $this->insertViews(9, [['user-f', now()->subMinutes(30)]]);
+        $this->insertViews(10, [['user-g', now()->subMinutes(30)]]);
+        $this->insertViews(5, array_fill(0, 4, ['user-anytime-a', now()->subMinutes(20)]));
+        $this->insertViews(11, array_fill(0, 2, ['user-anytime-b', now()->subMinutes(10)]));
+        $this->insertViews(4, array_fill(0, 8, ['user-past', now()->subMinutes(5)]));
+
+        $trending = app(TrendingExperienceService::class)->getTrendingExperiences(sort: 'date');
+
+        $this->assertSame([1, 3, 2, 9, 10, 5, 11], $trending->pluck('experiences_id')->all());
+        $this->assertNull($trending->firstWhere('experiences_id', 5)->start_date);
+        $this->assertNotContains(4, $trending->pluck('experiences_id'));
+        $this->assertNotContains(6, $trending->pluck('experiences_id'));
+    }
+
+    public function test_invalid_sort_falls_back_to_most_popular(): void
+    {
+        $this->insertViews(1, [['user-a', now()->subHour()]]);
+        $this->insertViews(2, [
+            ['user-b', now()->subHours(2)],
+            ['user-c', now()->subHour()],
+        ]);
+
+        $trending = app(TrendingExperienceService::class)->getTrendingExperiences(sort: 'start_date desc');
+
+        $this->assertSame([2, 1], $trending->pluck('experiences_id')->all());
     }
 
     public function test_trending_page_uses_the_service_eligibility_rules_without_recording_a_view(): void
@@ -163,25 +201,30 @@ class TrendingExperienceServiceTest extends TestCase
     private function seedExperiences(): void
     {
         DB::table('experience_type')->insert(['type_id' => 1, 'type_name' => 'Festival']);
-        DB::table('category')->insert(['category_id' => 1, 'type_id' => 1, 'category_name' => 'Cultural Festival']);
+        DB::table('experience_type')->insert(['type_id' => 2, 'type_name' => 'Cultural Experience']);
+        DB::table('category')->insert([
+            ['category_id' => 1, 'type_id' => 1, 'category_name' => 'Cultural Festival'],
+            ['category_id' => 2, 'type_id' => 2, 'category_name' => 'Living Tradition'],
+        ]);
 
         $experiences = [
             [1, 'Current Leader', '2026-08-20', '2026-08-24'],
             [2, 'Upcoming Recent Tie', '2026-08-25', '2026-08-26'],
             [3, 'Upcoming Older Tie', '2026-08-25', '2026-08-27'],
             [4, 'Past Popular Experience', '2026-08-20', '2026-08-23'],
-            [5, 'Undated Experience', null, null],
+            [5, 'Undated Experience', null, null, 2, 2],
             [6, 'Zero View Experience', '2026-09-01', '2026-09-02'],
             [7, 'Old View Experience', '2026-09-03', '2026-09-04'],
             [8, 'Ongoing Six Day View', '2026-08-18', '2026-08-25'],
             [9, 'Stable Tie Lower ID', '2026-09-05', '2026-09-06'],
             [10, 'Stable Tie Higher ID', '2026-09-05', '2026-09-06'],
+            [11, 'Second Undated Experience', null, null, 2, 2],
         ];
 
         DB::table('experiences')->insert(array_map(fn (array $experience): array => [
             'experiences_id' => $experience[0],
-            'type_id' => 1,
-            'category_id' => 1,
+            'type_id' => $experience[4] ?? 1,
+            'category_id' => $experience[5] ?? 1,
             'experiences_name' => $experience[1],
             'start_date' => $experience[2],
             'end_date' => $experience[3],

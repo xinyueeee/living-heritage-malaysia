@@ -12,7 +12,6 @@
 
                 <form class="search-bar" action="{{ route('experiences.index') }}" method="get">
                     <label class="sr-only" for="home-experience-search">Search cultural experiences</label>
-                    <span class="search-icon" aria-hidden="true">&#128269;</span>
                     <input id="home-experience-search" name="search" type="search" placeholder="Search cultural experiences, locations, festivals..." autocomplete="off">
                     <button type="submit">Search</button>
                 </form>
@@ -55,11 +54,11 @@
                     <strong>Engagement &amp; Rewards</strong>
                     <span>Earn points and unlock rewards</span>
                 </a>
-                <span class="shortcut-item shortcut-disabled">
+                <a class="shortcut-item" href="{{ route('engagement.history') }}">
                     <span class="shortcut-icon"><x-home-icon name="heart" /></span>
                     <strong>My Activities</strong>
                     <span>See your cultural journey</span>
-                </span>
+                </a>
             </div>
         </section>
 

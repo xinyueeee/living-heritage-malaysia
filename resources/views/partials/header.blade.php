@@ -24,8 +24,8 @@
 
             <li class="nav-auth">
                 @auth
-                 
-            <a class="nav-bell"
+                <a class="nav-bell"
+
                 href="{{ route('notifications.index') }}"
                 aria-label="Notifications">
                 

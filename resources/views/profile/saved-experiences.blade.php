@@ -3,8 +3,9 @@
 @section('title', 'Saved Experiences - Living Heritage Malaysia')
 
 @section('content')
-    <section class="profile-hero">
-        <div class="container profile-hero-content">
+    <section class="profile-hero-photo" style="background-image: url('{{ asset('images/profile/profile-hero.png') }}');">
+        <div class="profile-hero-photo-overlay"></div>
+        <div class="container profile-hero-photo-content">
             <h1>Saved Experiences</h1>
             <p>Keep track of the cultural experiences and festivals you want to explore.</p>
         </div>

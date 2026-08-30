@@ -26,9 +26,9 @@ class EngagementController extends Controller
         * Retrieve the user's badge progress.
         */
         $userProgress = UserAchievement::where(
-                'user_id',
-                $userId
-            )
+            'user_id',
+            $userId
+        )
             ->get()
             ->keyBy('badge_id');
 
@@ -36,8 +36,8 @@ class EngagementController extends Controller
         * Badge definitions are a small fixed collection.
         */
         $achievements = AchievementBadge::orderBy(
-                'badge_id'
-            )
+            'badge_id'
+        )
             ->get()
             ->map(function ($badge) use ($userProgress) {
                 $progress = $userProgress->get(
@@ -74,7 +74,6 @@ class EngagementController extends Controller
             ->sortByDesc('unlocked_date')
             ->take(4)
             ->values();
-                    
 
         /*
         * Load only the latest eight stamps needed by the
@@ -140,9 +139,9 @@ class EngagementController extends Controller
             'user_id',
             $userId
         )
-        ->whereYear('completed_date', now()->year)
-        ->whereMonth('completed_date', now()->month)
-        ->count();
+            ->whereYear('completed_date', now()->year)
+            ->whereMonth('completed_date', now()->month)
+            ->count();
 
         $nextStamp = PassportStamp::with('categoryDetails')
             ->whereDoesntHave(
@@ -160,23 +159,18 @@ class EngagementController extends Controller
             ->first();
 
         return view('engagement.index', [
-            'latestPassportStamps' =>
-                $latestPassportStamps,
+            'latestPassportStamps' => $latestPassportStamps,
 
-            'passportStampCount' =>
-                $passportStampCount,
+            'passportStampCount' => $passportStampCount,
 
-            'achievements' =>
-                $achievements,
+            'achievements' => $achievements,
 
             'recentUnlockedBadges' => $recentUnlockedBadges,
 
-            'recentExperienceHistory' =>
-                $recentExperienceHistory,
+            'recentExperienceHistory' => $recentExperienceHistory,
 
-            'completedExperienceCount' =>
-                $completedExperienceCount,
-            
+            'completedExperienceCount' => $completedExperienceCount,
+
             'experiencesThisMonthCount' => $experiencesThisMonthCount,
             'nextStamp' => $nextStamp,
         ]);
@@ -197,8 +191,8 @@ class EngagementController extends Controller
         * not currently use categoryDetails.type.
         */
         $allStamps = PassportStamp::with(
-                'categoryDetails'
-            )
+            'categoryDetails'
+        )
             ->orderBy('category_id')
             ->get();
 
@@ -211,8 +205,8 @@ class EngagementController extends Controller
         * stamp definitions and categories again.
         */
         $passportStamps = UserPassportStamp::with([
-                'completedExperience.experience',
-            ])
+            'completedExperience.experience',
+        ])
             ->where(
                 'passport_id',
                 $passport->passport_id
@@ -277,14 +271,14 @@ class EngagementController extends Controller
         $userId = Auth::id();
 
         UserPassportStamp::whereHas(
-                'passport',
-                function ($query) use ($userId) {
-                    $query->where(
-                        'user_id',
-                        $userId
-                    );
-                }
-            )
+            'passport',
+            function ($query) use ($userId) {
+                $query->where(
+                    'user_id',
+                    $userId
+                );
+            }
+        )
             ->whereNull('notified_at')
             ->update([
                 'notified_at' => now(),
@@ -303,8 +297,8 @@ class EngagementController extends Controller
         ]);
 
         $passportStamps = UserPassportStamp::with([
-                'stamp.categoryDetails',
-            ])
+            'stamp.categoryDetails',
+        ])
             ->where(
                 'passport_id',
                 $passport->passport_id
@@ -353,25 +347,22 @@ class EngagementController extends Controller
         ]);
 
         $passport = DigitalCulturalPassport::where(
-                'user_id',
-                Auth::id()
-            )
+            'user_id',
+            Auth::id()
+        )
             ->firstOrFail();
 
         /*
         * Save the Passport theme and display preferences.
         */
         $passport->update([
-            'display_theme' =>
-                $validated['display_theme'],
+            'display_theme' => $validated['display_theme'],
 
-            'display_layout' =>
-                $validated['display_layout'],
+            'display_layout' => $validated['display_layout'],
 
-            'show_stamp_details' =>
-                $request->boolean(
-                    'show_stamp_details'
-                ),
+            'show_stamp_details' => $request->boolean(
+                'show_stamp_details'
+            ),
         ]);
         /*
         * Save the dragged stamp arrangement.
@@ -379,16 +370,15 @@ class EngagementController extends Controller
         * Every passport page contains four stamps.
         */
         foreach (
-            $validated['stamp_order'] ?? []
-            as $index => $userStampId
+            $validated['stamp_order'] ?? [] as $index => $userStampId
         ) {
             $pageNumber = intdiv($index, 4) + 1;
             $positionOnPage = ($index % 4) + 1;
 
             UserPassportStamp::where(
-                    'user_stamp_id',
-                    $userStampId
-                )
+                'user_stamp_id',
+                $userStampId
+            )
                 ->where(
                     'passport_id',
                     $passport->passport_id
@@ -412,9 +402,9 @@ class EngagementController extends Controller
         $userId = Auth::id();
 
         $userProgress = UserAchievement::where(
-                'user_id',
-                $userId
-            )
+            'user_id',
+            $userId
+        )
             ->get()
             ->keyBy('badge_id');
 
@@ -473,9 +463,9 @@ class EngagementController extends Controller
     public function acknowledgeAchievementNotifications()
     {
         UserAchievement::where(
-                'user_id',
-                Auth::id()
-            )
+            'user_id',
+            Auth::id()
+        )
             ->where('is_unlocked', true)
             ->whereNull('notified_at')
             ->update([
@@ -489,8 +479,8 @@ class EngagementController extends Controller
     public function history(Request $request)
     {
         $query = CompletedExperience::with([
-                'experience.category',
-            ])
+            'experience.category',
+        ])
             ->where(
                 'user_id',
                 Auth::id()
@@ -535,13 +525,13 @@ class EngagementController extends Controller
             ->withQueryString();
 
         $categories = Category::orderBy(
-                'category_name'
-            )
+            'category_name'
+        )
             ->get();
 
         $categoryStamps = PassportStamp::whereNotNull(
-                'category_id'
-            )
+            'category_id'
+        )
             ->get()
             ->keyBy('category_id');
 

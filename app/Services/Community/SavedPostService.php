@@ -42,7 +42,9 @@ class SavedPostService
     public function paginateFor(User $user, int $perPage = 9): LengthAwarePaginator
     {
         return $user->savedPosts()
-            ->with(['experience.category', 'experience.type', 'user'])
+            ->with(['experience.category', 'experience.type', 'user', 'postComments.user'])
+            ->withCount('postComments')
+            ->withExists(['likes as is_liked_by_user' => fn ($likes) => $likes->where('user_id', $user->user_id)])
             ->orderByPivot('saved_at', 'desc')
             ->paginate($perPage);
     }

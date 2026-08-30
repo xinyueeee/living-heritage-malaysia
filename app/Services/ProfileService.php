@@ -24,7 +24,6 @@ class ProfileService
      */
     private const EDITABLE_FIELDS = [
         'user_name',
-        'user_email',
         'bio',
         'gender',
         'birthday',
@@ -57,7 +56,7 @@ class ProfileService
         $path = $userId.'/'.(string) Str::uuid().'.'.$file->extension();
         $photoUrl = $this->storeInSupabase($path, $file);
 
-        ProfilePhoto::create([
+        $photo = ProfilePhoto::create([
             'user_id' => $userId,
             'photo_url' => $photoUrl,
             'uploaded_at' => now(),
@@ -65,6 +64,9 @@ class ProfileService
 
         $user->profile_photo = $photoUrl;
         $user->save();
+
+        $user->setAttribute('latest_photo_id', $photo->profile_photo_id);
+        $user->setAttribute('latest_photo_uploaded_at', $photo->uploaded_at);
 
         return $user;
     }
@@ -88,13 +90,11 @@ class ProfileService
             ->where('user_id', $userId)
             ->firstOrFail();
 
-        // Restoring an older photo counts as a new change, so it becomes
-        // the latest history entry and shows up first again.
-        ProfilePhoto::create([
-            'user_id' => $userId,
-            'photo_url' => $photo->photo_url,
-            'uploaded_at' => now(),
-        ]);
+        // Restoring an older photo counts as a new change, so it moves to
+        // the front of the history — but it's still the same photo, so we
+        // just bump its timestamp instead of inserting a duplicate row.
+        $photo->uploaded_at = now();
+        $photo->save();
 
         $user->profile_photo = $photo->photo_url;
         $user->save();

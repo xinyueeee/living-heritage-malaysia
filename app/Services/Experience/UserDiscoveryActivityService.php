@@ -5,6 +5,7 @@ namespace App\Services\Experience;
 use App\Models\Experience;
 use App\Repositories\Contracts\DiscoveryActivityRepositoryInterface;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Throwable;
 
@@ -134,6 +135,26 @@ class UserDiscoveryActivityService
         }
 
         return $display;
+    }
+
+    /**
+     * The dedicated Recent Activity page's full, paginated view history —
+     * distinct from getRecentActivity()'s bounded recommendation signal.
+     */
+    public function paginateExperienceViews(string $userId, int $perPage, int $page): LengthAwarePaginator
+    {
+        return $this->activityRepository->paginateExperienceViews($userId, $perPage, $page);
+    }
+
+    public function paginateSearches(string $userId, int $perPage, int $page): LengthAwarePaginator
+    {
+        return $this->activityRepository->paginateSearches($userId, $perPage, $page);
+    }
+
+    /** Clears only this user's discovery search/view activity. */
+    public function clearActivity(string $userId): void
+    {
+        $this->activityRepository->deleteActivityForUser($userId);
     }
 
     private function cleanText(mixed $value): ?string

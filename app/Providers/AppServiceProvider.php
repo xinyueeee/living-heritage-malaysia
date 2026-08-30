@@ -7,11 +7,13 @@ use App\Repositories\Contracts\ExperienceRepositoryInterface;
 use App\Repositories\Eloquent\EloquentDiscoveryActivityRepository;
 use App\Repositories\Eloquent\EloquentExperienceRepository;
 use App\Services\Experience\Contracts\DiscoveryIntentParserInterface;
+use App\Services\Experience\Contracts\DiscoveryResponseGeneratorInterface;
 use App\Services\Experience\FallbackDiscoveryIntentParser;
+use App\Services\Experience\FallbackDiscoveryResponseGenerator;
 use App\View\Composers\HeaderComposer;
-use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -34,6 +36,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             DiscoveryIntentParserInterface::class,
             FallbackDiscoveryIntentParser::class,
+        );
+
+        $this->app->bind(
+            DiscoveryResponseGeneratorInterface::class,
+            FallbackDiscoveryResponseGenerator::class,
         );
     }
 

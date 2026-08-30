@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Experience;
 use App\Models\ExperienceType;
 use App\Repositories\Contracts\ExperienceRepositoryInterface;
+use App\Services\Experience\MalaysianLocationNormalizer;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -49,6 +50,20 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
             ->first();
     }
 
+    public function findAlternateTypeWithLocation(string $location, int $excludeTypeId): ?ExperienceType
+    {
+        return ExperienceType::query()
+            ->where('type_id', '!=', $excludeTypeId)
+            ->whereHas('experiences', function (Builder $query) use ($location) {
+                $query->where(function (Builder $query) use ($location) {
+                    foreach (MalaysianLocationNormalizer::searchTerms($location) as $term) {
+                        $query->orWhereLike('location_name', "%{$term}%");
+                    }
+                });
+            })
+            ->first();
+    }
+
     public function searchExperiences(array $filters, int $perPage): LengthAwarePaginator
     {
         $sort = $filters['sort'] ?? 'newest';
@@ -87,7 +102,7 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
                 })->orWhere(function ($query) {
                     $query->whereHas('type', fn ($query) => $query->where('type_name', 'Cultural Experience'))
                         ->whereRaw('LOWER(status) = ?', ['available']);
-                    });
+                });
             })
             ->orderBy('experiences_id')
             ->get([
@@ -121,7 +136,11 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
                 });
             })
             ->when($filters['location'] ?? null, function ($query, string $location) {
-                $query->whereLike('location_name', "%{$location}%");
+                $query->where(function ($query) use ($location) {
+                    foreach (MalaysianLocationNormalizer::searchTerms($location) as $term) {
+                        $query->orWhereLike('location_name', "%{$term}%");
+                    }
+                });
             })
             ->when($filters['category'] ?? null, function ($query, int $categoryId) {
                 $query->where('category_id', $categoryId);
@@ -177,6 +196,17 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
             ->pluck('location_name');
     }
 
+    public function getExperienceLocationsForType(int $typeId): SupportCollection
+    {
+        return Experience::query()
+            ->where('type_id', $typeId)
+            ->whereNotNull('location_name')
+            ->where('location_name', '<>', '')
+            ->distinct()
+            ->orderBy('location_name')
+            ->pluck('location_name');
+    }
+
     public function findCulturalExperienceByName(string $name): ?Experience
     {
         $matches = Experience::query()
@@ -201,6 +231,41 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
         $experiences = Experience::query()
             ->with(['category', 'type'])
             ->whereHas('type', fn ($query) => $query->where('type_name', 'Cultural Experience'))
+            ->whereIn('experiences_id', $ids)
+            ->get()
+            ->keyBy('experiences_id');
+
+        return new Collection(collect($ids)
+            ->map(fn (int $id) => $experiences->get($id))
+            ->filter()
+            ->values()
+            ->all());
+    }
+
+    public function findExperienceByName(string $name): ?Experience
+    {
+        $matches = Experience::query()
+            ->with(['category', 'type'])
+            ->where('experiences_name', 'ilike', '%'.trim($name).'%')
+            ->orderByRaw('CASE WHEN LOWER(experiences_name) = LOWER(?) THEN 0 ELSE 1 END', [trim($name)])
+            ->orderBy('experiences_id')
+            ->limit(2)
+            ->get();
+        $exact = $matches->first(
+            fn (Experience $experience) => Str::lower($experience->experiences_name) === Str::lower(trim($name)),
+        );
+
+        return $exact ?? ($matches->count() === 1 ? $matches->first() : null);
+    }
+
+    public function getExperiencesByIds(array $ids): Collection
+    {
+        if ($ids === []) {
+            return new Collection;
+        }
+
+        $experiences = Experience::query()
+            ->with(['category', 'type'])
             ->whereIn('experiences_id', $ids)
             ->get()
             ->keyBy('experiences_id');
