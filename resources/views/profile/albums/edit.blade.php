@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create Album - Living Heritage Malaysia')
+@section('title', 'Edit ' . $album->album_name . ' - Living Heritage Malaysia')
 
 @push('styles')
     @vite('resources/css/albums.css')
@@ -12,14 +12,18 @@
 
     <div class="album-form-card">
 
-        <a href="{{ route('profile.albums.index') }}" class="album-back-link">
-            ← Back to My Albums
+        <a href="{{ route('profile.albums.show', $album->album_id) }}" class="album-back-link">
+            ← Back to {{ $album->album_name }}
         </a>
 
         <div class="album-form-header">
-            <p class="album-eyebrow">MY ALBUMS</p>
-            <h1>Create a New Album</h1>
-            <p>Give your memories a name and start building your collection.</p>
+            <p class="album-eyebrow">EDIT ALBUM</p>
+
+            <h1>Edit Album</h1>
+
+            <p>
+                Update your album name or description.
+            </p>
         </div>
 
         @if($errors->any())
@@ -33,14 +37,16 @@
         @endif
 
         <form
-            action="{{ route('profile.albums.store') }}"
+            action="{{ route('profile.albums.update', $album->album_id) }}"
             method="POST"
             class="album-form"
-            novalidate
         >
             @csrf
+            @method('PUT')
 
+            <!-- Album Name -->
             <div class="album-form-group">
+
                 <label for="album_name">
                     Album Name <span class="required-asterisk">*</span>
                 </label>
@@ -49,7 +55,7 @@
                     type="text"
                     id="album_name"
                     name="album_name"
-                    value="{{ old('album_name') }}"
+                    value="{{ old('album_name', $album->album_name) }}"
                     placeholder="e.g. Melaka Heritage Trip"
                     required
                     maxlength="100"
@@ -59,7 +65,11 @@
                 >
 
                 @error('album_name')
-                    <span id="album_name_error" class="album-error-text" role="alert">
+                    <span
+                        id="album_name_error"
+                        class="album-error-text"
+                        role="alert"
+                    >
                         {{ $message }}
                     </span>
                 @enderror
@@ -67,48 +77,59 @@
                 <small id="album_name_help" class="album-help-text">
                     Maximum 100 characters
                 </small>
+
             </div>
 
+            <!-- Description -->
             <div class="album-form-group">
-                <label for="description">Description</label>
+
+                <label for="description">
+                    Description
+                </label>
 
                 <textarea
                     id="description"
                     name="description"
                     rows="5"
-                    maxlength="500"
+                    maxlength="1000"
                     placeholder="Tell us something about this album..."
                     class="@error('description') is-invalid @enderror"
                     aria-describedby="description_help description_error"
-                >{{ old('description') }}</textarea>
+                >{{ old('description', $album->description) }}</textarea>
 
                 @error('description')
-                    <span id="description_error" class="album-error-text" role="alert">
+                    <span
+                        id="description_error"
+                        class="album-error-text"
+                        role="alert"
+                    >
                         {{ $message }}
                     </span>
                 @enderror
 
                 <small id="description_help" class="album-help-text">
-                    Maximum 500 characters
+                    Maximum 1000 characters
                 </small>
+
             </div>
 
+            <!-- Actions -->
             <div class="album-form-actions">
+
                 <a
-                    href="{{ route('profile.albums.index') }}"
+                    href="{{ route('profile.albums.show', $album->album_id) }}"
                     class="album-secondary-btn"
                 >
                     Cancel
                 </a>
 
-                <button type="submit" class="album-primary-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                        <polyline points="17 21 17 13 7 13 7 21"/>
-                        <polyline points="7 3 7 8 15 8"/>
-                    </svg>
-                    Create Album
+                <button
+                    type="submit"
+                    class="album-primary-btn"
+                >
+                    Save Changes
                 </button>
+
             </div>
 
         </form>
@@ -118,4 +139,3 @@
 </div>
 
 @endsection
-
