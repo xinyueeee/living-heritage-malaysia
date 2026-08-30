@@ -156,6 +156,7 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
             });
     }
 
+    
     public function getCategories(): Collection
     {
         return Category::query()
