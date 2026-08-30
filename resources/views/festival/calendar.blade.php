@@ -4,6 +4,33 @@
 
 @section('content')
 
+<div
+    class="festival-banner"
+    style="background-image: url('{{ asset('images/festivalAlert/festival-banner.jpg') }}');"
+>
+
+    <div class="festival-banner-overlay">
+
+        <div class="festival-banner-content">
+
+            <div class="festival-banner-label">
+                FESTIVAL ALERT
+            </div>
+
+            <h1>
+                Discover Malaysia's Cultural Events
+            </h1>
+
+            <p>
+                Explore upcoming festivals and cultural events across Malaysia.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
 <div class="calendar-container">
 
     <!-- Personalized Alert -->
@@ -31,25 +58,7 @@
 
 </div>
     <!-- My Reminders -->
-    <div class="reminder-summary-box">
-
-        <div>
-            <h3>🔔 My Reminders</h3>
-
-            <p>
-                View the festivals and cultural experiences
-                you have chosen to be reminded about.
-            </p>
-        </div>
-
-        <a href="{{ route('festival.reminder') }}"
-        class="reminder-summary-btn">
-
-            View My Reminders →
-
-        </a>
-
-    </div>
+    
 
     <!-- Calendar Header -->
     <div class="calendar-header">
@@ -85,22 +94,41 @@
 
     <!-- Calendar -->
     <div id="calendarDays" class="calendar-days"></div>
+    
 
-    <!-- Event Detail -->
-    <div class="event-box">
+</div>
 
-        <h3>Festival Details</h3>
+<!-- Event Details Dialog -->
 
-        <div id="eventList">
-            Click an event to view details.
+<div
+    id="eventDetailDialog"
+    class="event-detail-dialog-overlay"
+    style="display: none;"
+>
+
+    <div class="event-detail-dialog">
+
+        <button
+            type="button"
+            class="event-detail-dialog-close"
+            onclick="closeEventDetailDialog()"
+        >
+            ×
+        </button>
+
+        <div class="event-detail-dialog-icon">
+            📅
+        </div>
+
+        <div id="eventDetailContent">
         </div>
 
     </div>
 
 </div>
 
-<!-- Reminder Dialog -->
 
+<!-- REMINDER RESULT POPUP -->
 <div
     id="reminderDialog"
     class="reminder-dialog-overlay"
@@ -109,43 +137,31 @@
 
     <div class="reminder-dialog">
 
-        <button
-            type="button"
-            class="reminder-dialog-close"
-            onclick="closeReminderDialog()">
-
-            ×
-
-        </button>
-
-
         <div
             id="reminderDialogIcon"
-            class="reminder-dialog-icon">
-        </div>
+            class="reminder-dialog-icon"
+        ></div>
 
+        <h3 id="reminderDialogTitle"></h3>
 
-        <h3 id="reminderDialogTitle">
-        </h3>
-
-
-        <p id="reminderDialogMessage">
-        </p>
-
+        <p id="reminderDialogMessage"></p>
 
         <button
             type="button"
             class="reminder-dialog-button"
-            onclick="closeReminderDialog()">
-
+            onclick="closeReminderDialog()"
+        >
             OK
-
         </button>
 
     </div>
 
 </div>
 
+</div>
+
+
+        
 @endsection
 
 @push('scripts')
@@ -190,6 +206,16 @@ function renderCalendar()
 
     let month =
         currentDate.getMonth();
+
+    let today =
+        new Date();
+
+    let todayString =
+        today.getFullYear() +
+        '-' +
+        String(today.getMonth() + 1).padStart(2, '0') +
+        '-' +
+        String(today.getDate()).padStart(2, '0');
 
     document.getElementById('monthYear')
     .innerHTML =
@@ -288,36 +314,18 @@ function renderCalendar()
     }
 }
 
-
-// ========================================
-// CLICK EVENT
-// ========================================
-
-// ========================================
-// CLICK EVENT
-// ========================================
-
 function showEvent(id, clickedDate)
 {
-    let event =
-        events.find(
-            e => e.id == id
-        );
+    let event = events.find(
+        e => e.id == id
+    );
 
-    if(!event)
+    if (!event)
     {
         return;
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Get today's date
-    |--------------------------------------------------------------------------
-    */
-
-    let today =
-        new Date();
+    let today = new Date();
 
     let todayString =
         today.getFullYear() +
@@ -326,99 +334,102 @@ function showEvent(id, clickedDate)
         '-' +
         String(today.getDate()).padStart(2, '0');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | The user cannot select a date before today
-    |
-    | If festival starts after today,
-    | use festival start date.
-    |--------------------------------------------------------------------------
-    */
-
     let minimumDate =
         event.start_date > todayString
             ? event.start_date
             : todayString;
 
-    let defaultDate =
-        clickedDate;
+    let defaultDate = clickedDate;
 
     if (defaultDate < minimumDate)
     {
-        defaultDate =
-            minimumDate;
+        defaultDate = minimumDate;
     }
 
-
-    document.getElementById('eventList')
-    .innerHTML =
-    `
-    <div class="event-detail">
-
-        <h3>
+    document.getElementById('eventDetailContent').innerHTML = `
+    
+        <h2>
             ${event.title}
-        </h3>
+        </h2>
 
-        <p>
-            📅
-            ${event.start_date}
-            -
-            ${event.end_date}
+        <p class="event-detail-date">
+            📅 ${event.start_date} - ${event.end_date}
         </p>
 
-        <p>
-            Status: Upcoming
+        <p class="event-detail-status">
+            Status: ${
+                event.end_date < todayString
+                    ? 'Event Ended'
+                    : 'Upcoming'
+            }
         </p>
 
+        ${
+            event.end_date >= todayString
+            ? `
+                <div class="event-detail-visit-date">
 
-        <!-- SELECT VISIT DATE -->
+                    <label for="selectedReminderDate">
+                        Select your visit date:
+                    </label>
 
-        <div class="reminder-date-selection">
+                    <input
+                        type="date"
+                        id="selectedReminderDate"
+                        min="${minimumDate}"
+                        max="${event.end_date}"
+                        value="${defaultDate}"
+                    >
 
-            <label for="selectedReminderDate">
-                Select your visit date:
-            </label>
+                    <small>
+                        Choose the day you plan to attend this activity.
+                    </small>
 
-            <input
-                type="date"
-                id="selectedReminderDate"
-                min="${minimumDate}"
-                max="${event.end_date}"
-                value="${defaultDate}"
+                </div>
+            `
+            : ''
+        }
+
+        <div class="event-detail-actions">
+
+            ${
+                event.end_date >= todayString
+                ? `
+                    <button
+                        class="reminder-btn"
+                        onclick="setReminder(${event.id})"
+                    >
+                        🔔 Remind Me
+                    </button>
+                `
+                : ''
+            }
+
+            <button
+                class="event-detail-learn-btn"
+                onclick="learnMore(${event.id})"
             >
-
-            <small>
-                Choose the day you plan to attend this activity.
-            </small>
-
-        </div>
-
-
-        <div class="event-actions">
-
-            <button
-                class="reminder-btn"
-                onclick="setReminder(${event.id})">
-
-                🔔 Remind Me
-
-            </button>
-
-
-            <button
-                class="learn-more-btn"
-                onclick="learnMore(${event.id})">
-
                 Learn More
-            
-
             </button>
 
         </div>
 
-    </div>
+        ${
+            event.end_date >= todayString
+            ? `<p>You'll receive a reminder 3 days before your visit.</p>`
+            : ''
+        }
+
     `;
+
+    document.getElementById(
+        'eventDetailDialog'
+    ).style.display = 'flex';
+}
+
+function closeEventDetailDialog()
+{
+    document.getElementById('eventDetailDialog').style.display = 'none';
 }
 // ========================================
 // REMIND ME
@@ -427,7 +438,6 @@ function showEvent(id, clickedDate)
 async function setReminder(id)
 {
     window.selectedEventId = id;
-
 
     // ========================================
     // USER NOT LOGGED IN
@@ -441,16 +451,12 @@ async function setReminder(id)
         return;
     }
 
-
     // ========================================
     // GET SELECTED DATE
     // ========================================
 
     const selectedDateInput =
-        document.getElementById(
-            'selectedReminderDate'
-        );
-
+        document.getElementById('selectedReminderDate');
 
     if (!selectedDateInput)
     {
@@ -463,14 +469,8 @@ async function setReminder(id)
         return;
     }
 
-
     const selectedDate =
         selectedDateInput.value;
-
-
-    // ========================================
-    // VALIDATE DATE
-    // ========================================
 
     if (!selectedDate)
     {
@@ -483,6 +483,9 @@ async function setReminder(id)
         return;
     }
 
+    // ========================================
+    // SEND REMINDER
+    // ========================================
 
     try
     {
@@ -493,8 +496,7 @@ async function setReminder(id)
 
                 headers:
                 {
-                    "Content-Type":
-                        "application/json",
+                    "Content-Type": "application/json",
 
                     "X-CSRF-TOKEN":
                         document.querySelector(
@@ -505,36 +507,19 @@ async function setReminder(id)
                         "application/json"
                 },
 
-                body: JSON.stringify({
-
-                    experience_id:
-                        id,
-
-                    // NEW
-                    selected_date:
-                        selectedDate
+                body: JSON.stringify(
+                {
+                    experience_id: id,
+                    selected_date: selectedDate
                 })
             }
         );
 
-
-<<<<<<< Updated upstream
-        if (response.ok && data.success)
-=======
         const data =
             await response.json();
 
-
-        console.log(
-            "Status:",
-            response.status
-        );
-
-        console.log(
-            "Response:",
-            data
-        );
-
+        console.log("Status:", response.status);
+        console.log("Response:", data);
 
         // ========================================
         // SUCCESS
@@ -544,17 +529,26 @@ async function setReminder(id)
             response.ok &&
             data.success
         )
->>>>>>> Stashed changes
         {
+            // Close Event Details popup
+            const eventDialog =
+                document.getElementById('eventDetailDialog');
+
+            if (eventDialog)
+            {
+                eventDialog.style.display = 'none';
+            }
+
+            // Show success popup
             showReminderDialog(
                 "success",
                 "Event Added Successfully",
-                data.message
+                data.message ||
+                "The event has been added to your reminders."
             );
 
             return;
         }
-
 
         // ========================================
         // ALREADY ADDED
@@ -564,18 +558,26 @@ async function setReminder(id)
             data.already_added
         )
         {
+            const eventDialog =
+                document.getElementById('eventDetailDialog');
+
+            if (eventDialog)
+            {
+                eventDialog.style.display = 'none';
+            }
+
             showReminderDialog(
                 "warning",
                 "Event Already Added",
-                data.message
+                data.message ||
+                "This event has already been added to your reminders."
             );
 
             return;
         }
 
-
         // ========================================
-        // OTHER ERROR
+        // ERROR
         // ========================================
 
         showReminderDialog(
@@ -584,7 +586,6 @@ async function setReminder(id)
             data.message ||
             "Something went wrong. Please try again."
         );
-
     }
     catch(error)
     {
@@ -592,7 +593,6 @@ async function setReminder(id)
             "Reminder error:",
             error
         );
-
 
         showReminderDialog(
             "error",
@@ -607,11 +607,7 @@ async function setReminder(id)
 // SHOW REMINDER DIALOG
 // ========================================
 
-function showReminderDialog(
-    type,
-    title,
-    message
-)
+function showReminderDialog(type,title,message)
 {
     const dialog =
         document.getElementById(
@@ -717,15 +713,20 @@ function showReminderDialog(
 function closeReminderDialog()
 {
     const dialog =
-        document.getElementById(
-            'reminderDialog'
-        );
+        document.getElementById('reminderDialog');
 
-    dialog.style.display =
-        'none';
+    dialog.style.display = 'none';
 
-    document.body.style.overflow =
-        '';
+    document.body.style.overflow = '';
+
+    // Make sure event popup is also closed
+    const eventDialog =
+        document.getElementById('eventDetailDialog');
+
+    if (eventDialog)
+    {
+        eventDialog.style.display = 'none';
+    }
 }
 
 

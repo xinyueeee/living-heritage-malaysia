@@ -8,447 +8,758 @@ use Illuminate\Http\Request;
 use App\Models\TripPlan;
 use App\Models\TripPlanItem;
 
+
 class TripPlannerController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Plan Trip
-    |--------------------------------------------------------------------------
-    */
-
-    public function plan(Request $request)
+    public function index()
     {
-        $request->validate([
-            'date' => 'required|date',
-        ]);
-
-        $date = $request->date;
-        $userId = auth()->id();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Create or get user's Trip Plan
-        |--------------------------------------------------------------------------
-        */
-
-        $tripPlan = TripPlan::firstOrCreate(
-            [
-                'user_id' => $userId,
-                'trip_date' => $date,
-            ],
-            [
-                'status' => 'active',
-            ]
-            
-        );
-
-        $savedTripItems = TripPlanItem::where(
-            'trip_plan_id',
-            $tripPlan->id
-        )
-        ->with('experience')
-        ->orderBy(
-            'display_order',
-            'asc'
-        )
-        ->get();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | STEP 1
-        | Get ALL festivals selected by this user for this date
-        |--------------------------------------------------------------------------
-        */
-
-        $notifications = Notification::where(
-            'user_id',
-            $userId
-        )
-        ->where(
-            'notification_type',
-            'festival_reminder'
-        )
-        ->whereDate(
-            'selected_date',
-            $date
-        )
-        ->get();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | STEP 2
-        | Get selected Festival experiences
-        |--------------------------------------------------------------------------
-        */
-
-        $selectedFestivalIds = $notifications
-            ->pluck('experience_id')
-            ->filter()
-            ->unique();
-
-
-        $selectedFestivals = Experience::whereIn(
-            'experiences_id',
-            $selectedFestivalIds
-        )
-        ->where(
-            'type_id',
-            2
-        )
-        ->get();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | No selected festivals
-        |--------------------------------------------------------------------------
-        */
-
-        if ($selectedFestivals->isEmpty())
-        {
-            return response()->json([
-                'success' => false,
-
-                'message' =>
-                    'No selected festivals were found for this date.',
-            ], 422);
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | STEP 3
-        | Find Cultural Experiences
-        |--------------------------------------------------------------------------
-        */
-
-        $culturalExperiences = Experience::where(
-            'type_id',
-            1
-        )
-        ->whereNotIn(
-            'experiences_id',
-            $selectedFestivalIds
-        )
-        ->whereNotNull('latitude')
-        ->whereNotNull('longitude')
-        ->get();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | STEP 4
-        | Calculate distance to ALL selected festivals
-        |--------------------------------------------------------------------------
-        */
-
-        $culturalExperiences = $culturalExperiences->map(
-            function ($culturalExperience) use ($selectedFestivals)
-            {
-                $distances = [];
-
-
-                foreach ($selectedFestivals as $festival)
-                {
-                    if (
-                        $festival->latitude === null ||
-                        $festival->longitude === null
-                    )
-                    {
-                        continue;
-                    }
-
-
-                    $lat1 = deg2rad(
-                        $festival->latitude
-                    );
-
-                    $lon1 = deg2rad(
-                        $festival->longitude
-                    );
-
-                    $lat2 = deg2rad(
-                        $culturalExperience->latitude
-                    );
-
-                    $lon2 = deg2rad(
-                        $culturalExperience->longitude
-                    );
-
-
-                    $latDifference =
-                        $lat2 - $lat1;
-
-                    $lonDifference =
-                        $lon2 - $lon1;
-
-
-                    $a =
-                        sin($latDifference / 2) ** 2
-                        +
-                        cos($lat1)
-                        *
-                        cos($lat2)
-                        *
-                        sin($lonDifference / 2) ** 2;
-
-
-                    $c = 2 * asin(
-                        sqrt($a)
-                    );
-
-
-                    $distance = 6371 * $c;
-
-
-                    $distances[] = [
-                        'festival_id' =>
-                            $festival->experiences_id,
-
-                        'festival_name' =>
-                            $festival->experiences_name,
-
-                        'distance_km' =>
-                            round($distance, 2),
-                    ];
-                }
-
-
-                $culturalExperience->festival_distances =
-                    $distances;
-
-
-                return $culturalExperience;
-            }
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | STEP 5
-        | Keep Cultural Experiences within 15 km
-        | of at least one selected Festival
-        |--------------------------------------------------------------------------
-        */
-
-        $maximumDistance = 15;
-
-
-        $culturalExperiences = $culturalExperiences
-            ->filter(function ($experience) use ($maximumDistance)
-            {
-                return collect(
-                    $experience->festival_distances
-                )->contains(function ($distance)
-                    use ($maximumDistance)
-                {
-                    return $distance['distance_km']
-                        <= $maximumDistance;
-                });
-            })
-            ->values();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | STEP 6
-        | Return Trip Planner Result
-        |--------------------------------------------------------------------------
-        */
-
-        return response()->json([
-            'success' => true,
-
-            'date' => $date,
-
-            'selected_festivals' =>
-                $selectedFestivals->map(function ($festival)
-                {
-                    return [
-                        'id' =>
-                            $festival->experiences_id,
-
-                        'name' =>
-                            $festival->experiences_name,
-
-                        'location' =>
-                            $festival->location_name,
-
-                        'duration' =>
-                            $festival->duration,
-
-                        'latitude' =>
-                            $festival->latitude,
-
-                        'longitude' =>
-                            $festival->longitude,
-                    ];
-                }),
-
-            'recommended_cultural_experiences' =>
-                $culturalExperiences->map(
-                    function ($experience)
-                    {
-                        return [
-                            'id' =>
-                                $experience->experiences_id,
-
-                            'name' =>
-                                $experience->experiences_name,
-
-                            'location' =>
-                                $experience->location_name,
-
-                            'duration' =>
-                                $experience->duration,
-
-                            'latitude' =>
-                                $experience->latitude,
-
-                            'longitude' =>
-                                $experience->longitude,
-
-                            'distances' =>
-                                $experience->festival_distances,
-                        ];
-                    }
-                ),
-                'saved_trip_items' =>
-                    $savedTripItems->map(function ($item)
-                    {
-                        return [
-                            'id' =>
-                                $item->experience->experiences_id,
-
-                            'name' =>
-                                $item->experience->experiences_name,
-
-                            'location' =>
-                                $item->experience->location_name,
-
-                            'duration' =>
-                                $item->experience->duration,
-
-                            'latitude' =>
-                                $item->experience->latitude,
-
-                            'longitude' =>
-                                $item->experience->longitude,
-
-                            'item_type' =>
-                                $item->item_type,
-
-                            'display_order' =>
-                                $item->display_order,
-                        ];
-                    }),
-
-        ]);
-
-        
+        return view('trip-planner.index');
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Add Cultural Experience to Trip
-    |--------------------------------------------------------------------------
-    */
-
-    public function add(Request $request)
+    public function nearby(Request $request)
     {
-        $request->validate([
-            'date' => 'required|date',
+        // Get user's existing trips
+        $trips = TripPlan::where('user_id', auth()->id())
+            ->orderBy('trip_date', 'asc')
+            ->get();
 
-            'experience_id' =>
-                'required|integer',
-        ]);
+        // Area reference coordinates
+        $areaCoordinates = [
 
-        $userId = auth()->id();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Find or create Trip Plan
-        |--------------------------------------------------------------------------
-        */
-
-        $tripPlan = TripPlan::firstOrCreate(
-            [
-                'user_id' => $userId,
-
-                'trip_date' =>
-                    $request->date,
+            'Kuala Lumpur' => [
+                'latitude' => 3.1390,
+                'longitude' => 101.6869,
             ],
-            [
-                'status' => 'active',
-            ]
-        );
+
+            'Selangor' => [
+                'latitude' => 3.0738,
+                'longitude' => 101.5183,
+            ],
+
+            'Penang' => [
+                'latitude' => 5.4141,
+                'longitude' => 100.3288,
+            ],
+
+            'Johor' => [
+                'latitude' => 1.4927,
+                'longitude' => 103.7414,
+            ],
+
+            'Perak' => [
+                'latitude' => 4.5975,
+                'longitude' => 101.0901,
+            ],
+
+            'Melaka' => [
+                'latitude' => 2.1896,
+                'longitude' => 102.2501,
+            ],
+
+            'Negeri Sembilan' => [
+                'latitude' => 2.7258,
+                'longitude' => 101.9424,
+            ],
+
+            'Pahang' => [
+                'latitude' => 3.8126,
+                'longitude' => 103.3256,
+            ],
+
+            'Terengganu' => [
+                'latitude' => 5.3117,
+                'longitude' => 103.1324,
+            ],
+
+            'Kelantan' => [
+                'latitude' => 6.1254,
+                'longitude' => 102.2381,
+            ],
+
+            'Kedah' => [
+                'latitude' => 6.1184,
+                'longitude' => 100.3685,
+            ],
+
+            'Perlis' => [
+                'latitude' => 6.4414,
+                'longitude' => 100.1986,
+            ],
+
+            'Sabah' => [
+                'latitude' => 5.9804,
+                'longitude' => 116.0735,
+            ],
+
+            'Sarawak' => [
+                'latitude' => 1.5533,
+                'longitude' => 110.3592,
+            ],
+
+            'Putrajaya' => [
+                'latitude' => 2.9264,
+                'longitude' => 101.6964,
+            ],
+
+            'Labuan' => [
+                'latitude' => 5.2831,
+                'longitude' => 115.2308,
+            ],
+        ];
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Check if already added
-        |--------------------------------------------------------------------------
-        */
+        // ========================================
+        // Normal page request
+        // ========================================
 
-        $existingItem = TripPlanItem::where(
-            'trip_plan_id',
-            $tripPlan->id
-        )
-        ->where(
-            'experience_id',
-            $request->experience_id
-        )
-        ->first();
-
-
-        if ($existingItem)
-        {
-            return response()->json([
-                'success' => true,
-
-                'message' =>
-                    'This experience is already in your trip.',
+        if (
+            !$request->filled('latitude') ||
+            !$request->filled('longitude')
+        ) {
+            return view('trip-planner.nearby', [
+                'trips' => $trips,
             ]);
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Add Cultural Experience
-        |--------------------------------------------------------------------------
-        */
+        // ========================================
+        // User's current location
+        // ========================================
 
-        TripPlanItem::create([
-            'trip_plan_id' =>
-                $tripPlan->id,
+        $userLatitude = (float) $request->latitude;
+        $userLongitude = (float) $request->longitude;
 
-            'experience_id' =>
-                $request->experience_id,
+        $radius = (int) $request->get('radius', 10);
 
-            'item_type' =>
-                'cultural',
+        // Only allow these radius values
+        $allowedRadius = [10, 15, 20, 30, 50];
 
-            'display_order' =>
-                0,
-        ]);
+        if (!in_array($radius, $allowedRadius)) {
+            $radius = 10;
+        }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Return Success
-        |--------------------------------------------------------------------------
-        */
+        // ========================================
+        // Get cultural experiences
+        // ========================================
+
+        $experiences = Experience::where('type_id', 1)
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->get();
+
+
+        $earthRadius = 6371;
+
+
+        // ========================================
+        // Calculate distance + nearest area
+        // ========================================
+
+        $experiences = $experiences
+            ->map(function ($experience) use (
+                $userLatitude,
+                $userLongitude,
+                $earthRadius,
+                $areaCoordinates
+            ) {
+
+                // Distance from user's current location
+                $lat1 = deg2rad($userLatitude);
+                $lon1 = deg2rad($userLongitude);
+
+                $lat2 = deg2rad((float) $experience->latitude);
+                $lon2 = deg2rad((float) $experience->longitude);
+
+                $latDifference = $lat2 - $lat1;
+                $lonDifference = $lon2 - $lon1;
+
+                $a =
+                    sin($latDifference / 2) ** 2
+                    +
+                    cos($lat1)
+                    * cos($lat2)
+                    * sin($lonDifference / 2) ** 2;
+
+                $c = 2 * atan2(
+                    sqrt($a),
+                    sqrt(1 - $a)
+                );
+
+                $distance = $earthRadius * $c;
+
+                $experience->distance_km =
+                    round($distance, 1);
+
+
+                // ========================================
+                // Find nearest Malaysian area
+                // ========================================
+
+                $nearestArea = null;
+                $nearestAreaDistance = PHP_FLOAT_MAX;
+
+                foreach ($areaCoordinates as $area => $coordinates) {
+
+                    $areaLat = deg2rad(
+                        $coordinates['latitude']
+                    );
+
+                    $areaLon = deg2rad(
+                        $coordinates['longitude']
+                    );
+
+                    $areaLatDifference =
+                        $lat2 - $areaLat;
+
+                    $areaLonDifference =
+                        $lon2 - $areaLon;
+
+                    $areaA =
+                        sin($areaLatDifference / 2) ** 2
+                        +
+                        cos($areaLat)
+                        * cos($lat2)
+                        * sin($areaLonDifference / 2) ** 2;
+
+                    $areaC = 2 * atan2(
+                        sqrt($areaA),
+                        sqrt(1 - $areaA)
+                    );
+
+                    $areaDistance =
+                        $earthRadius * $areaC;
+
+                    if (
+                        $areaDistance <
+                        $nearestAreaDistance
+                    ) {
+                        $nearestAreaDistance =
+                            $areaDistance;
+
+                        $nearestArea = $area;
+                    }
+                }
+
+                // Store nearest area
+                $experience->nearby_area =
+                    $nearestArea;
+
+
+                return $experience;
+            })
+            ->filter(function ($experience) use ($radius) {
+                return $experience->distance_km <= $radius;
+            })
+            ->sortBy('distance_km')
+            ->values();
+
 
         return response()->json([
             'success' => true,
-
-            'message' =>
-                'Experience added to your trip.',
+            'experiences' => $experiences,
         ]);
     }
+
+    public function create(Request $request)
+    {
+        return view('trip-planner.create', [
+            'experienceId' => $request->experience_id,
+            'experienceArea' => $request->area,
+        ]);
+    }
+
+    public function events(Request $request)
+    {
+        $request->validate([
+            'trip_date' => [
+                'required',
+                'date',
+                'after_or_equal:today',
+            ],
+
+            'trip_name' => [
+                'required_without:trip_id',
+                'string',
+                'max:100',
+            ],
+
+            'area' => [
+                'required_without:trip_id',
+                'string',
+            ],
+
+            'trip_id' => [
+                'nullable',
+                'integer',
+                'exists:trip_plans,id',
+            ],
+        ]);
+
+        $date = $request->trip_date;
+        $tripName = $request->trip_name;
+        $area = $request->area;
+        $experienceId = $request->experience_id;
+
+
+        
+
+        // ========================================
+        // Area coordinates
+        // ========================================
+
+        $areaCoordinates = [
+
+            'Kuala Lumpur' => [
+                'latitude' => 3.1390,
+                'longitude' => 101.6869,
+            ],
+
+            'Selangor' => [
+                'latitude' => 3.0738,
+                'longitude' => 101.5183,
+            ],
+
+            'Penang' => [
+                'latitude' => 5.4141,
+                'longitude' => 100.3288,
+            ],
+
+            'Johor' => [
+                'latitude' => 1.4927,
+                'longitude' => 103.7414,
+            ],
+
+            'Perak' => [
+                'latitude' => 4.5975,
+                'longitude' => 101.0901,
+            ],
+
+            'Melaka' => [
+                'latitude' => 2.1896,
+                'longitude' => 102.2501,
+            ],
+
+            'Negeri Sembilan' => [
+                'latitude' => 2.7258,
+                'longitude' => 101.9424,
+            ],
+
+            'Pahang' => [
+                'latitude' => 3.8126,
+                'longitude' => 103.3256,
+            ],
+
+            'Terengganu' => [
+                'latitude' => 5.3117,
+                'longitude' => 103.1324,
+            ],
+
+            'Kelantan' => [
+                'latitude' => 6.1254,
+                'longitude' => 102.2381,
+            ],
+
+            'Kedah' => [
+                'latitude' => 6.1184,
+                'longitude' => 100.3685,
+            ],
+
+            'Perlis' => [
+                'latitude' => 6.4414,
+                'longitude' => 100.1986,
+            ],
+
+            'Sabah' => [
+                'latitude' => 5.9804,
+                'longitude' => 116.0735,
+            ],
+
+            'Sarawak' => [
+                'latitude' => 1.5533,
+                'longitude' => 110.3592,
+            ],
+
+            'Putrajaya' => [
+                'latitude' => 2.9264,
+                'longitude' => 101.6964,
+            ],
+
+            'Labuan' => [
+                'latitude' => 5.2831,
+                'longitude' => 115.2308,
+            ],
+
+        ];
+
+        // ========================================
+        // Get festivals on selected date
+        // and determine their area from coordinates
+        // ========================================
+
+        $festivals = Experience::where('type_id', 2)
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->whereDate('start_date', '<=', $date)
+            ->whereDate('end_date', '>=', $date)
+            ->get();
+
+        $festivals = $festivals
+            ->map(function ($festival) use ($areaCoordinates) {
+
+                $festivalLat = deg2rad((float) $festival->latitude);
+                $festivalLon = deg2rad((float) $festival->longitude);
+
+                $nearestArea = null;
+                $nearestDistance = PHP_FLOAT_MAX;
+
+                foreach ($areaCoordinates as $areaName => $coordinates) {
+
+                    $areaLat = deg2rad($coordinates['latitude']);
+                    $areaLon = deg2rad($coordinates['longitude']);
+
+                    $latDifference = $festivalLat - $areaLat;
+                    $lonDifference = $festivalLon - $areaLon;
+
+                    $a =
+                        sin($latDifference / 2) ** 2
+                        +
+                        cos($areaLat)
+                        * cos($festivalLat)
+                        * sin($lonDifference / 2) ** 2;
+
+                    $c = 2 * atan2(
+                        sqrt($a),
+                        sqrt(1 - $a)
+                    );
+
+                    $distance = 6371 * $c;
+
+                    if ($distance < $nearestDistance) {
+                        $nearestDistance = $distance;
+                        $nearestArea = $areaName;
+                    }
+                }
+
+                $festival->nearby_area = $nearestArea;
+
+                return $festival;
+            })
+            ->filter(function ($festival) use ($area) {
+                return $festival->nearby_area === $area;
+            })
+            ->values();
+
+
+
+
+        // ========================================
+        // Find selected area's coordinates
+        // ========================================
+
+        $areaLocation = $areaCoordinates[$area];
+
+
+        // ========================================
+        // Get cultural experiences
+        // ========================================
+
+        $culturalExperiences = Experience::where('type_id', 1)
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->get();
+
+        
+
+        // ========================================
+        // Filter cultural experiences by distance
+        // ========================================
+
+        $radius = 50; // kilometres
+
+        $culturalExperiences = $culturalExperiences
+            ->filter(function ($experience) use ($areaLocation, $radius) {
+
+                $earthRadius = 6371;
+
+                $lat1 = deg2rad($areaLocation['latitude']);
+                $lon1 = deg2rad($areaLocation['longitude']);
+
+                $lat2 = deg2rad($experience->latitude);
+                $lon2 = deg2rad($experience->longitude);
+
+                $latDifference = $lat2 - $lat1;
+                $lonDifference = $lon2 - $lon1;
+
+                $a =
+                    sin($latDifference / 2) ** 2
+                    +
+                    cos($lat1)
+                    *
+                    cos($lat2)
+                    *
+                    sin($lonDifference / 2) ** 2;
+
+                $c = 2 * atan2(
+                    sqrt($a),
+                    sqrt(1 - $a)
+                );
+
+                $distance = $earthRadius * $c;
+                if ($distance <= $radius) {
+                    $experience->distance_km = round($distance, 1);
+                    return true;
+                }
+                return false;
+            })
+            ->values();
+        
+
+        if ($request->filled('trip_id')) {
+
+            // Existing trip
+            $tripPlan = TripPlan::where('user_id', auth()->id())
+                ->where('id', $request->trip_id)
+                ->firstOrFail();
+
+        } else {
+
+            // Create a brand new trip
+            $tripPlan = TripPlan::create([
+                'user_id' => auth()->id(),
+                'trip_name' => $tripName,
+                'area' => $area,
+                'trip_date' => $date,
+                'status' => 'planning',
+            ]);
+
+            if ($experienceId) {
+
+                TripPlanItem::create([
+                    'trip_plan_id' => $tripPlan->id,
+                    'experience_id' => $experienceId,
+                    'item_type' => 'cultural',
+                ]);
+            }
+
+            // Redirect to the same trip using its ID
+            return redirect()->route('trip.planner.events', [
+                'trip_id' => $tripPlan->id,
+                'trip_date' => $tripPlan->trip_date->format('Y-m-d'),
+                'trip_name' => $tripPlan->trip_name,
+                'area' => $tripPlan->area,
+            ]);
+        }
+        $tripName = $tripPlan->trip_name;
+        $area = $tripPlan->area;
+        $date = $tripPlan->trip_date->format('Y-m-d');
+
+        $addedExperienceIds = TripPlanItem::where(
+            'trip_plan_id',
+            $tripPlan->id
+        )
+        ->pluck('experience_id')
+        ->toArray();
+
+        $culturalExperiences = $culturalExperiences
+            ->sortByDesc(function ($experience) use ($addedExperienceIds) {
+                return in_array(
+                    $experience->experiences_id,
+                    $addedExperienceIds
+                );
+            })
+            ->values();
+
+
+        return view('trip-planner.events', [
+            'date' => $date,
+            'area' => $area,
+            'festivals' => $festivals,
+            'culturalExperiences' => $culturalExperiences,
+            'addedExperienceIds' => $addedExperienceIds,
+            'tripPlan' => $tripPlan,
+        ]);
+    }
+
+    public function myTrips(Request $request)
+    {
+        $sort = $request->get('sort', 'latest');
+
+        $trips = TripPlan::where('user_id', auth()->id())
+            ->with('items.experience');
+
+        if ($sort === 'oldest') {
+            $trips->orderBy('trip_date', 'asc');
+        } else {
+            $trips->orderBy('trip_date', 'desc');
+        }
+
+        $trips = $trips->get();
+
+        return view('trip-planner.my-trips', compact('trips'));
+    }
+
+    public function destroy(TripPlan $trip)
+    {
+        // Make sure the trip belongs to the logged-in user
+        if ($trip->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // Delete all items belonging to this trip
+        TripPlanItem::where('trip_plan_id', $trip->id)->delete();
+
+        // Delete the trip itself
+        $trip->delete();
+
+        return redirect()
+            ->route('trip.planner.my-trips')
+            ->with('success', 'Trip deleted successfully.');
+    }
+
+    public function addToTrip(Request $request)
+    {
+        $request->validate([
+            'trip_id' => [
+                'required',
+                'integer',
+                'exists:trip_plans,id',
+            ],
+
+            'experience_id' => [
+                'required',
+            ],
+
+            'item_type' => [
+                'required',
+                'in:festival,cultural',
+            ],
+        ]);
+
+        $trip = TripPlan::where('id', $request->trip_id)
+        ->where('user_id', auth()->id())
+        ->firstOrFail();
+
+        $existingItem = TripPlanItem::where('trip_plan_id', $trip->id)
+            ->where('experience_id', $request->experience_id)
+            ->first();
+
+        if ($existingItem) {
+            return response()->json([
+                'success' => false,
+                'already_added' => true,
+                'message' => 'This experience is already in your trip.',
+            ]);
+        }
+
+        $nextOrder = TripPlanItem::where('trip_plan_id', $trip->id)
+            ->max('display_order');
+
+        TripPlanItem::create([
+            'trip_plan_id' => $trip->id,
+            'experience_id' => $request->experience_id,
+            'item_type' => $request->item_type,
+            'display_order' => ($nextOrder ?? 0) + 1,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Event added to your trip.',
+        ]);
+    }
+
+    public function removeFromTrip(Request $request)
+    {
+        $request->validate([
+            'trip_date' => ['required', 'date'],
+            'experience_id' => ['required'],
+        ]);
+
+        $trip = TripPlan::where('user_id', auth()->id())
+            ->whereDate('trip_date', $request->trip_date)
+            ->first();
+
+        if (!$trip) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Trip not found.',
+            ], 404);
+        }
+
+        $deleted = TripPlanItem::where('trip_plan_id', $trip->id)
+            ->where('experience_id', $request->experience_id)
+            ->delete();
+
+        return response()->json([
+            'success' => $deleted > 0,
+            'message' => $deleted > 0
+                ? 'Experience removed from your trip.'
+                : 'Experience was not found in your trip.',
+        ]);
+    }
+
+    public function remove(Request $request)
+    {
+        $userId = auth()->id();
+
+        $tripPlan = TripPlan::where('user_id', $userId)
+            ->whereDate('trip_date', $request->trip_date)
+            ->first();
+
+        if (!$tripPlan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Trip not found.'
+            ]);
+        }
+
+        $tripItem = TripPlanItem::where('trip_plan_id', $tripPlan->id)
+            ->where('experience_id', $request->experience_id)
+            ->first();
+
+        if (!$tripItem) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This event is not in your trip.'
+            ]);
+        }
+
+        $tripItem->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Event removed from your trip.'
+        ]);
+    }
+
+    public function nearbyTrips(Request $request)
+{
+    $userId = auth()->id();
+
+    $trips = TripPlan::with('items')
+        ->where('user_id', $userId)
+        ->orderBy('trip_date')
+        ->get();
+
+    return response()->json([
+        'success' => true,
+        'trips' => $trips->map(function ($trip) {
+
+            return [
+                'id' => $trip->id,
+                'trip_name' => $trip->trip_name,
+                'area' => $trip->area,
+                'trip_date' => $trip->trip_date->format('d F Y'),
+
+                'experience_ids' => $trip->items
+                    ->pluck('experience_id')
+                    ->values(),
+            ];
+
+        }),
+    ]);
+}
+
+
+    
 }

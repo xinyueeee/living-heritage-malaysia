@@ -6,16 +6,32 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
-    {
-        Schema::create('trip_plans', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
-    }
+    
+public function up(): void
+{
+    Schema::create('trip_plans', function (Blueprint $table) {
+        $table->id('trip_plan_id');
+
+        $table->uuid('user_id');
+
+        $table->date('trip_date');
+
+        $table->string('status')
+              ->default('active');
+
+        $table->timestamps();
+
+        $table->foreign('user_id')
+              ->references('id')
+              ->on('users')
+              ->onDelete('cascade');
+
+        $table->unique([
+            'user_id',
+            'trip_date'
+        ]);
+    });
+}
 
     /**
      * Reverse the migrations.

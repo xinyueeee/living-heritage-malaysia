@@ -56,15 +56,69 @@ Route::middleware('auth')->group(function () {
     Route::get('/alerts/personalize', [AlertController::class, 'create'])
     ->name('alerts.create');
 
-Route::post('/alerts/personalize', [AlertController::class, 'store'])
-    ->name('alerts.store');
-    if (app()->isLocal()) {
-        Route::get('/alerts/test-matching', [AlertController::class, 'testMatchingEvents'])
-            ->name('alerts.test-matching');
-        Route::get('/alerts/test-email', [AlertController::class, 'testEmail'])
-            ->name('alerts.test-email');
-    }
+    Route::post('/alerts/personalize', [AlertController::class, 'store'])
+        ->name('alerts.store');
+        if (app()->isLocal()) {
+            Route::get('/alerts/test-matching', [AlertController::class, 'testMatchingEvents'])
+                ->name('alerts.test-matching');
+            Route::get('/alerts/test-email', [AlertController::class, 'testEmail'])
+                ->name('alerts.test-email');
+        }
 
+
+    Route::get(
+        '/trip-planner',
+        [TripPlannerController::class, 'index']
+    )->name('trip.planner.index');
+
+
+    Route::get(
+        '/trip-planner/create',
+        [TripPlannerController::class, 'create']
+    )->name('trip.planner.create');
+
+
+    Route::get(
+        '/trip-planner/my-trips',
+        [TripPlannerController::class, 'myTrips']
+    )->name('trip.planner.my-trips');
+
+    Route::get(
+        '/trip-planner',
+        [TripPlannerController::class, 'index']
+    )->name('trip.planner.index');
+
+    Route::get(
+        '/trip-planner/events',
+        [TripPlannerController::class, 'events']
+    )->name('trip.planner.events');
+
+
+    Route::post(
+        '/trip-planner/add',
+        [TripPlannerController::class, 'addToTrip']
+    )->name('trip.planner.add');
+
+    Route::delete(
+        '/trip-planner/remove',
+        [TripPlannerController::class, 'removeFromTrip']
+    )->name('trip.planner.remove');
+
+    Route::get(
+        '/trip-planner/nearby',
+        [TripPlannerController::class, 'nearby']
+    )->name('trip.planner.nearby');
+
+    Route::delete(
+        '/trip-planner/{trip}',
+        [TripPlannerController::class, 'destroy']
+    )->name('trip.planner.destroy');
+            
+
+    Route::get(
+        '/trip-planner/nearby/trips',
+        [TripPlannerController::class, 'nearbyTrips']
+    )->middleware('auth')->name('trip.planner.nearby.trips');
 
 #Route::get('/engagement', [EngagementController::class, 'index'])->name('engagement.index');
 #Route::get('/engagement/passport', [EngagementController::class, 'passport'])->name('engagement.passport');
@@ -151,13 +205,5 @@ Route::get('/notifications/count', [NotificationController::class, 'count'])
     ->name('notifications.count')
     ->middleware('auth');
 
-Route::post('/trip-planner/plan', [TripPlannerController::class, 'plan'])
-    ->name('trip.planner.plan')
-    ->middleware('auth');
-
-Route::post(
-    '/trip-planner/plan',
-    [TripPlannerController::class, 'plan']
-)->name('trip.planner.plan');
 
 

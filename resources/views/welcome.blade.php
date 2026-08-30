@@ -44,6 +44,12 @@
                         <span>Festival integration pending</span>
                     </span>
                 @endif
+                <a class="shortcut-item" href="{{ route('trip.planner.index') }}">
+                    <span class="shortcut-icon">🧭</span>
+                    <strong>Trip Planner</strong>
+                    <span>Plan and organize your trips</span>
+                </a>
+
                 <a class="shortcut-item" href="{{ route('engagement.index') }}">
                     <span class="shortcut-icon"><x-home-icon name="gift" /></span>
                     <strong>Engagement &amp; Rewards</strong>
