@@ -14,6 +14,7 @@
                 <li><a href="{{ route('experiences.index') }}">Discover</a></li>
                 <li><a href="{{ route('community.index') }}">Community</a></li>
                 <li><a href="{{ route('festival.calendar') }}">Festival Alert</a></li>
+                <li><a href="{{ route('trip.planner.index') }}">Trip Planner</a></li>
                 <li><a href="{{ route('engagement.index') }}">Engagement &amp; Rewards</a></li>
             </ul>
         </div>

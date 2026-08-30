@@ -247,7 +247,3 @@ Route::get('/notifications/count', [NotificationController::class, 'count'])
     ->middleware('auth');
 
 
-Route::post(
-    '/trip-planner/add',
-    [TripPlannerController::class, 'add']
-)->name('trip.planner.add');
