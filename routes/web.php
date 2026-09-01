@@ -107,14 +107,10 @@ Route::middleware('auth')->group(function () {
         [TripPlannerController::class, 'nearbyTrips']
     )->middleware('auth')->name('trip.planner.nearby.trips');
 
-#Route::get('/engagement', [EngagementController::class, 'index'])->name('engagement.index');
-#Route::get('/engagement/passport', [EngagementController::class, 'passport'])->name('engagement.passport');
-#Route::get('/engagement/achievements', [EngagementController::class, 'achievements'])->name('engagement.achievements');
-#Route::get('/engagement/history', [EngagementController::class, 'history'])->name('engagement.history');
-
-
     Route::get('/alerts/personalize', [AlertController::class, 'create'])
         ->name('alerts.create');
+
+
 
     Route::post('/alerts/personalize', [AlertController::class, 'store'])
         ->name('alerts.store');
@@ -176,6 +172,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/engagement/history', [EngagementController::class, 'history'])->name('engagement.history');
 
+    Route::get('/engagement/leaderboard',[EngagementController::class, 'leaderboard'])->name('engagement.leaderboard');
+
     Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
     Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
 
@@ -236,7 +234,6 @@ Route::get('/festival/login-required', function () {
 })->name('festival.login-required');
 
 
-
 Route::get(
     '/experience/{id}',
     [ExperienceController::class, 'show']
@@ -245,5 +242,4 @@ Route::get(
 Route::get('/notifications/count', [NotificationController::class, 'count'])
     ->name('notifications.count')
     ->middleware('auth');
-
 

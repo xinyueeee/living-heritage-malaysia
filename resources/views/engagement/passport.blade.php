@@ -176,6 +176,13 @@
                     >
                         Download Journey Card
                     </button>
+                    <button
+                        type="button"
+                        class="outline-btn"
+                        data-share-journey-card
+                    >
+                        Share Passport
+                    </button>
                     <a
                         href="{{ route(
                             'engagement.passport.customize'

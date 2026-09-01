@@ -9,9 +9,13 @@
 @section('content')
 
 <div class="album-page">
+    <a href="{{ route('profile') }}" class="album-back-link">
+        ← Back to Profile
+    </a>
 
     <div class="album-page-header">
         <div>
+            
             <p class="album-eyebrow">MY PROFILE</p>
             <h1>My Albums</h1>
             <p>Keep your favourite cultural memories organised in your own albums.</p>
@@ -79,8 +83,8 @@
                         @endif
 
                         <span class="album-photo-count">
-                            {{ $album->photo_count ?? 0 }}
-                            {{ ($album->photo_count ?? 0) == 1 ? 'photo' : 'photos' }}
+                            {{ $album->photos_count ?? 0 }}
+                            {{ ($album->photos_count ?? 0) == 1 ? 'photo' : 'photos' }}
                         </span>
                     </div>
 
