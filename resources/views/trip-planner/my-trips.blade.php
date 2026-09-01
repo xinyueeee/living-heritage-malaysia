@@ -131,10 +131,7 @@
                     <div class="my-trip-actions">
                         <a
                             href="{{ route('trip.planner.events', [
-                                'trip_id' => $trip->id,
-                                'trip_date' => $trip->trip_date->format('Y-m-d'),
-                                'trip_name' => $trip->trip_name,
-                                'area' => $trip->area
+                                'trip_id' => $trip->id
                             ]) }}"
                             class="my-trip-view-button"
                         >

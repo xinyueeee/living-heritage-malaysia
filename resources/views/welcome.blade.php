@@ -44,7 +44,7 @@
                     </span>
                 @endif
                 <a class="shortcut-item" href="{{ route('trip.planner.index') }}">
-                    <span class="shortcut-icon">🧭</span>
+                    <span class="shortcut-icon"> <x-home-icon name="map-pin" /></span>
                     <strong>Trip Planner</strong>
                     <span>Plan and organize your trips</span>
                 </a>

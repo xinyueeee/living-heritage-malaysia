@@ -13,6 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
         '[data-download-journey-card]'
     );
 
+    const shareJourneyButton = document.querySelector(
+        '[data-share-journey-card]'
+    );
+
     const waitForCardImages = async () => {
         if (!journeyCard) {
             return;
@@ -108,6 +112,70 @@ document.addEventListener('DOMContentLoaded', () => {
                 downloadJourneyButton.disabled = false;
                 downloadJourneyButton.textContent =
                     originalText;
+            }
+        }
+    );
+
+    shareJourneyButton?.addEventListener(
+        'click',
+        async () => {
+            const originalText = shareJourneyButton.textContent;
+
+            shareJourneyButton.disabled = true;
+            shareJourneyButton.textContent = 'Creating Card...';
+
+            try {
+                const blob = await createJourneyCardBlob();
+
+                if (!blob) {
+                    throw new Error(
+                        'The journey card could not be generated.'
+                    );
+                }
+
+                const passportFile = new File(
+                    [blob],
+                    'my-cultural-journey.png',
+                    {
+                        type: 'image/png',
+                    }
+                );
+
+                const shareData = {
+                    title: 'My Digital Cultural Passport',
+                    text:
+                        'Explore my Malaysian cultural journey! '
+                        + '#LivingHeritageMalaysia',
+                    files: [passportFile],
+                };
+
+                if (
+                    ! navigator.share
+                    || ! navigator.canShare?.(shareData)
+                ) {
+                    alert(
+                        'Image sharing is not supported on this '
+                        + 'device. Please use Download Journey Card.'
+                    );
+
+                    return;
+                }
+
+                await navigator.share(shareData);
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    console.error(
+                        'Journey card sharing failed:',
+                        error
+                    );
+
+                    alert(
+                        'Sorry, the journey card could not be shared.'
+                    );
+                }
+            } finally {
+                shareJourneyButton.disabled = false;
+                shareJourneyButton.textContent = originalText;
             }
         }
     );
@@ -355,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             autoSize: true,
             showCover: false,
-            usePortrait: true,
+            usePortrait: false,
 
             drawShadow: true,
             maxShadowOpacity: 0.35,
@@ -364,10 +432,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             useMouseEvents: true,
             showPageCorners: true,
-            disableFlipByClick: true,
+            disableFlipByClick: false,
 
-            mobileScrollSupport: true,
-            swipeDistance: 30,
+            mobileScrollSupport: false,
+            swipeDistance: 10,
         }
     );
 

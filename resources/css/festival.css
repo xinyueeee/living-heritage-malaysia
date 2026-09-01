@@ -670,11 +670,6 @@
 
     cursor: pointer;
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
-
 .personalized-alert-page form button[type="submit"] {
     grid-column: 1 / -1;
 
@@ -1654,7 +1649,7 @@
     .save-alert-btn {
         width: 100%;
     }
-
+}
 
 .trip-itinerary-content p
 {
@@ -1703,4 +1698,7 @@
     border-radius: 10px;
 
 }
+<<<<<<< HEAD
 }
+=======
+>>>>>>> 2590321255b5362c68d9682a9a7d3d75758eb705

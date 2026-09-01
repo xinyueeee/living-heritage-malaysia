@@ -125,6 +125,9 @@ class ExperienceController extends Controller
         $festivalReminderSet = $festivalReminderEligible && $request->user()
             ? $this->festivalReminderService->existsFor($request->user(), $experience)
             : false;
+        $festivalReminderDate = $festivalReminderEligible
+            ? $experience->start_date->max(today())->format('Y-m-d')
+            : null;
 
         try {
             $weatherGuide = $this->weatherForecastService->guideForExperience($experience);
@@ -156,6 +159,7 @@ class ExperienceController extends Controller
             'weatherConditionDisplay',
             'festivalReminderEligible',
             'festivalReminderSet',
+            'festivalReminderDate',
         ));
     }
 }

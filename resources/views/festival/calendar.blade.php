@@ -515,28 +515,11 @@ async function setReminder(id)
             }
         );
 
-<<<<<<< HEAD
-        const data =
+const data =
             await response.json();
 
         console.log("Status:", response.status);
         console.log("Response:", data);
-=======
-
-     const data =
-    await response.json();
-        console.log(
-            "Status:",
-            response.status
-        );
-
-
-        console.log(
-            "Response:",
-            data
-        );
-
->>>>>>> origin/main
 
         // ========================================
         // SUCCESS
@@ -545,11 +528,7 @@ async function setReminder(id)
         if (
             response.ok &&
             data.success
-<<<<<<< HEAD
-        )
-=======
 )
->>>>>>> origin/main
         {
             // Close Event Details popup
             const eventDialog =
@@ -589,9 +568,9 @@ async function setReminder(id)
 
             showReminderDialog(
                 "warning",
-                "Event Already Added",
+                "Reminder Already Set",
                 data.message ||
-                "This event has already been added to your reminders."
+                "A reminder has already been created for this festival date."
             );
 
             return;
@@ -785,3 +764,5 @@ loadEvents();
 </script>
 
 @endpush
+
+

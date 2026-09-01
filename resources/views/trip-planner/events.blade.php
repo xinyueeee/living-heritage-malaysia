@@ -221,7 +221,10 @@
                                 <button
                                     type="button"
                                     class="trip-remove-button"
-                                    onclick="removeFromTrip('{{ $festival->experiences_id }}')"
+                                    onclick="removeFromTrip(
+                                        '{{ $festival->experiences_id }}',
+                                        '{{ $tripPlan->id }}'
+                                    )"
                                 >
                                     Remove
                                 </button>
@@ -397,7 +400,10 @@
                                 <button
                                     type="button"
                                     class="trip-remove-button"
-                                    onclick="removeFromTrip('{{ $experience->experiences_id }}')"
+                                    onclick="removeFromTrip(
+                                        '{{ $experience->experiences_id }}',
+                                        '{{ $tripPlan->id }}'
+                                    )"
                                 >
                                     Remove
                                 </button>
@@ -564,10 +570,12 @@ async function addToTrip(experienceId, itemType, tripId)
     }
 }
 
-
-async function removeFromTrip(experienceId)
+async function removeFromTrip(experienceId, tripId)
 {
-    const tripDate = @json($date);
+    console.log('Removing from trip:', {
+        experienceId: experienceId,
+        tripId: tripId
+    });
 
     try
     {
@@ -588,22 +596,25 @@ async function removeFromTrip(experienceId)
                     "Accept": "application/json"
                 },
 
-                body: JSON.stringify(
-                {
-                    trip_date: tripDate,
+                body: JSON.stringify({
+                    trip_id: tripId,
                     experience_id: experienceId
                 })
             }
         );
 
+        console.log('Remove response status:', response.status);
+
         const data = await response.json();
+
+        console.log('Remove response:', data);
 
         if (data.success)
         {
             showTripPopup(
                 "success",
                 "Event Removed",
-                data.message
+                data.message || "Event has been removed from your trip."
             );
 
             return;
@@ -629,6 +640,7 @@ async function removeFromTrip(experienceId)
         );
     }
 }
+
 
 function learnMore(id)
 {
