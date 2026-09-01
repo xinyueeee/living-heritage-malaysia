@@ -67,6 +67,7 @@
                                         data-reminder-set="{{ $festivalReminderSet ? 'true' : 'false' }}"
                                         data-reminder-url="{{ route('calendar.reminder') }}"
                                         data-experience-id="{{ $experience->getKey() }}"
+                                        data-selected-date="{{ $festivalReminderDate }}"
                                     >
                                         <span aria-hidden="true">{{ $festivalReminderSet ? '✓' : '🔔' }}</span>
                                         {{ $festivalReminderSet ? 'Reminder Set' : 'Set Festival Reminder' }}

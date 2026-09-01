@@ -143,6 +143,16 @@ class NotificationController extends Controller
             ], 404);
         }
 
+        if (!$this->festivalReminderService->isEligible($experience))
+        {
+            return response()->json([
+                'success' => false,
+
+                'message' =>
+                    'This festival is no longer eligible for a reminder.'
+            ], 422);
+        }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -152,7 +162,7 @@ class NotificationController extends Controller
 
         $selectedDate = Carbon::parse(
             $request->selected_date
-        );
+        )->startOfDay();
 
 
         /*
@@ -198,7 +208,7 @@ class NotificationController extends Controller
             'experience_id',
             $experience->experiences_id
         )
-        ->where(
+        ->whereDate(
             'selected_date',
             $selectedDate->format('Y-m-d')
         )

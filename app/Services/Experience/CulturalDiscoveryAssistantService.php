@@ -68,8 +68,6 @@ class CulturalDiscoveryAssistantService
             ?? $explicitCategoryType
             ?? ($context['type'] ?? null);
 
-        // A category that belongs to another real type (for example Music
-        // under Festival) is enough to select that type before parsing.
         $requestedTypeName ??= 'Cultural Experience';
         $type = $this->experienceRepository->findExperienceTypeByName($requestedTypeName);
         if (! $type) {
@@ -79,12 +77,7 @@ class CulturalDiscoveryAssistantService
         [$categories, $locations] = $this->categoriesAndLocationsForType($allCategories, $type);
         $parsed = $this->intentParser->parse($message, $context, $categories, $locations);
 
-        // The parser (especially Gemini, understanding the full message) may
-        // land on a different, more correct type than the naive pre-guess
-        // used only to fetch a grounding category list — trust it, and
-        // re-resolve the type/categories/locations used for the actual
-        // database query so an explicit "cultural experiences" can never be
-        // stuck with a stale inherited Festival type.
+
         if (filled($parsed->type) && $parsed->type !== $requestedTypeName) {
             $requestedTypeName = $parsed->type;
             $type = $this->experienceRepository->findExperienceTypeByName($requestedTypeName);
@@ -117,6 +110,86 @@ class CulturalDiscoveryAssistantService
         );
 
         return $this->withDiagnostics($finalized);
+    }
+
+    /**
+     * Centralizes what "use the conversation naturally" means regardless of
+     * which parser produced the intent: a follow-up that doesn't restate a
+     * field keeps the still-relevant value from context (Gemini is asked to
+     * already do this in its own output, but the deterministic fallback and
+     * any partial AI answer both rely on this safety net too), and soft
+     * preferences accumulate across turns instead of needing to be repeated.
+     */
+    private function contextualize(DiscoveryIntent $parsed, array $context): DiscoveryIntent
+    {
+        $type = $parsed->type;
+        $category = $parsed->category;
+        $location = $parsed->location;
+        if ($parsed->intent === 'refine' && ! $parsed->resetContext) {
+            $type ??= $context['type'] ?? null;
+            $category ??= $context['category'] ?? null;
+            $location ??= $context['location'] ?? null;
+        }
+
+        // "Forget Penang" / "never mind" / "new plan" abandons prior
+        // constraints outright — nothing carries over, including soft
+        // preferences, regardless of how the parser classified the intent.
+        $softPreferences = $parsed->resetContext
+            ? $parsed->softPreferences
+            : collect($context['soft_preferences'] ?? [])
+                ->merge($parsed->softPreferences)
+                ->unique()
+                ->take(8)
+                ->values()
+                ->all();
+
+        $intent = $parsed->intent;
+
+        // A message naming an explicit location or category is a retrieval
+        // request, not a request for the historical personalization
+        // batch — this mirrors the deterministic parser's own rule so it
+        // applies the same way regardless of which parser produced the
+        // intent (recommend() itself has no location/category filtering).
+        if ($intent === 'recommend' && (filled($location) || filled($category))) {
+            $intent = 'find';
+        }
+
+        $hasActiveCandidates = count($this->currentCandidateIds($context)) >= 2
+            || count($context['current_comparison_ids'] ?? []) >= 2;
+
+        // "Actually they love music" right after a judgement/comparison is a
+        // preference update, not a fresh search. Only a genuine *change* of
+        // location or type counts as a new search here — the type is always
+        // resolved by this point, so presence alone means nothing. A
+        // category alone is usually the preference itself ("they love
+        // music"), and judge() reports honestly (and offers that search)
+        // when no current candidate matches it.
+        $changesSearchScope = (filled($parsed->location) && $parsed->location !== ($context['location'] ?? null))
+            || (filled($type) && $type !== ($context['type'] ?? null));
+        if (in_array($intent, ['find', 'refine'], true)
+            && ! $changesSearchScope
+            && ! $parsed->resetContext
+            && $hasActiveCandidates
+            && in_array($context['last_intent'] ?? null, ['judge', 'compare'], true)
+            && $parsed->softPreferences !== []) {
+            $intent = 'judge';
+        }
+
+        return new DiscoveryIntent(
+            intent: $intent,
+            keyword: $parsed->keyword,
+            location: $location,
+            category: $category,
+            excludedCategories: $parsed->excludedCategories,
+            sortPreference: $parsed->sortPreference,
+            experienceReferences: $parsed->experienceReferences,
+            experienceNames: $parsed->experienceNames,
+            excludePreviousResults: $parsed->excludePreviousResults,
+            type: $type,
+            softPreferences: $softPreferences,
+            needsClarification: $parsed->needsClarification,
+            resetContext: $parsed->resetContext,
+        );
     }
 
     /**
@@ -278,85 +351,7 @@ class CulturalDiscoveryAssistantService
         );
     }
 
-    /**
-     * Centralizes what "use the conversation naturally" means regardless of
-     * which parser produced the intent: a follow-up that doesn't restate a
-     * field keeps the still-relevant value from context (Gemini is asked to
-     * already do this in its own output, but the deterministic fallback and
-     * any partial AI answer both rely on this safety net too), and soft
-     * preferences accumulate across turns instead of needing to be repeated.
-     */
-    private function contextualize(DiscoveryIntent $parsed, array $context): DiscoveryIntent
-    {
-        $type = $parsed->type;
-        $category = $parsed->category;
-        $location = $parsed->location;
-        if ($parsed->intent === 'refine' && ! $parsed->resetContext) {
-            $type ??= $context['type'] ?? null;
-            $category ??= $context['category'] ?? null;
-            $location ??= $context['location'] ?? null;
-        }
-
-        // "Forget Penang" / "never mind" / "new plan" abandons prior
-        // constraints outright — nothing carries over, including soft
-        // preferences, regardless of how the parser classified the intent.
-        $softPreferences = $parsed->resetContext
-            ? $parsed->softPreferences
-            : collect($context['soft_preferences'] ?? [])
-                ->merge($parsed->softPreferences)
-                ->unique()
-                ->take(8)
-                ->values()
-                ->all();
-
-        $intent = $parsed->intent;
-
-        // A message naming an explicit location or category is a retrieval
-        // request, not a request for the historical personalization
-        // batch — this mirrors the deterministic parser's own rule so it
-        // applies the same way regardless of which parser produced the
-        // intent (recommend() itself has no location/category filtering).
-        if ($intent === 'recommend' && (filled($location) || filled($category))) {
-            $intent = 'find';
-        }
-
-        $hasActiveCandidates = count($this->currentCandidateIds($context)) >= 2
-            || count($context['current_comparison_ids'] ?? []) >= 2;
-
-        // "Actually they love music" right after a judgement/comparison is a
-        // preference update, not a fresh search. Only a genuine *change* of
-        // location or type counts as a new search here — the type is always
-        // resolved by this point, so presence alone means nothing. A
-        // category alone is usually the preference itself ("they love
-        // music"), and judge() reports honestly (and offers that search)
-        // when no current candidate matches it.
-        $changesSearchScope = (filled($parsed->location) && $parsed->location !== ($context['location'] ?? null))
-            || (filled($type) && $type !== ($context['type'] ?? null));
-        if (in_array($intent, ['find', 'refine'], true)
-            && ! $changesSearchScope
-            && ! $parsed->resetContext
-            && $hasActiveCandidates
-            && in_array($context['last_intent'] ?? null, ['judge', 'compare'], true)
-            && $parsed->softPreferences !== []) {
-            $intent = 'judge';
-        }
-
-        return new DiscoveryIntent(
-            intent: $intent,
-            keyword: $parsed->keyword,
-            location: $location,
-            category: $category,
-            excludedCategories: $parsed->excludedCategories,
-            sortPreference: $parsed->sortPreference,
-            experienceReferences: $parsed->experienceReferences,
-            experienceNames: $parsed->experienceNames,
-            excludePreviousResults: $parsed->excludePreviousResults,
-            type: $type,
-            softPreferences: $softPreferences,
-            needsClarification: $parsed->needsClarification,
-            resetContext: $parsed->resetContext,
-        );
-    }
+    
 
     /**
      * @param  array<string, mixed>  $response

@@ -5,8 +5,10 @@
 @import './auth.css';
 @import './festival.css';
 @import './tripPlanner.css';
+
 @import './discovery-assistant.css';
 @import './pages.css';
+
 :root {
     --primary: #A52A1A;
     --primary-dark: #7B1E14;

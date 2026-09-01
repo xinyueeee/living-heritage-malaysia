@@ -110,6 +110,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/alerts/personalize', [AlertController::class, 'create'])
         ->name('alerts.create');
 
+
+
     Route::post('/alerts/personalize', [AlertController::class, 'store'])
         ->name('alerts.store');
     if (app()->isLocal()) {
@@ -227,7 +229,6 @@ Route::get('/festival/login-required', function () {
 })->name('festival.login-required');
 
 
-
 Route::get(
     '/experience/{id}',
     [ExperienceController::class, 'show']
@@ -236,5 +237,4 @@ Route::get(
 Route::get('/notifications/count', [NotificationController::class, 'count'])
     ->name('notifications.count')
     ->middleware('auth');
-
 
