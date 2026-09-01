@@ -209,32 +209,6 @@
                                 Display full stamp cards in a grid.
                             </small>
                         </label>
-
-                        <label class="passport-option-card">
-                            <input
-                                type="radio"
-                                name="display_layout"
-                                value="compact"
-                                @checked(
-                                    old(
-                                        'display_layout',
-                                        $passport->display_layout
-                                    ) === 'compact'
-                                )
-                            >
-
-                            <span class="layout-preview layout-compact">
-                                <i></i>
-                                <i></i>
-                                <i></i>
-                            </span>
-
-                            <strong>Compact Collection</strong>
-
-                            <small>
-                                Display smaller stamps with less text.
-                            </small>
-                        </label>
                     </div>
                 </fieldset>
 

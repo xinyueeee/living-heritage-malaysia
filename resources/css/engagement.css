@@ -689,16 +689,50 @@
 }
 
 
-    @media (max-width: 480px) {
-        .passport-collection-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .recent-achievement-grid {
-            grid-template-columns: 1fr;
-        }   
+@media (max-width: 480px) {
+    .passport-collection-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
     }
 
+    .passport-collection-image {
+        min-height: 120px;
+        padding: 10px;
+    }
+
+    .passport-collection-image img {
+        width: 75px;
+        height: 75px;
+    }
+
+    .passport-lock-icon {
+        font-size: 1.3rem;
+    }
+
+    .passport-collection-content {
+        padding: 12px 10px;
+    }
+
+    .passport-collection-content h3 {
+        margin: 7px 0;
+        font-size: 0.95rem;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+    }
+
+    .passport-collection-content p {
+        font-size: 0.72rem;
+        line-height: 1.4;
+    }
+
+    .passport-collection-content time {
+        font-size: 0.7rem;
+    }
+
+    .recent-achievement-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
 
 /* ================= PASSPORT CUSTOMIZATION ================= */
 
@@ -844,10 +878,6 @@
 .layout-grid {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(2, 1fr);
-}
-
-.layout-compact {
-    grid-template-columns: repeat(3, 1fr);
 }
 
 .passport-checkbox-setting {
@@ -1184,26 +1214,6 @@
 .passport-book-stamp img {
     width: 68px;
     height: 68px;
-}
-
-/* Compact layout */
-
-.passport-layout-compact
-.passport-book-stamp-grid {
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
-    gap: 5px;
-}
-
-.passport-layout-compact
-.passport-book-stamp img {
-    width: 51px;
-    height: 51px;
-}
-
-.passport-layout-compact
-.passport-book-stamp span {
-    font-size: 0.58rem;
 }
 
 /* Details inside passport book */
@@ -1862,10 +1872,50 @@
 
 @media (max-width: 480px) {
     .achievement-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .achievement-card {
+        min-width: 0;
+        padding: 15px 8px;
+    }
+
+    .achievement-card img {
+        width: 68px;
+        height: 68px;
+        margin-bottom: 10px;
+    }
+
+    .achievement-card h3 {
+        min-height: 2.4em;
+        margin-bottom: 7px;
+        font-size: 0.9rem;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+    }
+
+    .achievement-card .badge-status {
+        margin-top: 8px;
+        padding: 5px 9px;
+        font-size: 0.68rem;
+    }
+
+    .achievement-card .progress-bar {
+        height: 7px;
+        margin-top: 11px;
+    }
+
+    .achievement-card .progress-text,
+    .badge-card-progress > span {
+        font-size: 0.68rem;
+    }
+
+    .achievement-card .view-details {
+        margin-top: 9px;
+        font-size: 0.7rem;
     }
 }
-
 .view-details {
     display: block;
     margin-top: 12px;
@@ -4267,4 +4317,92 @@ body.modal-open {
         box-sizing: border-box;
         text-align: center;
     }
+}
+
+@media (max-width: 700px) {
+    .passport-flipbook {
+        width: min(88vw, 360px) !important;
+        max-width: min(88vw, 360px) !important;
+        margin-inline: auto;
+    }
+
+    .passport-book-section {
+        overflow-x: hidden;
+    }
+
+    .passport-flip-page .passport-book-stamp img {
+        width: clamp(26px, 8vw, 36px);
+        height: clamp(26px, 8vw, 36px);
+        transform: scale(1) !important;
+    }
+
+    .passport-flip-page .passport-book-stamp > span {
+        display: -webkit-box;
+        width: 100%;
+        min-height: 2.2em;
+        margin-top: 3px;
+        overflow: hidden;
+        font-size: clamp(0.4rem, 1.8vw, 0.52rem);
+        line-height: 1.1;
+        text-align: center;
+        text-overflow: clip;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    .passport-flip-page .passport-book-stamp-details {
+        display: none;
+    }
+
+    .passport-flip-page .passport-book-stamp-grid {
+        gap: 3px 5px;
+    }
+}
+
+/* Engagement module back buttons */
+
+.achievement-page-header .back-link,
+.history-page-header .back-link,
+.passport-back-link {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 22px;
+    padding: 8px 15px;
+    border: 1px solid var(--heritage-red);
+    border-radius: 9px;
+    background: rgba(255, 253, 249, 0.78);
+    color: var(--heritage-red);
+    font-size: 0.86rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+    box-sizing: border-box;
+    box-shadow: 0 3px 10px rgba(72, 37, 22, 0.07);
+    transition:
+        color 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.achievement-page-header .back-link:hover,
+.history-page-header .back-link:hover,
+.passport-back-link:hover {
+    border-color: var(--heritage-red);
+    background: var(--heritage-red);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(72, 37, 22, 0.14);
+}
+
+.achievement-page-header .back-link:focus-visible,
+.history-page-header .back-link:focus-visible,
+.passport-back-link:focus-visible {
+    outline: 3px solid rgba(217, 154, 43, 0.4);
+    outline-offset: 3px;
 }

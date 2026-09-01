@@ -416,10 +416,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             size: 'stretch',
 
-            minWidth: 220,
+            minWidth: 120,
             maxWidth: 430,
-            minHeight: 267,
-            maxHeight: 522,
+            minHeight: 146,
+            maxHeight: 522,   
 
             autoSize: true,
             showCover: false,
