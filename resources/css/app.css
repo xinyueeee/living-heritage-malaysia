@@ -5,16 +5,9 @@
 @import './auth.css';
 @import './festival.css';
 @import './tripPlanner.css';
-<<<<<<< HEAD
-
 
 @import './discovery-assistant.css';
 @import './pages.css';
-=======
-@import './discovery-assistant.css';
-@import './pages.css';
-
->>>>>>> 2590321255b5362c68d9682a9a7d3d75758eb705
 
 :root {
     --primary: #A52A1A;
