@@ -121,11 +121,6 @@ Route::middleware('auth')->group(function () {
             ->name('alerts.test-email');
     }
 
-    // Route::get('/engagement', [EngagementController::class, 'index'])->name('engagement.index');
-    // Route::get('/engagement/passport', [EngagementController::class, 'passport'])->name('engagement.passport');
-    // Route::get('/engagement/achievements', [EngagementController::class, 'achievements'])->name('engagement.achievements');
-    // Route::get('/engagement/history', [EngagementController::class, 'history'])->name('engagement.history');
-
 
     Route::get('/profile/saved-experiences', [SavedExperienceController::class, 'index'])
         ->name('profile.saved-experiences');
