@@ -25,11 +25,11 @@
                     <strong>Discover</strong>
                     <span>Explore cultural experiences</span>
                 </a>
-                <span class="shortcut-item shortcut-disabled">
+                 <a class="shortcut-item" href="{{ route('community.index') }}">
                     <span class="shortcut-icon"><x-home-icon name="community" /></span>
                     <strong>Community</strong>
                     <span>Join communities and discussions</span>
-                </span>
+                </a>
                 @if ($festivalType)
                     <a class="shortcut-item" href="{{ route('festival.calendar') }}">
                         <span class="shortcut-icon"><x-home-icon name="bell" /></span>
@@ -96,42 +96,57 @@
             </div>
         </section>
 
+        {{-- COMMUNITY HIGHLIGHTS --}}
         <section class="home-section home-community-section" aria-labelledby="community-highlights-heading">
             <div class="container">
                 <div class="section-heading">
                     <div class="heading-with-note">
                         <h2 id="community-highlights-heading">Community Highlights</h2>
-                        <span class="sr-only">Presentation-only preview.</span>
                     </div>
-                    <span class="section-link section-link-disabled" aria-disabled="true">View All Communities <span aria-hidden="true">&rarr;</span></span>
+                   <a class="section-link" href="{{ route('community.groups.index') }}">View All Communities <span aria-hidden="true">&rarr;</span></a>
                 </div>
 
-                <div class="community-preview-grid">
+                 <div class="community-preview-grid">
+                    {{-- Heritage Food Enthusiasts --}}
                     <article class="community-preview-card">
-                        <div class="community-preview-media community-preview-food"><x-home-icon name="food" /></div>
+                        <div class="community-preview-media community-preview-food">
+                            <x-home-icon name="food" />
+                        </div>
                         <div class="community-preview-content">
                             <span class="community-avatar"><x-home-icon name="community" /></span>
                             <h3>Heritage Food Enthusiasts</h3>
                             <p>Exploring and preserving Malaysia's traditional culinary heritage.</p>
-                            <span class="outline-button" aria-disabled="true">Join Community</span>
+                            <a href="{{ route('community.groups.show', 1) }}" class="outline-button">
+                                Join Community <span aria-hidden="true">&rarr;</span>
+                            </a>
                         </div>
                     </article>
+                    {{-- Wayang Kulit Fans --}}
                     <article class="community-preview-card">
-                        <div class="community-preview-media community-preview-arts"><x-home-icon name="arts" /></div>
+                        <div class="community-preview-media community-preview-arts">
+                            <x-home-icon name="arts" />
+                        </div>
                         <div class="community-preview-content">
                             <span class="community-avatar"><x-home-icon name="community" /></span>
                             <h3>Wayang Kulit Fans</h3>
                             <p>Appreciating the art of traditional Malaysian shadow puppetry.</p>
-                            <span class="outline-button" aria-disabled="true">Join Community</span>
+                            <a href="{{ route('community.groups.show', 2) }}" class="outline-button">
+                                Join Community <span aria-hidden="true">&rarr;</span>
+                            </a>
                         </div>
                     </article>
+                    {{-- Traditional Craft Lovers --}}
                     <article class="community-preview-card">
-                        <div class="community-preview-media community-preview-crafts"><x-home-icon name="craft" /></div>
+                        <div class="community-preview-media community-preview-crafts">
+                            <x-home-icon name="craft" />
+                        </div>
                         <div class="community-preview-content">
                             <span class="community-avatar"><x-home-icon name="community" /></span>
                             <h3>Traditional Craft Lovers</h3>
                             <p>Preserving Malaysian traditional crafts, techniques, and skills.</p>
-                            <span class="outline-button" aria-disabled="true">Join Community</span>
+                            <a href="{{ route('community.groups.show', 3) }}" class="outline-button">
+                                Join Community <span aria-hidden="true">&rarr;</span>
+                            </a>   
                         </div>
                     </article>
                 </div>
@@ -205,7 +220,7 @@
                 </aside>
             </div>
         </section>
-
+        {{--
         <section class="home-community-callout">
             <div class="container callout-inner">
                 <span class="callout-icon"><x-home-icon name="community" /></span>
@@ -213,8 +228,9 @@
                     <h2>Be Part of Malaysia's Living Heritage Movement</h2>
                     <p>Share your stories, explore cultural experiences, and help preserve our shared heritage for future generations.</p>
                 </div>
-                <span class="button button-primary button-disabled" aria-disabled="true">Join the Community Now <span aria-hidden="true">&rarr;</span></span>
+                <a href="{{ route('community.index') }}" class="button button-primary">Join the Community Now <span aria-hidden="true">&rarr;</span></a>
             </div>
         </section>
+        --}}
     </div>
 @endsection

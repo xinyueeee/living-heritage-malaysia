@@ -36,15 +36,11 @@
     =================================================== -->
 
     @if(session('success'))
-
         <div class="container">
-
             <div class="alert alert-success">
                 {{ session('success') }}
             </div>
-
         </div>
-
     @endif
 
     @if (session('status'))
@@ -62,62 +58,66 @@
 
     <div class="container community-content">
 
-
         <!-- ===================================================
              FEED HEADER
         =================================================== -->
 
         <div class="community-feed-header">
-
             <h2>
                 Latest Community Posts
             </h2>
-
         </div>
 
+        <!-- ===================================================
+             TAB NAVIGATION - 只显示用户加入的小组
+        =================================================== -->
+
+        @auth
+            @if($userGroups->count() > 0)
+                <div class="community-tabs">
+                    <a href="{{ route('community.index') }}" 
+                       class="community-tab {{ !$selectedGroupId ? 'active' : '' }}">
+                        All Posts
+                    </a>
+                    
+                    @foreach($userGroups as $group)
+                        <a href="{{ route('community.index', ['group_id' => $group->group_id]) }}" 
+                           class="community-tab {{ $selectedGroupId == $group->group_id ? 'active' : '' }}">
+                            {{ $group->name }}
+                        </a>
+                    @endforeach
+                </div>
+            @endif
+        @endauth
 
         <div class="community-feed">
 
-
             @forelse($posts as $post)
-
                 @include('community.partials.post-card', [
                     'post' => $post,
                     'isSaved' => in_array($post->post_id, $savedPostIds ?? [], true),
                 ])
-
             @empty
                 <!-- ===================================================
                      EMPTY FEED
                 =================================================== -->
 
                 <div class="empty-feed">
-
-                    <div class="empty-icon">
-                        💬
-                    </div>
-
-                    <h2>
-                        No Posts Yet
-                    </h2>
-
+                    <div class="empty-icon">💬</div>
+                    <h2>No Posts Yet</h2>
                     <p>
                         Be the first to share your cultural experience
                         with the community.
                     </p>
-
                 </div>
 
             @endforelse
-
 
         </div>
 
     </div>
 
 </div>
-
-
 
 @include('community.partials.photo-viewer')
 

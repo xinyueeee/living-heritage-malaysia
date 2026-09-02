@@ -64,9 +64,99 @@
             <form
                 action="{{ route('community.store') }}"
                 method="POST"
-                enctype="multipart/form-data">
+                enctype="multipart/form-data"
+                id="createPostForm">
 
                 @csrf
+
+
+                <!-- ===================================================
+                     POST TO
+                =================================================== -->
+
+                <div class="form-group">
+
+                    <div class="form-label-row">
+
+                        <label for="community_group_id">
+                            Post to
+                        </label>
+
+                    </div>
+
+
+                    <p class="form-help">
+                        Choose where you want your post to appear.
+                    </p>
+
+
+                    <div class="experience-dropdown">
+
+                        <select
+                            id="community_group_id"
+                            name="community_group_id">
+
+                            <!-- ===================================================
+                                 MAIN COMMUNITY
+                            =================================================== -->
+
+                            <option
+                                value=""
+                                @selected(old('community_group_id') === null || old('community_group_id') === '')
+                            >
+                                Community
+                            </option>
+
+
+                            <!-- ===================================================
+                                 JOINED COMMUNITY GROUPS
+                            =================================================== -->
+
+                            @foreach ($groups as $group)
+
+                                <option
+                                    value="{{ $group->group_id }}"
+                                    @selected(old('community_group_id') == $group->group_id)
+                                >
+                                    {{ $group->name }}
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- ===================================================
+                         GROUP POST INFORMATION
+                    =================================================== -->
+
+                    <small
+                        class="form-help"
+                        id="postLocationHelp"
+                        style="display:block;margin-top:8px;">
+
+                        Your post will appear in the selected location.
+
+                    </small>
+
+
+                    @if ($groups->isEmpty())
+
+                        <small
+                            class="form-help"
+                            style="display:block;margin-top:6px;">
+
+                            You have not joined any community groups yet.
+                            Your post will be published to the main Community.
+
+                        </small>
+
+                    @endif
+
+                </div>
+
 
 
                 <!-- ===================================================
@@ -193,6 +283,7 @@
                 </div>
 
 
+
                 <!-- ===================================================
                      WHAT'S ON YOUR MIND
                 =================================================== -->
@@ -223,6 +314,7 @@
                     </div>
 
                 </div>
+
 
 
                 <!-- ===================================================
@@ -318,6 +410,7 @@
                 </div>
 
 
+
                 <!-- ===================================================
                      UPLOAD NOTE
                 =================================================== -->
@@ -333,6 +426,7 @@
                     10MB per photo
 
                 </div>
+
 
 
                 <!-- ===================================================
@@ -352,7 +446,8 @@
 
                     <button
                         type="submit"
-                        class="publish-btn">
+                        class="publish-btn"
+                        id="publishButton">
 
                         Publish
 
@@ -370,6 +465,7 @@
 </div>
 
 @endsection
+
 
 
 <!-- ===================================================
@@ -405,6 +501,57 @@ document.addEventListener('DOMContentLoaded', function () {
 
             }
         );
+
+    }
+
+
+
+    /* ===================================================
+       POST LOCATION SELECT
+    =================================================== */
+
+    const groupSelect =
+        document.getElementById('community_group_id');
+
+    const postLocationHelp =
+        document.getElementById('postLocationHelp');
+
+
+    if (groupSelect && postLocationHelp) {
+
+        function updatePostLocationMessage() {
+
+            const selectedOption =
+                groupSelect.options[
+                    groupSelect.selectedIndex
+                ];
+
+
+            if (!groupSelect.value) {
+
+                postLocationHelp.textContent =
+                    'Your post will appear in the main Community feed.';
+
+            }
+            else {
+
+                postLocationHelp.textContent =
+                    'Your post will appear in ' +
+                    selectedOption.text +
+                    ' only.';
+
+            }
+
+        }
+
+
+        groupSelect.addEventListener(
+            'change',
+            updatePostLocationMessage
+        );
+
+
+        updatePostLocationMessage();
 
     }
 
@@ -1029,6 +1176,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+
+
+    /* ===================================================
+       PREVENT DOUBLE SUBMISSION
+    =================================================== */
+
+    const createPostForm =
+        document.getElementById('createPostForm');
+
+    const publishButton =
+        document.getElementById('publishButton');
+
+
+    if (
+        createPostForm &&
+        publishButton
+    ) {
+
+        createPostForm.addEventListener(
+            'submit',
+            function () {
+
+                publishButton.disabled = true;
+
+                publishButton.textContent =
+                    'Publishing...';
+
+            }
+        );
+
+    }
 
 });
 
