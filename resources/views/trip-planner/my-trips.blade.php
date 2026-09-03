@@ -52,7 +52,8 @@
 
     @else
 
-        <div class="my-trips-filter">
+    {{-- Sort --}}
+    <div class="my-trips-filter">
 
         <label for="tripSort">
             Sort By Trip Date
@@ -79,89 +80,406 @@
 
     </div>
 
-        <div class="my-trips-list">
 
-            @foreach($trips as $trip)
+    {{-- ========================================
+         UPCOMING TRIPS
+         ======================================== --}}
 
-                <div class="my-trip-card">
+    @php
+        $upcomingTrips = $trips->filter(function ($trip) {
+            return $trip->trip_date->isFuture();
+        });
 
-                    <h2>
-                         {{ $trip->trip_name }}
-                    </h2>
+        $todayTrips = $trips->filter(function ($trip) {
+            return $trip->trip_date->toDateString() === today()->toDateString();
+        });
 
-                    <div class="my-trip-date">
-                        📅
-                        {{ $trip->trip_date->format('d F Y') }}
-                    </div>
-                    <div class="my-trip-area">
-                        📍
-                        {{ $trip->area }}
-                    </div>
+        $pastTrips = $trips->filter(function ($trip) {
+            return $trip->trip_date->toDateString() < today()->toDateString();
+        });
+
+        $upcomingTrips = $trips->filter(function ($trip) {
+            return $trip->trip_date->toDateString() > today()->toDateString();
+        });
+    @endphp
 
 
-                    @if($trip->items->isEmpty())
+    {{-- ========================================
+         TODAY
+         ======================================== --}}
 
-                        <p>
-                            No experiences added yet.
-                        </p>
+    @if($todayTrips->isNotEmpty())
 
-                    @else
+        <section class="my-trips-section my-trips-today-section">
 
-                        <ul class="my-trip-items">
+            <div class="my-trips-section-header">
 
-                            @foreach($trip->items as $item)
+                <h2>
+                    📍 Today's Trips
+                </h2>
 
-                                <li class="my-trip-item">
+                <p>
+                    Trips planned for today.
+                </p>
 
-                                    <span class="my-trip-item-title">
-                                        {{ $item->experience->experiences_name }}
-                                    </span>
+            </div>
 
-                                    <span class="my-trip-item-type">
-                                        {{ ucfirst($item->item_type) }}
-                                    </span>
 
-                                </li>
+            <div class="my-trips-list">
 
-                            @endforeach
+                @foreach($todayTrips as $trip)
 
-                        </ul>
+                    <div class="my-trip-card my-trip-card-today">
 
-                    @endif
-                    <div class="my-trip-actions">
-                        <a
-                            href="{{ route('trip.planner.events', [
-                                'trip_id' => $trip->id
-                            ]) }}"
-                            class="my-trip-view-button"
-                        >
-                            View Trip
-                        </a>
+                        <div class="my-trip-status my-trip-status-today">
+                            🔵 Today
+                        </div>
 
-                        <form
-                            action="{{ route('trip.planner.destroy', $trip->id) }}"
-                            method="POST"
-                            class="delete-trip-form"
-                        >
-                            @csrf
-                            @method('DELETE')
 
-                            <button
-                                type="button"
-                                class="my-trip-delete-button"
-                                onclick="openDeleteTripPopup(this)"
+                        <h2>
+                            {{ $trip->trip_name }}
+                        </h2>
+
+
+                        <div class="my-trip-date">
+                            📅
+                            {{ $trip->trip_date->format('d F Y') }}
+                        </div>
+
+
+                        <div class="my-trip-area">
+                            📍
+                            {{ $trip->area }}
+                        </div>
+
+
+                        @if($trip->items->isEmpty())
+
+                            <p>
+                                No experiences added yet.
+                            </p>
+
+                        @else
+
+                            <ul class="my-trip-items">
+
+                                @foreach($trip->items as $item)
+
+                                    <li class="my-trip-item">
+
+                                        <span class="my-trip-item-title">
+                                            {{ $item->experience->experiences_name }}
+                                        </span>
+
+                                        <span class="my-trip-item-type">
+                                            {{ ucfirst($item->item_type) }}
+                                        </span>
+
+                                    </li>
+
+                                @endforeach
+
+                            </ul>
+
+                        @endif
+
+
+                        <div class="my-trip-actions">
+
+                            <a
+                                href="{{ route('trip.planner.events', [
+                                    'trip_id' => $trip->id
+                                ]) }}"
+                                class="my-trip-view-button"
                             >
-                                Delete Trip
-                            </button>
-                        </form>
+                                View Trip
+                            </a>
+
+
+                            <form
+                                action="{{ route('trip.planner.destroy', $trip->id) }}"
+                                method="POST"
+                                class="delete-trip-form"
+                            >
+
+                                @csrf
+                                @method('DELETE')
+
+                                <button
+                                    type="button"
+                                    class="my-trip-delete-button"
+                                    onclick="openDeleteTripPopup(this)"
+                                >
+                                    Delete Trip
+                                </button>
+
+                            </form>
+
+                        </div>
+
                     </div>
-                </div>
 
-            @endforeach
+                @endforeach
 
-        </div>
+            </div>
+
+        </section>
 
     @endif
+
+
+
+    {{-- ========================================
+         UPCOMING TRIPS
+         ======================================== --}}
+
+    @if($upcomingTrips->isNotEmpty())
+
+        <section class="my-trips-section my-trips-upcoming-section">
+
+            <div class="my-trips-section-header">
+
+                <h2>
+                    🟢 Upcoming Trips
+                </h2>
+
+                <p>
+                    Your upcoming Malaysian cultural trips.
+                </p>
+
+            </div>
+
+
+            <div class="my-trips-list">
+
+                @foreach($upcomingTrips as $trip)
+
+                    <div class="my-trip-card my-trip-card-upcoming">
+
+                        <div class="my-trip-status my-trip-status-upcoming">
+                            🟢 Upcoming
+                        </div>
+
+
+                        <h2>
+                            {{ $trip->trip_name }}
+                        </h2>
+
+
+                        <div class="my-trip-date">
+                            📅
+                            {{ $trip->trip_date->format('d F Y') }}
+                        </div>
+
+
+                        <div class="my-trip-area">
+                            📍
+                            {{ $trip->area }}
+                        </div>
+
+
+                        @if($trip->items->isEmpty())
+
+                            <p>
+                                No experiences added yet.
+                            </p>
+
+                        @else
+
+                            <ul class="my-trip-items">
+
+                                @foreach($trip->items as $item)
+
+                                    <li class="my-trip-item">
+
+                                        <span class="my-trip-item-title">
+                                            {{ $item->experience->experiences_name }}
+                                        </span>
+
+                                        <span class="my-trip-item-type">
+                                            {{ ucfirst($item->item_type) }}
+                                        </span>
+
+                                    </li>
+
+                                @endforeach
+
+                            </ul>
+
+                        @endif
+
+
+                        <div class="my-trip-actions">
+
+                            <a
+                                href="{{ route('trip.planner.events', [
+                                    'trip_id' => $trip->id
+                                ]) }}"
+                                class="my-trip-view-button"
+                            >
+                                View Trip
+                            </a>
+
+
+                            <form
+                                action="{{ route('trip.planner.destroy', $trip->id) }}"
+                                method="POST"
+                                class="delete-trip-form"
+                            >
+
+                                @csrf
+                                @method('DELETE')
+
+                                <button
+                                    type="button"
+                                    class="my-trip-delete-button"
+                                    onclick="openDeleteTripPopup(this)"
+                                >
+                                    Delete Trip
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                @endforeach
+
+            </div>
+
+        </section>
+
+    @endif
+
+
+
+    {{-- ========================================
+         PAST TRIPS / HISTORY
+         ======================================== --}}
+
+    @if($pastTrips->isNotEmpty())
+
+        <section class="my-trips-section my-trips-past-section">
+
+            <div class="my-trips-section-header">
+
+                <h2>
+                    ⚪ Past Trips
+                </h2>
+
+                <p>
+                    Your previous trips and travel history.
+                </p>
+
+            </div>
+
+
+            <div class="my-trips-list">
+
+                @foreach($pastTrips as $trip)
+
+                    <div class="my-trip-card my-trip-card-past">
+
+                        <div class="my-trip-status my-trip-status-past">
+                            ⚪ Completed
+                        </div>
+
+
+                        <h2>
+                            {{ $trip->trip_name }}
+                        </h2>
+
+
+                        <div class="my-trip-date">
+                            📅
+                            {{ $trip->trip_date->format('d F Y') }}
+                        </div>
+
+
+                        <div class="my-trip-area">
+                            📍
+                            {{ $trip->area }}
+                        </div>
+
+
+                        @if($trip->items->isEmpty())
+
+                            <p>
+                                No experiences added yet.
+                            </p>
+
+                        @else
+
+                            <ul class="my-trip-items">
+
+                                @foreach($trip->items as $item)
+
+                                    <li class="my-trip-item">
+
+                                        <span class="my-trip-item-title">
+                                            {{ $item->experience->experiences_name }}
+                                        </span>
+
+                                        <span class="my-trip-item-type">
+                                            {{ ucfirst($item->item_type) }}
+                                        </span>
+
+                                    </li>
+
+                                @endforeach
+
+                            </ul>
+
+                        @endif
+
+
+                        <div class="my-trip-actions">
+
+                            <a
+                                href="{{ route('trip.planner.events', [
+                                    'trip_id' => $trip->id
+                                ]) }}"
+                                class="my-trip-view-button"
+                            >
+                                View Trip
+                            </a>
+
+
+                            <form
+                                action="{{ route('trip.planner.destroy', $trip->id) }}"
+                                method="POST"
+                                class="delete-trip-form"
+                            >
+
+                                @csrf
+                                @method('DELETE')
+
+                                <button
+                                    type="button"
+                                    class="my-trip-delete-button"
+                                    onclick="openDeleteTripPopup(this)"
+                                >
+                                    Delete Trip
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                @endforeach
+
+            </div>
+
+        </section>
+
+    @endif
+
+@endif
+        
+
 
 </div>
 {{-- Delete Trip Confirmation Popup --}}
