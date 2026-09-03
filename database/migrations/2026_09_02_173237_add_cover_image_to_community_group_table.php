@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('community_group', function (Blueprint $table) {
-            $table->string('cover_image')->nullable()->after('description');
-        });
+        if (!Schema::hasColumn('community_group', 'cover_image')) {
+            Schema::table('community_group', function (Blueprint $table) {
+                $table->string('cover_image')->nullable()->after('description');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('community_group', function (Blueprint $table) {
-            $table->dropColumn('cover_image');
-        });
+        if (Schema::hasColumn('community_group', 'cover_image')) {
+            Schema::table('community_group', function (Blueprint $table) {
+                $table->dropColumn('cover_image');
+            });
+        }
     }
 };
