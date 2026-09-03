@@ -173,6 +173,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
     Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
 
+    Route::get('/community/posts/{post}/edit', [CommunityController::class, 'edit'])
+        ->name('community.posts.edit');
+
+    Route::put('/community/posts/{post}', [CommunityController::class, 'update'])
+        ->name('community.posts.update');
+
+    Route::delete('/community/posts/{post}', [CommunityController::class, 'destroy'])
+        ->name('community.posts.destroy');
+
     /*
     |--------------------------------------------------------------------------
     | COMMUNITY GROUP MEMBERSHIP

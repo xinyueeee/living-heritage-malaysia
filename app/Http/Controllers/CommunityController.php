@@ -60,11 +60,9 @@ class CommunityController extends Controller
                     },
                 ]);
             })
-            
             ->when($selectedGroupId, function ($query) use ($selectedGroupId) {
                 $query->where('community_group_id', $selectedGroupId);
             })
-            
             ->when(!$selectedGroupId, function ($query) {
                 $query->whereNull('community_group_id');
             })
@@ -98,7 +96,7 @@ class CommunityController extends Controller
                 ->toArray();
         }
 
-        // ✅ 获取用户加入的小组（用于 Tab 显示）
+        
         $userGroups = collect();
         if ($user && !empty($joinedGroupIds)) {
             $userGroups = CommunityGroup::query()
@@ -804,6 +802,339 @@ class CommunityController extends Controller
                 'success',
                 'You have joined the community!'
             );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT POST
+    |--------------------------------------------------------------------------
+    */
+
+    public function edit(Request $request, Post $post): View
+    {
+        $user = Auth::user();
+
+        // Only the post owner can edit
+        if ($post->user_id !== $user->user_id) {
+            abort(403);
+        }
+
+        $experiences = Experience::with([
+            'category',
+            'type',
+        ])->get();
+
+        return view('community.edit', [
+            'post' => $post,
+            'experiences' => $experiences,
+            'from' => $request->query('from', 'community'),
+        ]);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE POST
+    |--------------------------------------------------------------------------
+    */
+
+    public function update(Request $request, Post $post)
+    {
+        $user = Auth::user();
+
+        // Only the post owner can update
+        if ($post->user_id !== $user->user_id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'experience_id' => [
+                'nullable',
+                'integer',
+                'exists:experiences,experiences_id',
+            ],
+
+            'content' => [
+                'nullable',
+                'string',
+                'max:2000',
+            ],
+
+            'images' => [
+                'nullable',
+                'array',
+                'max:10',
+            ],
+
+            'images.*' => [
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:5120',
+            ],
+
+            'keep_images' => [
+                'nullable',
+                'array',
+            ],
+        ]);
+
+        $content = trim($validated['content'] ?? '');
+        $experienceId = $validated['experience_id'] ?? null;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Get existing images
+        |--------------------------------------------------------------------------
+        */
+
+        $existingImages = [];
+
+        if (!empty($post->post_images)) {
+
+            $decodedImages = json_decode(
+                $post->post_images,
+                true
+            );
+
+            if (is_array($decodedImages)) {
+                $existingImages = $decodedImages;
+            }
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Keep selected existing images
+        |--------------------------------------------------------------------------
+        */
+
+        $keepImages = $request->input('keep_images', []);
+
+        if (!is_array($keepImages)) {
+            $keepImages = [];
+        }
+
+        $remainingImages = [];
+
+        foreach ($existingImages as $image) {
+
+            if (in_array($image, $keepImages, true)) {
+                $remainingImages[] = $image;
+            }
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Upload new images
+        |--------------------------------------------------------------------------
+        */
+
+        $newImages = $request->file('images', []);
+
+        if (!is_array($newImages)) {
+            $newImages = [$newImages];
+        }
+
+        // Remove null values
+        $newImages = array_filter($newImages);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Maximum 10 images
+        |--------------------------------------------------------------------------
+        */
+
+        if (count($remainingImages) + count($newImages) > 10) {
+
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'images' => 'A post can contain a maximum of 10 images.',
+                ]);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Upload new images to Supabase Storage
+        |--------------------------------------------------------------------------
+        */
+
+        $baseUrl = rtrim(
+            config('services.supabase.url'),
+            '/'
+        );
+
+        $serviceRoleKey =
+            config('services.supabase.service_role_key');
+
+        foreach ($newImages as $image) {
+
+            $imageName =
+                time()
+                . '_'
+                . uniqid()
+                . '.'
+                . $image->getClientOriginalExtension();
+
+            $path = 'posts/' . $imageName;
+
+            $response = Http::withHeaders([
+
+                'Authorization' =>
+                    "Bearer {$serviceRoleKey}",
+
+                'apikey' =>
+                    $serviceRoleKey,
+
+                'Content-Type' =>
+                    $image->getMimeType(),
+
+            ])
+                ->withBody(
+                    file_get_contents(
+                        $image->getRealPath()
+                    ),
+                    $image->getMimeType()
+                )
+                ->post(
+                    "{$baseUrl}/storage/v1/object/community-images/{$path}"
+                );
+
+            if ($response->failed()) {
+
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'images' => 'Failed to upload one of the images.',
+                    ]);
+            }
+
+            $publicUrl =
+                "{$baseUrl}/storage/v1/object/public/community-images/{$path}";
+
+            $remainingImages[] = $publicUrl;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Make sure post still has something
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $content === '' &&
+            !$experienceId &&
+            count($remainingImages) === 0
+        ) {
+
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'content' =>
+                        'Please provide some content, select an experience, or keep at least one photo.',
+                ]);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update Post
+        |--------------------------------------------------------------------------
+        */
+
+        $post->update([
+            'experience_id' => $experienceId ?: null,
+
+            'content' => $content !== ''
+                ? $content
+                : null,
+
+            'post_images' => count($remainingImages) > 0
+                ? json_encode(array_values($remainingImages))
+                : null,
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Return to correct page
+        |--------------------------------------------------------------------------
+        */
+
+        // Remember where the user came from
+        $from = $request->input('from', 'community');
+
+        // Return to My Posts
+        if ($from === 'profile') {
+            return redirect()
+                ->route('profile.my-posts')
+                ->with('success', 'Post updated successfully.');
+        }
+
+        // Return to Community Group
+        if ($post->community_group_id) {
+            return redirect()
+                ->route('community.groups.show', $post->community_group_id)
+                ->with('success', 'Post updated successfully.');
+        }
+
+        // Return to Community
+        return redirect()
+            ->route('community.index')
+            ->with('success', 'Post updated successfully.');
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DELETE POST
+    |--------------------------------------------------------------------------
+    */
+
+    public function destroy(Post $post)
+    {
+        $user = Auth::user();
+
+        // Only the post owner can delete
+        if ($post->user_id !== $user->user_id) {
+            abort(403);
+        }
+
+        // Save the group ID before deleting the post
+        $groupId = $post->community_group_id;
+
+        // Delete related data first (Foreign Key constraints)
+        DB::table('post_like')
+            ->where('post_id', $post->post_id)
+            ->delete();
+
+        DB::table('post_comment')
+            ->where('post_id', $post->post_id)
+            ->delete();
+
+        DB::table('post_save')
+            ->where('post_id', $post->post_id)
+            ->delete();
+
+        // Delete the post
+        $post->delete();
+
+        // Return to the correct page
+        if ($groupId) {
+            return redirect()
+                ->route('community.groups.show', $groupId)
+                ->with('success', 'Post deleted successfully.');
+        }
+
+        return redirect()
+            ->route('community.index')
+            ->with('success', 'Post deleted successfully.');
     }
 
 

@@ -550,6 +550,53 @@
     color: #8A3A2D;
 }
 
+.post-options-wrapper {
+    position: relative;
+}
+
+.post-options-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    min-width: 120px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    padding: 6px 0;
+    z-index: 100;
+}
+
+.post-options-menu.show {
+    display: block;
+}
+
+.post-options-menu a,
+.post-options-menu button {
+    display: block;
+    width: 100%;
+    padding: 9px 14px;
+    text-align: left;
+    background: none;
+    border: none;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.post-option-edit {
+    color: #333;
+}
+
+.post-option-delete {
+    color: #c0392b;
+}
+
+.post-option-edit:hover,
+.post-option-delete:hover {
+    background: #f5f5f5;
+}
 
 /* ===================================================
    POST BODY
