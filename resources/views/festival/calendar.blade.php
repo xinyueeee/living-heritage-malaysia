@@ -393,7 +393,7 @@ function showEvent(id, clickedDate)
         <div class="event-detail-actions">
 
             ${
-                event.end_date >= todayString
+                clickedDate >= todayString
                 ? `
                     <button
                         class="reminder-btn"
@@ -415,7 +415,7 @@ function showEvent(id, clickedDate)
         </div>
 
         ${
-            event.end_date >= todayString
+            clickedDate >= todayString
             ? `<p>You'll receive a reminder 3 days before your visit.</p>`
             : ''
         }
@@ -515,11 +515,14 @@ async function setReminder(id)
             }
         );
 
-const data =
+
+        const data =
             await response.json();
 
         console.log("Status:", response.status);
         console.log("Response:", data);
+
+
 
         // ========================================
         // SUCCESS
@@ -528,7 +531,10 @@ const data =
         if (
             response.ok &&
             data.success
-)
+        )
+
+
+
         {
             // Close Event Details popup
             const eventDialog =
@@ -764,4 +770,3 @@ loadEvents();
 </script>
 
 @endpush
-

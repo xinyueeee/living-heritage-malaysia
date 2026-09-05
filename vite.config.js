@@ -21,6 +21,7 @@ export default defineConfig({
                 'resources/css/engagement.css',
                 'resources/js/pages/engagement.js',
                 'resources/js/pages/passport.js',
+                'resources/css/albums.css',
             ],
             refresh: true,
         }),

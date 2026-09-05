@@ -45,15 +45,69 @@
         </div>
 
 
-        <!-- More Button -->
+        <!-- ===================================================
+             MORE OPTIONS
+             ONLY POST OWNER CAN SEE THIS
+        =================================================== -->
 
-        <button
-            type="button"
-            class="post-more-btn"
-            aria-label="More options"
-        >
-            ⋯
-        </button>
+        @auth
+
+            @if ($post->user_id === Auth::user()->user_id)
+
+                <div class="post-options-wrapper">
+
+                    <button
+                        type="button"
+                        class="post-more-btn"
+                        aria-label="More options"
+                    >
+                        ⋯
+                    </button>
+
+
+                    <div class="post-options-menu">
+
+                        <!-- Edit -->
+
+                        <a
+                            href="{{ route('community.posts.edit',[
+                                'post' => $post->post_id,
+                                'from' => isset($fromProfile) && $fromProfile ? 'profile' : 'community',
+                            ]) }}"
+                            class="post-option-edit"
+                        >
+                            Edit
+                        </a>
+
+
+                        <!-- Delete -->
+
+                        <form
+                            method="POST"
+                            action="{{ route('community.posts.destroy', $post->post_id) }}"
+                            onsubmit="return confirm('Are you sure you want to delete this post?');"
+                        >
+
+                            @csrf
+
+                            @method('DELETE')
+
+                            <button
+                                type="submit"
+                                class="post-option-delete"
+                            >
+                                Delete
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            @endif
+
+        @endauth
 
     </div>
 
@@ -454,8 +508,10 @@
                 >
 
 
-                <button type="submit"
-                    class="comment-submit-btn">
+                <button
+                    type="submit"
+                    class="comment-submit-btn"
+                >
                     Post
                 </button>
 
@@ -475,3 +531,152 @@
     </div>
 
 </article>
+
+<script>
+    // Handle Post More Options menu
+    // This partial may appear multiple times on the page,
+    // so make sure the event listener is only added once.
+
+    if (!window.postOptionsMenuInitialized) {
+
+        window.postOptionsMenuInitialized = true;
+
+        document.addEventListener('click', function (event) {
+
+            const moreButton = event.target.closest('.post-more-btn');
+
+            // ==========================================
+            // Clicked the "⋯" button
+            // ==========================================
+
+            if (moreButton) {
+
+                event.stopPropagation();
+
+                const wrapper =
+                    moreButton.closest('.post-options-wrapper');
+
+                if (!wrapper) {
+                    return;
+                }
+
+                const menu =
+                    wrapper.querySelector('.post-options-menu');
+
+                if (!menu) {
+                    return;
+                }
+
+
+                // Close other open menus first
+
+                document
+                    .querySelectorAll('.post-options-menu.show')
+                    .forEach(function (otherMenu) {
+
+                        if (otherMenu !== menu) {
+
+                            otherMenu.classList.remove('show');
+
+                            otherMenu.setAttribute(
+                                'aria-hidden',
+                                'true'
+                            );
+
+                            const otherButton =
+                                otherMenu
+                                    .closest('.post-options-wrapper')
+                                    ?.querySelector('.post-more-btn');
+
+                            if (otherButton) {
+
+                                otherButton.setAttribute(
+                                    'aria-expanded',
+                                    'false'
+                                );
+
+                            }
+
+                        }
+
+                    });
+
+
+                // Toggle current menu
+
+                const isOpen =
+                    menu.classList.contains('show');
+
+
+                if (isOpen) {
+
+                    menu.classList.remove('show');
+
+                    menu.setAttribute(
+                        'aria-hidden',
+                        'true'
+                    );
+
+                    moreButton.setAttribute(
+                        'aria-expanded',
+                        'false'
+                    );
+
+                } else {
+
+                    menu.classList.add('show');
+
+                    menu.setAttribute(
+                        'aria-hidden',
+                        'false'
+                    );
+
+                    moreButton.setAttribute(
+                        'aria-expanded',
+                        'true'
+                    );
+
+                }
+
+                return;
+            }
+
+
+            // ==========================================
+            // Clicked somewhere else
+            // Close all menus
+            // ==========================================
+
+            document
+                .querySelectorAll('.post-options-menu.show')
+                .forEach(function (menu) {
+
+                    menu.classList.remove('show');
+
+                    menu.setAttribute(
+                        'aria-hidden',
+                        'true'
+                    );
+
+
+                    const button =
+                        menu
+                            .closest('.post-options-wrapper')
+                            ?.querySelector('.post-more-btn');
+
+
+                    if (button) {
+
+                        button.setAttribute(
+                            'aria-expanded',
+                            'false'
+                        );
+
+                    }
+
+                });
+
+        });
+
+    }
+</script>

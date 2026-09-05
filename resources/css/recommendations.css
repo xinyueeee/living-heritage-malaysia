@@ -87,35 +87,34 @@
 .recommendations-activity-viewall { margin-left: auto; color: var(--heritage-red); font-weight: 700; white-space: nowrap; }
 
 .recommendations-interest-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
 }
 
 .recommendations-interest-card {
-    display: flex;
-    min-height: 98px;
+    display: inline-flex;
     align-items: center;
-    gap: 18px;
-    padding: 16px 28px;
+    gap: 12px;
+    padding: 10px 22px 10px 12px;
     border: 1px solid #e8d5c0;
-    border-radius: 11px;
+    border-radius: 999px;
     background: rgba(255, 255, 255, .5);
 }
 
 .recommendations-interest-icon {
     display: grid;
-    width: 62px;
-    height: 62px;
-    flex: 0 0 62px;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
     place-items: center;
     border-radius: 50%;
     background: #faead8;
     color: var(--recommendations-red);
 }
 
-.recommendations-interest-icon .home-icon { width: 35px; height: 35px; stroke-width: 1.9; }
-.recommendations-interest-card h3 { margin: 0; font-size: 1.22rem; line-height: 1.25; }
+.recommendations-interest-icon .home-icon { width: 21px; height: 21px; stroke-width: 1.9; }
+.recommendations-interest-card h3 { margin: 0; font-size: .98rem; line-height: 1.25; white-space: nowrap; }
 
 .recommendations-empty-state {
     position: relative;
@@ -126,7 +125,7 @@
 .recommendations-empty-state p { margin: 0; }
 .recommendations-empty-state a { color: var(--recommendations-red); font-weight: 700; }
 .recommendations-empty-state-wide {
-    grid-column: 1 / -1;
+    width: 100%;
     padding: 24px 28px;
     border: 1px solid #e8d5c0;
     border-radius: 11px;
@@ -254,8 +253,6 @@
 .recommendations-browse-more:hover { border-color: var(--recommendations-red); background: #fff5e8; }
 
 @media (max-width: 900px) {
-    .recommendations-interest-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .recommendations-interest-card:last-child { grid-column: 1 / -1; }
     .recommendations-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
@@ -280,11 +277,9 @@
     .recommendations-section { padding-bottom: 29px; }
     .recommendations-section-heading { align-items: flex-start; }
     .recommendations-section-heading h2 { font-size: 1.3rem; }
-    .recommendations-interest-grid,
     .recommendations-grid { grid-template-columns: 1fr; }
-    .recommendations-interest-card:last-child { grid-column: auto; }
-    .recommendations-interest-card { min-height: 94px; padding: 16px 22px; }
-    .recommendations-interest-icon { width: 56px; height: 56px; flex-basis: 56px; }
+    .recommendations-interest-card { padding: 9px 18px 9px 10px; }
+    .recommendations-interest-icon { width: 34px; height: 34px; flex-basis: 34px; }
     .recommendations-activity-column { padding: 22px 26px; }
     .recommendations-activity-decoration { right: -72px; opacity: .45; }
     .recommendations-page .recommendation-card .card-image { height: 210px; }

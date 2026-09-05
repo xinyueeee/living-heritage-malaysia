@@ -229,6 +229,8 @@
     .profile-header-info { width: 100%; }
     .profile-meta { justify-content: center; }
     .profile-edit-btn { width: 100%; justify-content: center; }
+    .profile-card-header-row { flex-wrap: wrap; }
+    .profile-card-header-row > a.profile-edit-btn { margin-top: 4px; }
     .profile-feedback-banner { flex-direction: column; align-items: flex-start; }
     .post-detail-modal { padding: 0; }
     .post-detail-modal-content { max-width: 100%; max-height: 100%; border-radius: 0; }

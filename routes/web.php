@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CommunityController;
+use App\Http\Controllers\CommunityGroupController;
 use App\Http\Controllers\DiscoveryActivityController;
 use App\Http\Controllers\DiscoveryAssistantController;
 use App\Http\Controllers\EngagementController;
@@ -111,6 +112,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/alerts/personalize', [AlertController::class, 'create'])
         ->name('alerts.create');
 
+
+
     Route::post('/alerts/personalize', [AlertController::class, 'store'])
         ->name('alerts.store');
     if (app()->isLocal()) {
@@ -174,6 +177,32 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
     Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
+
+    Route::get('/community/posts/{post}/edit', [CommunityController::class, 'edit'])
+        ->name('community.posts.edit');
+
+    Route::put('/community/posts/{post}', [CommunityController::class, 'update'])
+        ->name('community.posts.update');
+
+    Route::delete('/community/posts/{post}', [CommunityController::class, 'destroy'])
+        ->name('community.posts.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | COMMUNITY GROUP MEMBERSHIP
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/community/groups', [CommunityGroupController::class, 'index'])
+    ->name('community.groups.index');
+
+    Route::get('/community/groups/{groupId}', [CommunityGroupController::class, 'show'])
+    ->name('community.groups.show');
+
+    Route::post('/community/groups/{groupId}/join', [CommunityGroupController::class, 'join'])
+    ->name('community.groups.join');
+
+    Route::delete('/community/groups/{groupId}/leave', [CommunityGroupController::class, 'leave'])
+    ->name('community.groups.leave');
 
     // Profile Albums
     Route::get('/profile/albums', [AlbumController::class, 'index'])

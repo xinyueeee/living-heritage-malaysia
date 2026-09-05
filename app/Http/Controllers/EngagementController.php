@@ -329,7 +329,7 @@ class EngagementController extends Controller
 
             'display_layout' => [
                 'required',
-                'in:book,grid,compact',
+                'in:book,grid',
             ],
 
             'show_stamp_details' => [
