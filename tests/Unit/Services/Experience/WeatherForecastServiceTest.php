@@ -100,6 +100,82 @@ class WeatherForecastServiceTest extends TestCase
         $this->assertSame('FORECAST_AVAILABLE', $guide['forecast_status']);
     }
 
+    public function test_two_part_venue_location_resolves_using_the_official_town(): void
+    {
+        Http::fake(function ($request) {
+            return str_contains(urldecode($request->url()), 'Petaling Jaya')
+                ? Http::response($this->week('Tn076', 'Petaling Jaya'))
+                : Http::response([]);
+        });
+
+        $guide = app(WeatherForecastService::class)->guideForExperience(
+            $this->experience(location: 'Laman MBPJ, Petaling Jaya'),
+        );
+
+        $this->assertSame('FORECAST_AVAILABLE', $guide['forecast_status']);
+        $this->assertSame('Tn076', $guide['matched_location']['location_id']);
+        $this->assertSame('Petaling Jaya', $guide['matched_location']['location_name']);
+    }
+
+    public function test_venue_without_commas_resolves_using_a_trailing_locality_candidate(): void
+    {
+        Http::fake(function ($request) {
+            return str_contains(urldecode($request->url()), 'Taiping')
+                && ! str_contains(urldecode($request->url()), 'Dataran Warisan Taiping')
+                && ! str_contains(urldecode($request->url()), 'Warisan Taiping')
+                    ? Http::response($this->week('Tn029', 'Taiping'))
+                    : Http::response([]);
+        });
+
+        $guide = app(WeatherForecastService::class)->guideForExperience(
+            $this->experience(location: 'Dataran Warisan Taiping'),
+        );
+
+        $this->assertSame('FORECAST_AVAILABLE', $guide['forecast_status']);
+        $this->assertSame('Tn029', $guide['matched_location']['location_id']);
+        $this->assertSame('Taiping', $guide['matched_location']['location_name']);
+    }
+
+    public function test_town_candidate_is_preferred_over_a_recognized_state(): void
+    {
+        Http::fake(function ($request) {
+            $url = urldecode($request->url());
+
+            if (str_contains($url, 'Perak')) {
+                return Http::response($this->week('St004', 'Perak'));
+            }
+
+            return str_contains($url, 'Taiping')
+                && ! str_contains($url, 'Dataran Warisan Taiping')
+                && ! str_contains($url, 'Warisan Taiping')
+                    ? Http::response($this->week('Tn029', 'Taiping'))
+                    : Http::response([]);
+        });
+
+        $guide = app(WeatherForecastService::class)->guideForExperience(
+            $this->experience(location: 'Dataran Warisan Taiping, Perak'),
+        );
+
+        $this->assertSame('Tn029', $guide['matched_location']['location_id']);
+        $this->assertSame('Taiping', $guide['matched_location']['location_name']);
+    }
+
+    public function test_multi_part_sandakan_location_prefers_the_town_component(): void
+    {
+        Http::fake(function ($request) {
+            return str_contains(urldecode($request->url()), 'Sandakan')
+                ? Http::response($this->week('Tn200', 'Sandakan'))
+                : Http::response([]);
+        });
+
+        $guide = app(WeatherForecastService::class)->guideForExperience(
+            $this->experience(location: 'Rainforest Discovery Centre (RDC), Sepilok, Sandakan, Sabah'),
+        );
+
+        $this->assertSame('FORECAST_AVAILABLE', $guide['forecast_status']);
+        $this->assertSame('Tn200', $guide['matched_location']['location_id']);
+    }
+
     public function test_penang_wording_is_mapped_to_the_official_state_name(): void
     {
         Http::fake(['*' => Http::response($this->week('St003', 'Pulau Pinang'))]);
