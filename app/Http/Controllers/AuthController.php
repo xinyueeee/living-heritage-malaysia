@@ -38,13 +38,7 @@ class AuthController extends Controller
         ]);
 
         try {
-            $jwks = Cache::remember('supabase.jwks', 3600, function () {
-                return Http::get(rtrim(config('services.supabase.url'), '/').'/auth/v1/.well-known/jwks.json')
-                    ->throw()
-                    ->json();
-            });
-
-            $payload = JWT::decode($validated['access_token'], JWK::parseKeySet($jwks));
+            $payload = $this->verifyAccessToken($validated['access_token']);
         } catch (Throwable $e) {
             Log::warning('Supabase session verification failed.', ['error' => $e->getMessage()]);
 
@@ -75,5 +69,26 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
+    }
+
+    private function verifyAccessToken(string $accessToken): object
+    {
+        $jwks = Cache::remember('supabase.jwks', 3600, fn () => $this->fetchJwks());
+
+        try {
+            return JWT::decode($accessToken, JWK::parseKeySet($jwks));
+        } catch (Throwable $e) {
+            Cache::forget('supabase.jwks');
+            $jwks = Cache::remember('supabase.jwks', 3600, fn () => $this->fetchJwks());
+
+            return JWT::decode($accessToken, JWK::parseKeySet($jwks));
+        }
+    }
+
+    private function fetchJwks(): array
+    {
+        return Http::get(rtrim(config('services.supabase.url'), '/').'/auth/v1/.well-known/jwks.json')
+            ->throw()
+            ->json();
     }
 }

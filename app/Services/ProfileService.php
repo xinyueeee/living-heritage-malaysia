@@ -16,12 +16,7 @@ use RuntimeException;
 class ProfileService
 {
     private const PHOTO_BUCKET = 'profile-photos';
-    /**
-     * Personal-information fields that are allowed to be edited one at a time
-     * from the Personal Information page.
-     *
-     * @var list<string>
-     */
+
     private const EDITABLE_FIELDS = [
         'user_name',
         'bio',
@@ -71,9 +66,6 @@ class ProfileService
         return $user;
     }
 
-    /**
-     * @return Collection<int, ProfilePhoto>
-     */
     public function getPhotoHistory(string $userId, int $limit = 20): Collection
     {
         return ProfilePhoto::where('user_id', $userId)
@@ -90,9 +82,6 @@ class ProfileService
             ->where('user_id', $userId)
             ->firstOrFail();
 
-        // Restoring an older photo counts as a new change, so it moves to
-        // the front of the history — but it's still the same photo, so we
-        // just bump its timestamp instead of inserting a duplicate row.
         $photo->uploaded_at = now();
         $photo->save();
 
@@ -102,17 +91,11 @@ class ProfileService
         return $user;
     }
 
-    /**
-     * @return Collection<int, Category>
-     */
     public function getAllCategories(): Collection
     {
         return Category::orderBy('category_name')->get(['category_id', 'category_name']);
     }
 
-    /**
-     * @return list<int>
-     */
     public function getSelectedCategoryIds(string $userId): array
     {
         return DB::table('user_interest')
@@ -121,9 +104,6 @@ class ProfileService
             ->all();
     }
 
-    /**
-     * @param  list<int>  $categoryIds
-     */
     public function updateInterests(string $userId, array $categoryIds): void
     {
         DB::transaction(function () use ($userId, $categoryIds) {

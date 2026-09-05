@@ -25,18 +25,12 @@ class ProfileController extends Controller
 
         $userId = Auth::id();
 
+        $achievementStats = $this->achievementsService->getStats($userId);
+
         $stats = [
-            'experiences_completed' => DB::table('completed_experience')
-                ->where('user_id', $userId)
-                ->count(),
-            'passport_stamps' => DB::table('user_passport_stamp')
-                ->join('digital_cultural_passport', 'user_passport_stamp.passport_id', '=', 'digital_cultural_passport.passport_id')
-                ->where('digital_cultural_passport.user_id', $userId)
-                ->count(),
-            'badges_earned' => DB::table('user_achievement')
-                ->where('user_id', $userId)
-                ->where('is_unlocked', true)
-                ->count(),
+            'experiences_completed' => $achievementStats['experiences_completed'],
+            'passport_stamps' => $achievementStats['stamps_collected'],
+            'badges_earned' => $achievementStats['badges_earned'],
         ];
 
         $interests = DB::table('user_interest')
