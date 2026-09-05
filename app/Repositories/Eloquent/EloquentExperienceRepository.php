@@ -7,6 +7,7 @@ use App\Models\Experience;
 use App\Models\ExperienceType;
 use App\Repositories\Contracts\ExperienceRepositoryInterface;
 use App\Services\Experience\MalaysianLocationNormalizer;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -83,20 +84,22 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
 
     public function getMappableExperiences(array $filters): Collection
     {
+        $today = CarbonImmutable::today('Asia/Kuala_Lumpur');
+
         return $this->applyDiscoveryFilters(
             Experience::query()->with(['category', 'type']),
             $filters,
         )
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
-            ->where(function ($query) {
-                $query->where(function ($query) {
+            ->where(function ($query) use ($today) {
+                $query->where(function ($query) use ($today) {
                     $query->whereHas('type', fn ($query) => $query->where('type_name', 'Festival'))
-                        ->where(function ($query) {
-                            $query->whereDate('end_date', '>=', today())
-                                ->orWhere(function ($query) {
+                        ->where(function ($query) use ($today) {
+                            $query->whereDate('end_date', '>=', $today)
+                                ->orWhere(function ($query) use ($today) {
                                     $query->whereNull('end_date')
-                                        ->whereDate('start_date', '>=', today());
+                                        ->whereDate('start_date', '>=', $today);
                                 });
                         });
                 })->orWhere(function ($query) {
