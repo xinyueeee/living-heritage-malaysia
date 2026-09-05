@@ -4,6 +4,10 @@
 
 @section('content')
 
+@php
+    $isPastTrip = $tripPlan->trip_date->toDateString() < today()->toDateString();
+@endphp
+
 <div class="trip-create-page">
 
     <div class="my-trips-header">
@@ -15,7 +19,11 @@
             ← Back to My Trips
         </a>
 
-        <h1>🎉 Plan Your Trip</h1>
+        @if($isPastTrip)
+            <h1>📖 Trip History</h1>
+        @else
+            <h1>🎉 Plan Your Trip</h1>
+        @endif
 
         <p>
             Discover festivals and cultural experiences
@@ -95,7 +103,15 @@
         
 
     </div>
-
+@if($isPastTrip)
+    <div class="trip-past-notice">
+        <strong>⚪ This trip has already passed.</strong>
+        <p>
+            Past trips are read-only. You can view your previous experiences,
+            but you cannot add or remove experiences.
+        </p>
+    </div>
+@else
 
 <div class="trip-events-section">
 
@@ -203,69 +219,65 @@
 
                         @endif
 
+{{-- Buttons --}}
 
-                        {{-- Buttons --}}
+@if(in_array($festival->experiences_id, $addedExperienceIds))
 
-                        @if(in_array($festival->experiences_id, $addedExperienceIds))
+    <div class="trip-actions">
 
-                            <div class="trip-actions">
+        @if(!$isPastTrip)
+            <button
+                type="button"
+                class="trip-remove-button"
+                onclick="removeFromTrip(
+                    '{{ $festival->experiences_id }}',
+                    '{{ $tripPlan->id }}'
+                )"
+            >
+                Remove
+            </button>
+        @endif
 
-                                <button
-                                    type="button"
-                                    class="trip-add-button trip-added-button"
-                                    disabled
-                                >
-                                    ✓ Added to My Trip
-                                </button>
+        <button
+            type="button"
+            class="trip-learn-button"
+            onclick="learnMore('{{ $festival->experiences_id }}')"
+        >
+            Learn More →
+        </button>
 
-                                <button
-                                    type="button"
-                                    class="trip-remove-button"
-                                    onclick="removeFromTrip(
-                                        '{{ $festival->experiences_id }}',
-                                        '{{ $tripPlan->id }}'
-                                    )"
-                                >
-                                    Remove
-                                </button>
+    </div>
 
-                                <button
-                                    type="button"
-                                    class="trip-learn-button"
-                                    onclick="learnMore('{{ $festival->experiences_id }}')"
-                                >
-                                    Learn More →
-                                </button>
+@else
 
-                            </div>
+    <div class="trip-actions">
 
-                        @else
+        @if(!$isPastTrip)
+            <button
+                type="button"
+                class="trip-add-button"
+                onclick="addToTrip(
+                    '{{ $festival->experiences_id }}',
+                    'festival',
+                    '{{ $tripPlan->id }}'
+                )"
+            >
+                + Add to My Trip
+            </button>
+        @endif
 
-                            <div class="trip-actions">
+        <button
+            type="button"
+            class="trip-learn-button"
+            onclick="learnMore('{{ $festival->experiences_id }}')"
+        >
+            Learn More →
+        </button>
 
-                                <button
-                                    type="button"
-                                    class="trip-add-button"
-                                    onclick="addToTrip(
-                                        '{{ $festival->experiences_id }}',
-                                        'festival',
-                                        '{{ $tripPlan->id }}'
-                                    )"
-                                >
-                                    + Add to My Trip
-                                </button>
+    </div>
 
-                                <button
-                                    type="button"
-                                    class="trip-learn-button"
-                                    onclick="learnMore('{{ $festival->experiences_id }}')"
-                                >
-                                    Learn More →
-                                </button>
-
-                            </div>
-
-                        @endif
+@endif
+                        
 
                     </div>
 
@@ -385,66 +397,86 @@
 
                         {{-- Buttons --}}
 
-                        @if(in_array($experience->experiences_id, $addedExperienceIds))
+@if(in_array($experience->experiences_id, $addedExperienceIds))
 
-                            <div class="trip-actions">
+    <div class="trip-actions">
 
-                                <button
-                                    type="button"
-                                    class="trip-add-button trip-added-button"
-                                    disabled
-                                >
-                                    ✓ Added to My Trip
-                                </button>
+        @if(!$isPastTrip)
+            <button
+                type="button"
+                class="trip-add-button trip-added-button"
+                disabled
+            >
+                ✓ Added to My Trip
+            </button>
 
-                                <button
-                                    type="button"
-                                    class="trip-remove-button"
-                                    onclick="removeFromTrip(
-                                        '{{ $experience->experiences_id }}',
-                                        '{{ $tripPlan->id }}'
-                                    )"
-                                >
-                                    Remove
-                                </button>
+            <button
+                type="button"
+                class="trip-remove-button"
+                onclick="removeFromTrip(
+                    '{{ $experience->experiences_id }}',
+                    '{{ $tripPlan->id }}'
+                )"
+            >
+                Remove
+            </button>
+        @endif
 
-                                <button
-                                    type="button"
-                                    class="trip-learn-button"
-                                    onclick="learnMore('{{ $experience->experiences_id }}')"
-                                >
-                                    Learn More →
-                                </button>
+        <button
+            type="button"
+            class="trip-learn-button"
+            onclick="learnMore('{{ $experience->experiences_id }}')"
+        >
+            Learn More →
+        </button>
 
-                            </div>
+    </div>
 
-                        @else
+@else
 
-                            <div class="trip-actions">
+    @if(!$isPastTrip)
 
-                                <button
-                                    type="button"
-                                    class="trip-add-button"
-                                    onclick="addToTrip(
-                                        '{{ $experience->experiences_id }}',
-                                        'cultural',
-                                        '{{ $tripPlan->id }}'
-                                    )"
-                                >
-                                    + Add to My Trip
-                                </button>
+        <div class="trip-actions">
 
-                                <button
-                                    type="button"
-                                    class="trip-learn-button"
-                                    onclick="learnMore('{{ $experience->experiences_id }}')"
-                                >
-                                    Learn More →
-                                </button>
+            <button
+                type="button"
+                class="trip-add-button"
+                onclick="addToTrip(
+                    '{{ $experience->experiences_id }}',
+                    'cultural',
+                    '{{ $tripPlan->id }}'
+                )"
+            >
+                + Add to My Trip
+            </button>
 
-                            </div>
+            <button
+                type="button"
+                class="trip-learn-button"
+                onclick="learnMore('{{ $experience->experiences_id }}')"
+            >
+                Learn More →
+            </button>
 
-                        @endif
+        </div>
+
+    @else
+
+        <div class="trip-actions">
+
+            <button
+                type="button"
+                class="trip-learn-button"
+                onclick="learnMore('{{ $experience->experiences_id }}')"
+            >
+                Learn More →
+            </button>
+
+        </div>
+
+    @endif
+
+@endif
 
                     </div>
 
@@ -462,7 +494,7 @@
 
 
 </div>
-
+@endif
 {{-- Trip Planner Popup --}}
 
 <div
