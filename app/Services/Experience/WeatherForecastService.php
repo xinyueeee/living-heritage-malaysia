@@ -150,9 +150,9 @@ class WeatherForecastService
             return [...$result, 'forecast_status' => 'PAST_EVENT'];
         }
 
-        $lookupTerm = $this->lookupTerm((string) $experience->location_name);
+        $locationCandidates = $this->locationCandidates((string) $experience->location_name);
 
-        if (! $lookupTerm) {
+        if ($locationCandidates === []) {
             return [
                 ...$result,
                 'forecast_status' => 'LOCATION_UNMATCHED',
@@ -161,7 +161,7 @@ class WeatherForecastService
         }
 
         try {
-            $forecasts = $this->forecastsForLocation($lookupTerm);
+            $resolution = $this->resolveLocation($locationCandidates);
         } catch (RuntimeException $exception) {
             return [
                 ...$result,
@@ -171,23 +171,18 @@ class WeatherForecastService
             ];
         }
 
-        if ($forecasts === []) {
+        if ($resolution['status'] !== 'MATCHED') {
             return [
                 ...$result,
-                'forecast_status' => 'LOCATION_UNMATCHED',
-                'location_match_status' => 'UNMATCHED',
+                'forecast_status' => $resolution['status'] === 'AMBIGUOUS'
+                    ? 'LOCATION_AMBIGUOUS'
+                    : 'LOCATION_UNMATCHED',
+                'location_match_status' => $resolution['status'],
             ];
         }
 
-        $match = $this->matchLocation($lookupTerm, $forecasts);
-
-        if ($match['status'] !== 'MATCHED') {
-            return [
-                ...$result,
-                'forecast_status' => $match['status'] === 'AMBIGUOUS' ? 'LOCATION_AMBIGUOUS' : 'LOCATION_UNMATCHED',
-                'location_match_status' => $match['status'],
-            ];
-        }
+        $match = $resolution['match'];
+        $forecasts = $resolution['forecasts'];
 
         $matchedForecasts = collect($forecasts)
             ->where('location_id', $match['location_id'])
@@ -227,27 +222,91 @@ class WeatherForecastService
         ];
     }
 
-    private function lookupTerm(string $locationName): ?string
+    /** @return array<int, string> */
+    private function locationCandidates(string $locationName): array
     {
         $normalized = $this->normalizeText($locationName);
 
         if ($normalized === '') {
-            return null;
+            return [];
         }
+
+        $candidates = [];
 
         foreach (self::LOCATION_ALIASES as $needle => $officialName) {
             if (str_contains($normalized, $needle)) {
-                return $officialName;
+                $candidates[] = $officialName;
             }
         }
 
         $parts = array_values(array_filter(array_map('trim', explode(',', $locationName))));
 
         if (count($parts) >= 3) {
-            return $parts[count($parts) - 2];
+            $candidates[] = $parts[count($parts) - 2];
+        } elseif (count($parts) === 2) {
+            $candidates[] = $parts[1];
         }
 
-        return $parts[0] ?? null;
+        foreach (array_reverse($parts) as $part) {
+            $words = preg_split('/\s+/u', trim($part)) ?: [];
+
+            for ($start = 0; $start < count($words); $start++) {
+                $candidates[] = implode(' ', array_slice($words, $start));
+            }
+        }
+
+        $candidates[] = $locationName;
+
+        return collect($candidates)
+            ->map(fn (string $candidate): string => trim($candidate, " \t\n\r\0\x0B,;-/"))
+            ->filter(fn (string $candidate): bool => $candidate !== '')
+            ->unique(fn (string $candidate): string => $this->normalizeText($candidate))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param array<int, string> $candidates
+     * @return array{status: string, match?: array<string, string>, forecasts?: array<int, array<string, int|string>>}
+     */
+    private function resolveLocation(array $candidates): array
+    {
+        $bestResolution = null;
+        $priority = ['Tn' => 1, 'Ds' => 2, 'Dv' => 3, 'St' => 4, 'Rc' => 5];
+
+        foreach ($candidates as $candidate) {
+            $forecasts = $this->forecastsForLocation($candidate);
+
+            if ($forecasts === []) {
+                continue;
+            }
+
+            $match = $this->matchLocation($candidate, $forecasts);
+
+            if ($match['status'] === 'AMBIGUOUS') {
+                return ['status' => 'AMBIGUOUS'];
+            }
+
+            if ($match['status'] === 'MATCHED') {
+                $resolution = [
+                    'status' => 'MATCHED',
+                    'match' => $match,
+                    'forecasts' => $forecasts,
+                ];
+
+                if (($priority[$match['location_type']] ?? 99) === 1) {
+                    return $resolution;
+                }
+
+                if ($bestResolution === null
+                    || ($priority[$match['location_type']] ?? 99)
+                        < ($priority[$bestResolution['match']['location_type']] ?? 99)) {
+                    $bestResolution = $resolution;
+                }
+            }
+        }
+
+        return $bestResolution ?? ['status' => 'UNMATCHED'];
     }
 
     /**

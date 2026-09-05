@@ -20,7 +20,7 @@
 @section('content')
     <div class="experience-details-page">
         <div class="container experience-details-container">
-            <a class="experience-back-link" href="{{ route('experiences.index') }}">&larr; Back to Experiences</a>
+            <a class="experience-back-link" data-experience-back href="{{ route('experiences.index') }}">&larr; Back to Experiences</a>
 
             <article class="experience-details-card">
                 <div class="experience-details-media">
@@ -215,4 +215,27 @@
             .weather-periods { grid-template-columns: 1fr; }
         }
     </style>
+@endpush
+
+@push('scripts')
+    <script>
+        document.querySelector('[data-experience-back]')?.addEventListener('click', (event) => {
+            if (!document.referrer || window.history.length <= 1 || typeof window.history.back !== 'function') {
+                return;
+            }
+
+            try {
+                const previousPage = new URL(document.referrer);
+
+                if (previousPage.origin !== window.location.origin || previousPage.href === window.location.href) {
+                    return;
+                }
+
+                event.preventDefault();
+                window.history.back();
+            } catch {
+                // Follow the link's Experience List fallback when the referrer is unusable.
+            }
+        });
+    </script>
 @endpush
