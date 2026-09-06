@@ -243,7 +243,7 @@
     .profile-sidebar a, .profile-sidebar button { flex: 1; justify-content: center; padding: 10px 2px; }
     .profile-sidebar svg { width: 20px; height: 20px; }
     .profile-sidebar-label { display: none; }
-    .profile-sidebar-logout-form { display: none; }
+    .profile-sidebar-logout-form { flex: 1; }
     .profile-hero-photo-content h1 { font-size: 2.55rem; }
     .profile-hero-photo { min-height: 350px; padding: 46px 0; }
 }
