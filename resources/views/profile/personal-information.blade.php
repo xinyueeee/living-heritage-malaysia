@@ -26,7 +26,7 @@
                         <span class="profile-field-success" hidden>Saved</span>
                     </div>
                     <div class="profile-field-form" hidden>
-                        <input type="text" class="profile-field-input" maxlength="100" value="{{ $user->user_name }}" aria-label="Full Name">
+                        <input type="text" class="profile-field-input" value="{{ $user->user_name }}" aria-label="Full Name">
                         <div class="profile-field-actions">
                             <button type="button" class="button button-primary" data-action="save">Save</button>
                             <button type="button" class="profile-field-cancel" data-action="cancel">Cancel</button>

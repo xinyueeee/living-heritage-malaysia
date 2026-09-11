@@ -59,6 +59,10 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
                         Member since {{ $user->created_at?->format('F Y') ?? '—' }}
                     </p>
+
+                    @if ($user->bio)
+                        <p class="profile-field-value-multiline profile-header-bio">{{ $user->bio }}</p>
+                    @endif
                 </div>
 
                 <a href="{{ route('profile.personal-information') }}" class="profile-edit-btn">
