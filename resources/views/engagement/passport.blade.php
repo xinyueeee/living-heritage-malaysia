@@ -173,13 +173,16 @@
                         type="button"
                         class="outline-btn"
                         data-download-journey-card
+                        @disabled($passportStamps->isEmpty())
                     >
                         Download Journey Card
                     </button>
+
                     <button
                         type="button"
                         class="outline-btn"
                         data-share-journey-card
+                        @disabled($passportStamps->isEmpty())
                     >
                         Share Passport
                     </button>
@@ -195,6 +198,9 @@
             </div>
 
             @if ($passportStamps->isEmpty())
+                <p class="journey-card-locked-message">
+                    Collect your first passport stamp to download and share your journey card.
+                </p>
                 <div class="passport-book-empty">
                     <img
                         src="{{ asset(

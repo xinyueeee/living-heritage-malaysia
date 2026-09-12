@@ -4406,3 +4406,23 @@ body.modal-open {
     outline: 3px solid rgba(217, 154, 43, 0.4);
     outline-offset: 3px;
 }
+
+.passport-stamps .empty-state p {
+    color: #A52A1A;
+}
+
+.passport-heading-actions .outline-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.journey-card-locked-message {
+    margin: 0 0 20px;
+    color: #6B351D;
+    text-align: center;
+}
+
+.passport-stamps .passport-stamp span {
+    color: #A52A1A;
+}
