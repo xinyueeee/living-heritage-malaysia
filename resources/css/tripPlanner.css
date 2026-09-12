@@ -2257,3 +2257,1066 @@
     color: #4b5563;
     font-size: 15px;
 }
+
+/* ========================================
+   MOBILE RESPONSIVE FIX
+   Trip Planner / My Trips / Nearby
+   ======================================== */
+
+@media (max-width: 600px) {
+
+    /* ========================================
+       GLOBAL MOBILE WIDTH FIX
+       ======================================== */
+
+    .trip-planner-page,
+    .trip-create-page,
+    .my-trips-page,
+    .trip-detail-page,
+    .nearby-page {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
+
+    /* ========================================
+       TRIP SUMMARY
+       ======================================== */
+
+    .trip-summary {
+        width: 100%;
+        max-width: 100%;
+        padding: 18px 15px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    .trip-summary-header {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .trip-summary-header h2 {
+        font-size: 21px;
+        line-height: 1.35;
+        overflow-wrap: break-word;
+    }
+
+    .trip-summary-header p {
+        font-size: 14px;
+        line-height: 1.5;
+        overflow-wrap: break-word;
+    }
+
+
+    /* ----------------------------------------
+       Trip information
+       ---------------------------------------- */
+
+    .trip-summary-details {
+        width: 100%;
+        min-width: 0;
+
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1fr);
+
+        gap: 10px;
+
+        margin-top: 18px;
+    }
+
+    .trip-summary-info {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        padding: 14px;
+    }
+
+    .trip-summary-info > span {
+        flex-shrink: 0;
+        font-size: 20px;
+    }
+
+    .trip-summary-info strong,
+    .trip-summary-info p {
+        min-width: 0;
+        overflow-wrap: break-word;
+        word-break: normal;
+    }
+
+    .trip-summary-info strong {
+        font-size: 13px;
+    }
+
+    .trip-summary-info p {
+        font-size: 15px;
+        line-height: 1.5;
+    }
+
+
+    /* ----------------------------------------
+       Experiences added section
+       ---------------------------------------- */
+
+    .trip-summary-experiences {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+
+        margin-top: 18px;
+        padding-top: 15px;
+
+        overflow: hidden;
+    }
+
+    .trip-summary-experiences h3 {
+        font-size: 16px;
+        line-height: 1.4;
+        overflow-wrap: break-word;
+    }
+
+    .trip-summary-experience-list {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .trip-summary-experience-list li {
+        width: 100%;
+        box-sizing: border-box;
+
+        font-size: 13px;
+        line-height: 1.5;
+
+        overflow-wrap: break-word;
+    }
+
+
+    /* ========================================
+       TRIP DETAIL HEADER
+       ======================================== */
+
+    .trip-detail-header {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .trip-detail-header h1 {
+        font-size: 28px;
+        line-height: 1.3;
+        overflow-wrap: break-word;
+    }
+
+    .trip-detail-date {
+        font-size: 14px;
+        overflow-wrap: break-word;
+    }
+
+
+    /* ========================================
+       NEARBY PAGE
+       ======================================== */
+
+    .nearby-page {
+        padding: 25px 14px 45px;
+    }
+
+    .nearby-header {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .nearby-header h1 {
+        font-size: 27px;
+        line-height: 1.3;
+        overflow-wrap: break-word;
+    }
+
+    .nearby-header p {
+        font-size: 14px;
+        line-height: 1.6;
+        overflow-wrap: break-word;
+    }
+
+
+    /* ========================================
+       NEARBY RESULTS
+       ======================================== */
+
+    .nearby-results {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .nearby-results > h2 {
+        font-size: 24px;
+        line-height: 1.35;
+        overflow-wrap: break-word;
+    }
+
+    .nearby-results > p {
+        font-size: 14px;
+        line-height: 1.6;
+        overflow-wrap: break-word;
+    }
+
+
+    /* ========================================
+       NEARBY EXPERIENCE GRID
+       ======================================== */
+
+    .nearby-experience-grid {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1fr);
+
+        gap: 16px;
+    }
+
+
+    /* ========================================
+       NEARBY EXPERIENCE CARD
+       ======================================== */
+
+    .nearby-experience-grid .trip-event-card {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+
+        box-sizing: border-box;
+
+        overflow: hidden;
+    }
+
+
+    /* ----------------------------------------
+       Image
+       ---------------------------------------- */
+
+    .nearby-experience-grid .trip-event-image {
+        width: 100%;
+        height: 200px;
+        min-width: 0;
+    }
+
+    .nearby-experience-grid .trip-event-image-img {
+        width: 100%;
+        height: 100%;
+
+        object-fit: cover;
+    }
+
+
+    /* ----------------------------------------
+       Card content
+       ---------------------------------------- */
+
+    .nearby-experience-grid .trip-event-card-content {
+        width: 100%;
+        min-width: 0;
+
+        padding: 18px;
+        box-sizing: border-box;
+    }
+
+    .nearby-experience-grid .trip-event-card-content h3 {
+        width: 100%;
+        min-width: 0;
+
+        font-size: 19px;
+        line-height: 1.4;
+
+        overflow-wrap: break-word;
+        word-break: normal;
+    }
+
+    .nearby-experience-grid .trip-event-card-content p {
+        width: 100%;
+        min-width: 0;
+
+        font-size: 14px;
+        line-height: 1.55;
+
+        overflow-wrap: break-word;
+        word-break: normal;
+    }
+
+
+    /* ========================================
+       NEARBY CARD BUTTONS
+       ======================================== */
+
+    .nearby-card-actions {
+        width: 100%;
+        min-width: 0;
+
+        display: flex;
+        flex-direction: column;
+
+        gap: 8px;
+
+        box-sizing: border-box;
+    }
+
+    .nearby-card-actions button {
+        width: 100%;
+        min-width: 0;
+
+        min-height: 44px;
+        height: 44px;
+
+        box-sizing: border-box;
+    }
+
+
+    /* ========================================
+       LOCATION CARD
+       ======================================== */
+
+    .nearby-location-card {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+
+        padding: 24px 16px;
+        margin-bottom: 35px;
+
+        overflow: hidden;
+    }
+
+    .nearby-location-card h2 {
+        font-size: 21px;
+        line-height: 1.4;
+    }
+
+    .nearby-location-card > p {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .nearby-location-button {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+
+    /* ========================================
+       RADIUS FILTER
+       ======================================== */
+
+    .nearby-radius-filter {
+        width: 100%;
+        box-sizing: border-box;
+
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+
+        gap: 8px;
+    }
+
+    .nearby-radius-filter label {
+        font-size: 14px;
+    }
+
+    .nearby-radius-select {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+
+    /* ========================================
+       POPUPS
+       ======================================== */
+
+    .trip-popup-overlay,
+    .nearby-trip-popup-overlay {
+        padding: 12px;
+        box-sizing: border-box;
+    }
+
+    .trip-popup,
+    .nearby-trip-popup {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+
+        padding: 24px 18px;
+    }
+
+    .nearby-trip-popup-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .nearby-trip-popup-actions button {
+        width: 100%;
+        min-height: 44px;
+    }
+
+
+    /* ========================================
+       TRIP ACTION BUTTONS
+       ======================================== */
+
+    .trip-actions {
+        width: 100%;
+        min-width: 0;
+
+        flex-direction: column !important;
+    }
+
+    .trip-actions button,
+    .trip-actions a {
+        width: 100% !important;
+        min-width: 0;
+
+        min-height: 44px;
+        height: 44px;
+
+        box-sizing: border-box;
+    }
+
+
+    /* ========================================
+       MY TRIPS
+       ======================================== */
+
+    .my-trips-page {
+        padding: 30px 14px 50px;
+    }
+
+    .my-trips-list {
+        width: 100%;
+        min-width: 0;
+
+        grid-template-columns:
+            minmax(0, 1fr);
+    }
+
+    .my-trip-card {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+
+        padding: 18px;
+        overflow: hidden;
+    }
+
+    .my-trip-card h2 {
+        font-size: 21px;
+        overflow-wrap: break-word;
+    }
+
+    .my-trip-actions {
+        width: 100%;
+        min-width: 0;
+
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .my-trip-actions form {
+        width: 100%;
+    }
+
+    .my-trip-view-button,
+    .my-trip-delete-button {
+        width: 100%;
+        min-height: 44px;
+        height: 44px;
+
+        box-sizing: border-box;
+    }
+
+
+    /* ========================================
+       TRIP CREATE PAGE
+       ======================================== */
+
+    .trip-create-page {
+        padding: 30px 14px 50px;
+    }
+
+    .trip-create-header h1 {
+        font-size: 28px;
+        line-height: 1.3;
+        overflow-wrap: break-word;
+    }
+
+    .trip-create-header p {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .trip-date-section {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+
+        padding: 20px 16px;
+    }
+
+    .trip-event-grid {
+        width: 100%;
+        min-width: 0;
+
+        grid-template-columns:
+            minmax(0, 1fr);
+
+        gap: 16px;
+    }
+
+    .trip-event-card {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+
+    /* ========================================
+       BACK BUTTONS
+       ======================================== */
+
+    .trip-back-button,
+    .my-trips-back-button,
+    .nearby-back-button {
+        max-width: 100%;
+        box-sizing: border-box;
+
+        font-size: 14px;
+    }
+}
+
+
+/* ========================================
+   EXTRA SMALL PHONES
+   ======================================== */
+
+@media (max-width: 400px) {
+
+    .trip-summary {
+        padding: 16px 12px;
+    }
+
+    .trip-summary-info {
+        padding: 12px;
+    }
+
+    .trip-summary-info p {
+        font-size: 14px;
+    }
+
+    .nearby-page,
+    .my-trips-page,
+    .trip-create-page {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .nearby-experience-grid {
+        gap: 14px;
+    }
+
+    .nearby-experience-grid .trip-event-card-content {
+        padding: 16px;
+    }
+
+    .nearby-experience-grid .trip-event-image {
+        height: 190px;
+    }
+
+    .trip-popup,
+    .nearby-trip-popup {
+        padding: 22px 15px;
+    }
+}
+
+/* ========================================
+   MOBILE BUTTON + CARD FIX
+   DO NOT RENAME ANY CLASS
+   ======================================== */
+
+@media (max-width: 600px) {
+
+    /* ----------------------------------------
+       EVENT CARD
+       ---------------------------------------- */
+
+    .trip-event-card,
+    .nearby-experience-grid .trip-event-card {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+
+        height: auto;
+        min-height: 0;
+
+        box-sizing: border-box;
+
+        overflow: hidden;
+
+        display: flex;
+        flex-direction: column;
+    }
+
+
+    /* ----------------------------------------
+       CARD CONTENT
+       ---------------------------------------- */
+
+    .trip-event-card-content,
+    .nearby-experience-grid .trip-event-card-content {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+
+        height: auto;
+        min-height: 0;
+
+        padding: 18px;
+
+        box-sizing: border-box;
+
+        display: flex;
+        flex-direction: column;
+    }
+
+
+    /* ----------------------------------------
+       TITLE
+       ---------------------------------------- */
+
+    .trip-event-card h3,
+    .nearby-experience-grid .trip-event-card-content h3 {
+        width: 100%;
+        min-width: 0;
+
+        margin: 0 0 10px;
+
+        font-size: 19px;
+        line-height: 1.4;
+
+        word-break: normal;
+        overflow-wrap: anywhere;
+    }
+
+
+    /* ----------------------------------------
+       DESCRIPTION / TEXT
+       ---------------------------------------- */
+
+    .trip-event-card p,
+    .nearby-experience-grid .trip-event-card-content p {
+        width: 100%;
+        min-width: 0;
+
+        font-size: 14px;
+        line-height: 1.55;
+
+        word-break: normal;
+        overflow-wrap: anywhere;
+    }
+
+
+    /* ========================================
+       ALL TRIP BUTTONS
+       ======================================== */
+
+    .trip-actions {
+        width: 100% !important;
+        min-width: 0 !important;
+
+        margin-top: 18px !important;
+        padding-top: 15px !important;
+
+        display: flex !important;
+        flex-direction: column !important;
+
+        gap: 10px !important;
+
+        box-sizing: border-box;
+    }
+
+
+    /* ----------------------------------------
+       ADD BUTTON
+       ---------------------------------------- */
+
+    .trip-actions .trip-add-button,
+    .trip-actions .trip-added-button {
+        width: 100% !important;
+        min-width: 0 !important;
+
+        flex: none !important;
+
+        min-height: 46px !important;
+        height: 46px !important;
+
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        box-sizing: border-box;
+    }
+
+
+    /* ----------------------------------------
+       REMOVE BUTTON
+       ---------------------------------------- */
+
+    .trip-actions .trip-remove-button {
+        width: 100% !important;
+        min-width: 0 !important;
+
+        flex: none !important;
+
+        min-height: 46px !important;
+        height: 46px !important;
+
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        box-sizing: border-box;
+
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+
+    /* ----------------------------------------
+       LEARN MORE BUTTON
+       ---------------------------------------- */
+
+    .trip-actions .trip-learn-button {
+        width: 100% !important;
+        min-width: 0 !important;
+
+        flex: none !important;
+
+        min-height: 46px !important;
+        height: 46px !important;
+
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        box-sizing: border-box;
+
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+
+    /* ========================================
+       NEARBY CARD BUTTONS
+       ======================================== */
+
+    .nearby-card-actions {
+        width: 100% !important;
+        min-width: 0 !important;
+
+        margin-top: 18px !important;
+        padding-top: 15px !important;
+
+        display: flex !important;
+        flex-direction: column !important;
+
+        gap: 10px !important;
+
+        box-sizing: border-box;
+    }
+
+    .nearby-card-actions button {
+        width: 100% !important;
+        min-width: 0 !important;
+
+        flex: none !important;
+
+        height: 46px !important;
+        min-height: 46px !important;
+
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        box-sizing: border-box;
+    }
+
+
+    /* ========================================
+       LEARN MORE IN NEARBY
+       ======================================== */
+
+    .nearby-experience-grid .trip-learn-button {
+        width: 100% !important;
+        min-width: 0 !important;
+
+        height: 46px !important;
+        min-height: 46px !important;
+
+        margin-top: 0 !important;
+
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        box-sizing: border-box;
+
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+
+    /* ========================================
+       EVENT IMAGE
+       ======================================== */
+
+    .trip-event-image,
+    .nearby-experience-grid .trip-event-image {
+        width: 100%;
+        max-width: 100%;
+
+        height: 200px;
+
+        flex-shrink: 0;
+
+        overflow: hidden;
+    }
+
+    .trip-event-image-img,
+    .nearby-experience-grid .trip-event-image-img {
+        width: 100%;
+        height: 100%;
+
+        display: block;
+
+        object-fit: cover;
+    }
+}
+
+
+/* ========================================
+   VERY SMALL PHONE
+   ======================================== */
+
+@media (max-width: 400px) {
+
+    .trip-actions,
+    .nearby-card-actions {
+        gap: 8px !important;
+    }
+
+    .trip-actions button,
+    .trip-actions a,
+    .nearby-card-actions button {
+        min-height: 44px !important;
+        height: 44px !important;
+
+        font-size: 13px !important;
+    }
+
+    .trip-event-card-content,
+    .nearby-experience-grid .trip-event-card-content {
+        padding: 15px;
+    }
+}
+
+/* ========================================
+   MY TRIPS - TRIP STATUS SECTIONS
+   ======================================== */
+
+.my-trips-section {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 45px;
+}
+
+
+/* ========================================
+   SECTION HEADER
+   ======================================== */
+
+.my-trips-section-header {
+    margin-bottom: 18px;
+}
+
+.my-trips-section-header h2 {
+    margin: 0 0 5px;
+
+    font-size: 24px;
+    line-height: 1.35;
+
+    color: #183b56;
+}
+
+.my-trips-section-header p {
+    margin: 0;
+
+    font-size: 14px;
+    line-height: 1.5;
+
+    color: #64748b;
+}
+
+
+/* ========================================
+   TRIP STATUS
+   ======================================== */
+
+.my-trip-status {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: fit-content;
+
+    margin-bottom: 12px;
+    padding: 5px 11px;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+/* Upcoming */
+
+.my-trip-status-upcoming {
+    background: #edf8ef;
+    color: #2f7654;
+
+    border: 1px solid #b9dfc3;
+}
+
+
+/* Today */
+
+.my-trip-status-today {
+    background: #eef5ff;
+    color: #2563eb;
+
+    border: 1px solid #bfdbfe;
+}
+
+
+/* Past */
+
+.my-trip-status-past {
+    background: #f3f4f6;
+    color: #6b7280;
+
+    border: 1px solid #d1d5db;
+}
+
+
+/* ========================================
+   TODAY CARD
+   ======================================== */
+
+.my-trip-card-today {
+    border: 2px solid #bfdbfe;
+}
+
+
+/* ========================================
+   UPCOMING CARD
+   ======================================== */
+
+.my-trip-card-upcoming {
+    border: 1px solid #cfe3d6;
+}
+
+
+/* ========================================
+   PAST CARD
+   ======================================== */
+
+.my-trip-card-past {
+    background: #fafafa;
+
+    border: 1px solid #e5e7eb;
+
+    opacity: 0.88;
+}
+
+
+/*
+   Keep text readable inside past trips.
+*/
+
+.my-trip-card-past h2 {
+    color: #374151;
+}
+
+.my-trip-card-past .my-trip-date,
+.my-trip-card-past .my-trip-area {
+    color: #6b7280;
+}
+
+
+/* ========================================
+   MOBILE
+   ======================================== */
+
+@media (max-width: 600px) {
+
+    .my-trips-section {
+        width: 100%;
+        max-width: 100%;
+
+        margin-bottom: 32px;
+    }
+
+
+    .my-trips-section-header {
+        margin-bottom: 14px;
+    }
+
+
+    .my-trips-section-header h2 {
+        font-size: 21px;
+        line-height: 1.35;
+    }
+
+
+    .my-trips-section-header p {
+        font-size: 13px;
+    }
+
+
+    .my-trip-status {
+        font-size: 11px;
+
+        padding: 5px 9px;
+
+        margin-bottom: 10px;
+    }
+
+
+    .my-trip-card-past {
+        opacity: 0.9;
+    }
+}

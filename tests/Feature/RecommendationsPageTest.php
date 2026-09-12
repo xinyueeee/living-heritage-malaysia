@@ -176,6 +176,29 @@ class RecommendationsPageTest extends TestCase
         );
     }
 
+    /**
+     * UAT-D02-03: when there are zero eligible candidate experiences at
+     * all (not just zero personalised ones — see the guest cold-start test
+     * above for that case), the page must say so plainly instead of
+     * rendering an empty grid with no explanation.
+     */
+    public function test_no_eligible_candidates_shows_the_no_recommendations_message(): void
+    {
+        $repository = Mockery::mock(ExperienceRepositoryInterface::class);
+        $repository->shouldReceive('getRecommendationCandidates')
+            ->once()
+            ->andReturn(new EloquentCollection([]));
+        $repository->shouldReceive('getPopularityCounts')
+            ->once()
+            ->andReturn(collect());
+        $this->app->instance(ExperienceRepositoryInterface::class, $repository);
+
+        $response = $this->get('/recommendations');
+
+        $response->assertOk();
+        $response->assertSee('No experiences are available at the moment.');
+    }
+
     private function experienceNamesShown(string $html): Collection
     {
         preg_match_all('/Experience \d+/', $html, $matches);

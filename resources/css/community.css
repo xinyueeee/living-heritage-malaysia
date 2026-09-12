@@ -58,7 +58,47 @@
     font-size: 1rem;
     font-family: Georgia, "Times New Roman", serif;
 }
+/* ===================================================
+   COMMUNITY TABS
+   =================================================== */
 
+.community-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    padding: 0 4px;
+    border-bottom: 2px solid #eee7e1;
+    padding-bottom: 12px;
+}
+
+.community-tab {
+    padding: 8px 20px;
+    border-radius: 20px;
+    color: #70655f;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    background: transparent;
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+.community-tab:hover {
+    background: #f5eee8;
+    color: #8A3A2D;
+    text-decoration: none;
+}
+
+.community-tab.active {
+    background: #8A3A2D;
+    color: #fff;
+}
+
+.community-tab.active:hover {
+    background: #6f2d22;
+    color: #fff;
+}
 
 /* ===================================================
    CREATE POST BUTTON
@@ -510,6 +550,53 @@
     color: #8A3A2D;
 }
 
+.post-options-wrapper {
+    position: relative;
+}
+
+.post-options-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    min-width: 120px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    padding: 6px 0;
+    z-index: 100;
+}
+
+.post-options-menu.show {
+    display: block;
+}
+
+.post-options-menu a,
+.post-options-menu button {
+    display: block;
+    width: 100%;
+    padding: 9px 14px;
+    text-align: left;
+    background: none;
+    border: none;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.post-option-edit {
+    color: #333;
+}
+
+.post-option-delete {
+    color: #c0392b;
+}
+
+.post-option-edit:hover,
+.post-option-delete:hover {
+    background: #f5f5f5;
+}
 
 /* ===================================================
    POST BODY
@@ -2249,4 +2336,507 @@
 
 .comment-toggle {
     cursor: pointer;
+}
+
+/* ===================================================
+   COMMUNITY GROUPS
+   =================================================== */
+
+.community-groups-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 55px !important;
+    padding-bottom: 90px !important;
+    color: #2C1E16;
+}
+
+
+/* ===================================================
+   GROUPS PAGE HEADER
+   =================================================== */
+
+.community-groups-page > .d-flex {
+    margin-bottom: 38px !important;
+    align-items: flex-end !important;
+}
+
+.community-groups-page h1 {
+    margin: 0 0 8px;
+    color: #2C1E16;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(2.4rem, 4vw, 3.4rem);
+    line-height: 1.1;
+    font-weight: 700;
+}
+
+.community-groups-page > .d-flex p {
+    color: #6f625b !important;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+
+/* ===================================================
+   BACK TO COMMUNITY BUTTON
+   =================================================== */
+
+.community-groups-page .btn-outline-secondary {
+    border: 1px solid #cdbdb3;
+    background: #fff;
+    color: #5d4d45;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-weight: 600;
+    font-family: Georgia, "Times New Roman", serif;
+    transition: .25s ease;
+}
+
+.community-groups-page .btn-outline-secondary:hover {
+    background: #f8eee9;
+    border-color: #8A3A2D;
+    color: #8A3A2D;
+}
+
+
+/* ===================================================
+   GROUP GRID
+   =================================================== */
+
+.community-groups-page .row {
+    row-gap: 40px !important;  
+    margin-bottom: 20px;       
+}
+
+/* ===================================================
+   GROUP CARD SPACING 
+   =================================================== */
+
+.community-groups-page .col-md-6 {
+    margin-bottom: 30px;
+}
+
+/* ===================================================
+   GROUP CARD
+   =================================================== */
+
+.community-groups-page .card {
+    height: 100%;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #eee3dc;
+    border-radius: 18px;
+    box-shadow: 0 7px 22px rgba(44, 30, 22, 0.06);
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease;
+}
+
+.community-groups-page .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(44, 30, 22, 0.11);
+}
+
+
+/* ===================================================
+   GROUP COVER IMAGE
+   =================================================== */
+
+.community-groups-page .card-img-top {
+    width: 100%;
+    height: 210px !important;
+    object-fit: cover;
+    display: block;
+    transition: transform .4s ease;
+}
+
+.community-groups-page .card:hover .card-img-top {
+    transform: scale(1.025);
+}
+
+
+/* ===================================================
+   NO COVER IMAGE
+   =================================================== */
+
+.community-groups-page .card > .bg-light {
+    height: 210px !important;
+    background: #f5eee8 !important;
+    color: #9a8980 !important;
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+
+/* ===================================================
+   GROUP CARD BODY
+   =================================================== */
+
+.community-groups-page .card-body {
+    padding: 23px 22px 22px;
+}
+
+.community-groups-page .card-title {
+    margin-bottom: 10px;
+    color: #2C1E16;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.community-groups-page .card-text {
+    margin-bottom: 18px;
+    color: #756860 !important;
+    font-size: .92rem;
+    line-height: 1.65;
+}
+
+
+/* ===================================================
+   MEMBER COUNT
+   =================================================== */
+
+.community-groups-page .card-body .text-muted.small {
+    margin-bottom: 15px !important;
+    color: #81736b !important;
+    font-size: .84rem;
+    font-weight: 600;
+}
+
+
+/* ===================================================
+   VIEW GROUP BUTTON
+   =================================================== */
+
+.community-groups-page .btn-primary {
+    border: none;
+    background: #8A3A2D;
+    color: #fff;
+    border-radius: 10px;
+    padding: 11px 18px;
+    font-weight: 600;
+    font-family: Georgia, "Times New Roman", serif;
+    transition:
+        background .25s ease,
+        transform .2s ease;
+}
+
+.community-groups-page .btn-primary:hover {
+    background: #6f2d22;
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+
+/* ===================================================
+   EMPTY GROUP STATE
+   =================================================== */
+
+.community-groups-page .text-center.py-5 {
+    padding: 80px 30px !important;
+    background: #fff;
+    border: 1px solid #eee7e1;
+    border-radius: 18px;
+    box-shadow: 0 6px 20px rgba(44, 30, 22, 0.05);
+}
+
+.community-groups-page .text-center.py-5 h4 {
+    margin-bottom: 12px;
+    color: #2C1E16;
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+.community-groups-page .text-center.py-5 p {
+    color: #81756e !important;
+}
+
+
+/* ===================================================
+   GROUP DETAIL PAGE
+   =================================================== */
+
+.community-groups-page > .mb-4:first-child {
+    margin-bottom: 20px !important;
+}
+
+.community-groups-page > .mb-4:first-child a {
+    color: #8A3A2D;
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 600;
+    text-decoration: none;
+    transition: .2s ease;
+}
+
+.community-groups-page > .mb-4:first-child a:hover {
+    color: #6f2d22;
+}
+
+
+/* ===================================================
+   GROUP HEADER CARD
+   =================================================== */
+
+.community-groups-page > .card.shadow-sm.mb-4 {
+    overflow: hidden;
+    margin-bottom: 38px !important;
+    border: 1px solid #eee3dc;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 9px 28px rgba(44, 30, 22, 0.07) !important;
+}
+
+
+/* ===================================================
+   GROUP DETAIL COVER
+   =================================================== */
+
+.community-groups-page > .card.shadow-sm.mb-4 > img {
+    display: block;
+    width: 100%;
+    height: 300px !important;
+    object-fit: cover;
+}
+
+
+/* ===================================================
+   GROUP DETAIL INFORMATION
+   =================================================== */
+
+.community-groups-page > .card.shadow-sm.mb-4 .card-body {
+    padding: 30px 32px;
+}
+
+.community-groups-page > .card.shadow-sm.mb-4 h1 {
+    margin-bottom: 10px;
+    font-size: clamp(2rem, 3.5vw, 2.8rem);
+}
+
+.community-groups-page > .card.shadow-sm.mb-4 p {
+    max-width: 700px;
+    margin-bottom: 10px !important;
+    color: #71645d !important;
+    line-height: 1.7;
+}
+
+.community-groups-page > .card.shadow-sm.mb-4 .text-muted {
+    color: #81736b !important;
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+
+/* ===================================================
+   JOIN / LEAVE BUTTON
+   =================================================== */
+
+.community-groups-page > .card.shadow-sm.mb-4 .btn {
+    min-width: 145px;
+    padding: 11px 20px;
+    border-radius: 10px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 600;
+}
+
+.community-groups-page > .card.shadow-sm.mb-4 .btn-outline-danger {
+    border: 1px solid #b7796e;
+    color: #8A3A2D;
+    background: #fff;
+}
+
+.community-groups-page > .card.shadow-sm.mb-4 .btn-outline-danger:hover {
+    background: #f9ece8;
+    border-color: #8A3A2D;
+    color: #6f2d22;
+}
+
+
+/* ===================================================
+   SUCCESS MESSAGE
+   =================================================== */
+
+.community-groups-page .alert-success {
+    margin-bottom: 28px;
+    border-radius: 12px;
+}
+
+
+/* ===================================================
+   GROUP POSTS TITLE
+   =================================================== */
+
+.community-groups-page > .mb-3 h2 {
+    margin: 0 0 20px;
+    color: #2C1E16;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+
+/* ===================================================
+   GROUP POST CARD SPACING
+   =================================================== */
+
+.community-groups-page .post-card {
+    margin-bottom: 25px;
+}
+
+
+/* ===================================================
+   RESPONSIVE - GROUPS
+   =================================================== */
+
+@media (max-width: 768px) {
+
+    .community-groups-page {
+        padding-top: 35px !important;
+        padding-bottom: 60px !important;
+    }
+
+    .community-groups-page > .d-flex {
+        align-items: flex-start !important;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .community-groups-page h1 {
+        font-size: 2.4rem;
+    }
+
+    .community-groups-page .card-img-top,
+    .community-groups-page .card > .bg-light {
+        height: 190px !important;
+    }
+
+    .community-groups-page > .card.shadow-sm.mb-4 > img {
+        height: 240px !important;
+    }
+
+    .community-groups-page > .card.shadow-sm.mb-4 .card-body {
+        padding: 25px 22px;
+    }
+
+    .community-groups-page > .card.shadow-sm.mb-4 .d-flex {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .community-groups-page > .card.shadow-sm.mb-4 .btn {
+        width: 100%;
+    }
+}
+
+
+/* ===================================================
+   RESPONSIVE - SMALL MOBILE
+   =================================================== */
+
+@media (max-width: 500px) {
+
+    .community-groups-page {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+
+    .community-groups-page h1 {
+        font-size: 2rem;
+    }
+
+    .community-groups-page .card-body {
+        padding: 20px;
+    }
+
+    .community-groups-page .card-title {
+        font-size: 1.2rem;
+    }
+
+    .community-groups-page > .card.shadow-sm.mb-4 > img {
+        height: 200px !important;
+    }
+}
+
+/* ===================================================
+   GROUP DETAIL - ACTION BUTTONS
+   =================================================== */
+
+.community-groups-page .group-action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.community-groups-page .group-action-buttons .btn {
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Leave Group Button */
+.community-groups-page .group-action-buttons .btn-outline-danger {
+    border: 1.5px solid #b7796e;
+    color: #8A3A2D;
+    background: transparent;
+}
+
+.community-groups-page .group-action-buttons .btn-outline-danger:hover {
+    background: #f9ece8;
+    border-color: #8A3A2D;
+    color: #6f2d22;
+    transform: translateY(-1px);
+}
+
+/* Join Group Button */
+.community-groups-page .group-action-buttons .btn-primary {
+    background: #8A3A2D;
+    border: none;
+    color: #fff;
+}
+
+.community-groups-page .group-action-buttons .btn-primary:hover {
+    background: #6f2d22;
+    transform: translateY(-1px);
+}
+
+/* Create Post Button */
+.community-groups-page .group-action-buttons .btn-create-post {
+    background: #8A3A2D;
+    border: none;
+    color: #fff;
+}
+
+.community-groups-page .group-action-buttons .btn-create-post:hover {
+    background: #6f2d22;
+    transform: translateY(-1px);
+}
+
+/* Mobile responsive */
+@media (max-width: 576px) {
+    .community-groups-page .group-action-buttons {
+        width: 100%;
+    }
+
+    .community-groups-page .group-action-buttons .btn {
+        flex: 1;
+        justify-content: center;
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+
+    .community-groups-page .group-action-buttons form {
+        flex: 1;
+    }
+
+    .community-groups-page .group-action-buttons form .btn {
+        width: 100%;
+    }
 }

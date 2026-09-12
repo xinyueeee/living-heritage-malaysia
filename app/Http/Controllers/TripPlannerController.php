@@ -769,9 +769,10 @@ class TripPlannerController extends Controller
     $userId = auth()->id();
 
     $trips = TripPlan::with('items')
-        ->where('user_id', $userId)
-        ->orderBy('trip_date')
-        ->get();
+    ->where('user_id', $userId)
+    ->whereDate('trip_date', '>=', today())
+    ->orderBy('trip_date')
+    ->get();
 
     return response()->json([
         'success' => true,

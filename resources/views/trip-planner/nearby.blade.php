@@ -453,39 +453,59 @@ async function openNearbyTripPopup(
         */
 
         const matchingTrips =
-            data.trips.filter(function(trip)
-            {
-                /*
-                |--------------------------------------------------------------------------
-                | 1. Same area
-                |--------------------------------------------------------------------------
-                */
+    data.trips.filter(function(trip)
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | 1. Same area
+        |--------------------------------------------------------------------------
+        */
 
-                const sameArea =
-                    trip.area &&
-                    trip.area.toLowerCase() ===
-                    experienceArea.toLowerCase();
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | 2. Experience not already added
-                |--------------------------------------------------------------------------
-                */
-
-                const alreadyContainsExperience =
-                    trip.experience_ids
-                        .map(String)
-                        .includes(
-                            String(experienceId)
-                        );
+        const sameArea =
+            trip.area &&
+            experienceArea &&
+            trip.area.toLowerCase().trim() ===
+            experienceArea.toLowerCase().trim();
 
 
-                return (
-                    sameArea &&
-                    !alreadyContainsExperience
+        /*
+        |--------------------------------------------------------------------------
+        | 2. Trip date must be today or in the future
+        |--------------------------------------------------------------------------
+        */
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const tripDate = new Date(trip.trip_date);
+
+        tripDate.setHours(0, 0, 0, 0);
+
+        const tripNotPassed =
+            !isNaN(tripDate.getTime()) &&
+            tripDate >= today;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | 3. Experience not already added
+        |--------------------------------------------------------------------------
+        */
+
+        const alreadyContainsExperience =
+            trip.experience_ids
+                .map(String)
+                .includes(
+                    String(experienceId)
                 );
-            });
+
+
+        return (
+            sameArea &&
+            tripNotPassed &&
+            !alreadyContainsExperience
+        );
+    });
 
 
         /*

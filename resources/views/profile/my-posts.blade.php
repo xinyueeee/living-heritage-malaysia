@@ -47,6 +47,7 @@
                         @include('community.partials.post-card', [
                             'post' => $post,
                             'isSaved' => in_array($post->post_id, $savedPostIds ?? [], true),
+                            'fromProfile' => true,
                         ])
 
                     @endforeach

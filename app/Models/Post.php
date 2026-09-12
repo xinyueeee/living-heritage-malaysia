@@ -25,7 +25,9 @@ class Post extends Model
         'saved_users',
         'created_at',
         'experience_id',
+        'community_group_id',
     ];
+
 
     /*
     |--------------------------------------------------------------------------
@@ -55,6 +57,22 @@ class Post extends Model
             Experience::class,
             'experience_id',
             'experiences_id'
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | COMMUNITY GROUP
+    |--------------------------------------------------------------------------
+    */
+
+    public function communityGroup(): BelongsTo
+    {
+        return $this->belongsTo(
+            CommunityGroup::class,
+            'community_group_id',
+            'group_id'
         );
     }
 
@@ -91,11 +109,6 @@ class Post extends Model
     |--------------------------------------------------------------------------
     | COMMENTS
     |--------------------------------------------------------------------------
-    |
-    | IMPORTANT:
-    | We use "postComments" instead of "comments"
-    | because the post table already has a "comments" column.
-    |
     */
 
     public function postComments(): HasMany

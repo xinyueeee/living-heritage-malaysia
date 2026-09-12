@@ -60,8 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 wrap.dataset.photoHistory = JSON.stringify([newPhoto, ...existing]);
             } catch (parseError) {
-                // Leave the stored history untouched; the modal will just
-                // pick up the fresh list next time the page reloads.
             }
 
             if (successEl) {

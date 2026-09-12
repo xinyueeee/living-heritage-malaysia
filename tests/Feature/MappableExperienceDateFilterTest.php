@@ -108,6 +108,36 @@ class MappableExperienceDateFilterTest extends TestCase
         ], $names);
     }
 
+    public function test_map_festival_eligibility_uses_the_malaysia_calendar_date_at_the_utc_boundary(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-09-05 18:00:00', 'UTC'));
+
+        $this->insertExperience('Sepilok Jazz Festival', '2026-09-04', '2026-09-05');
+        $this->insertExperience('Ends Today in Malaysia', '2026-09-04', '2026-09-06');
+        $this->insertExperience('Starts Today Without End Date', '2026-09-06', null);
+        $this->insertExperience('Future Festival', '2026-09-07', '2026-09-08');
+        $this->insertExperience(
+            'Available Cultural Experience With Past Dates',
+            '2026-01-01',
+            '2026-01-02',
+            typeId: 2,
+            categoryId: 2,
+        );
+
+        $names = app(EloquentExperienceRepository::class)
+            ->getMappableExperiences([])
+            ->pluck('experiences_name')
+            ->all();
+
+        $this->assertSame([
+            'Ends Today in Malaysia',
+            'Starts Today Without End Date',
+            'Future Festival',
+            'Available Cultural Experience With Past Dates',
+        ], $names);
+        $this->assertNotContains('Sepilok Jazz Festival', $names);
+    }
+
     private function insertExperience(
         string $name,
         ?string $startDate,

@@ -69,10 +69,13 @@ class PersonalizedRecommendationService
         );
         $effectiveWeights = $this->normalizeWeights($profile);
         $ranked = $this->rankCandidates($candidates, $profile, $effectiveWeights, $popularity);
-        $displayInterests = $interests
-            ->whereIn('category_id', $profile['interestIds'])
-            ->take(3)
-            ->values();
+
+        // Show what the tourist actually selected in their profile, not the
+        // subset that happened to survive intersection with this request's
+        // sampled candidate pool — otherwise a genuinely-selected interest
+        // can silently disappear from the page just because this batch of
+        // candidates didn't happen to include that category.
+        $displayInterests = $interests->take(3)->values();
 
         return [
             'recommendedExperiences' => $this->selectDiverse($ranked, $limit),
