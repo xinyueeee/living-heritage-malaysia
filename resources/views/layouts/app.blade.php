@@ -12,6 +12,7 @@
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
+    @stack('styles')
 </head>
 
 <script>
@@ -63,7 +64,6 @@ setInterval(updateNotificationBadge, 10000);
         <x-discovery-assistant />
     @endif
 
-    @stack('styles')
     @stack('scripts')
 </body>
 </html>
