@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 use App\Models\Post;
+use App\Models\CommunityGroup;
 use App\Services\Community\SavedPostService;
 use App\Services\Profile\ProfileAchievementsService;
 use App\Services\ProfileService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
+
 
 class ProfileController extends Controller
 {
@@ -55,11 +58,19 @@ class ProfileController extends Controller
             'photoHistory' => $this->profileService->getPhotoHistory($userId),
         ]);
     }
-    public function myPosts(): View
-    {   
-        if (! Auth::check()){
-             return view('profile.guest');
+        public function myPosts(Request $request): View
+    {
+        if (! Auth::check()) {
+            return view('profile.guest');
         }
+
+        // Price filter:
+        // all  = show all posts
+        // free = show posts linked to free experiences
+        // paid = show posts linked to paid experiences
+        $priceFilter = $request->query('price', 'all');
+        $groupFilter = $request->query('group', 'all');
+
         $posts = Post::query()
             ->with([
                 'experience.category',
@@ -68,15 +79,48 @@ class ProfileController extends Controller
                 'postComments.user',
             ])
             ->withCount('postComments')
-            ->withExists(['likes as is_liked_by_user' => fn ($likes) => $likes->where('user_id', Auth::id())])
+            ->withExists([
+                'likes as is_liked_by_user' => fn ($likes) =>
+                    $likes->where('user_id', Auth::id()),
+            ])
             ->where('user_id', Auth::id())
+            ->when($priceFilter === 'free', function ($query) {
+                $query->whereHas('experience', function ($experienceQuery) {
+                    $experienceQuery->where('price', 0);
+                });
+            })
+            ->when($priceFilter === 'paid', function ($query) {
+                $query->whereHas('experience', function ($experienceQuery) {
+                    $experienceQuery->where('price', '>', 0);
+                });
+            })
+            ->when($groupFilter === 'community', function ($query) {
+                $query->whereNull('community_group_id');
+            })
+            ->when(is_numeric($groupFilter), function ($query) use ($groupFilter) {
+                $query->where('community_group_id', (int) $groupFilter);
+            })
             ->latest('created_at')
             ->get();
 
         $savedPostIds = $this->savedPostService->getSavedPostIds(Auth::user());
 
-        return view('profile.my-posts', ['posts' => $posts, 'savedPostIds' => $savedPostIds]);
+        $joinedGroups = CommunityGroup::query()
+            ->whereHas('members', function ($query) {
+                $query->where('user_id', Auth::id());
+            })
+            ->orderBy('name')
+            ->get();
+
+        return view('profile.my-posts', [
+            'posts' => $posts,
+            'savedPostIds' => $savedPostIds,
+            'priceFilter' => $priceFilter,
+            'groupFilter' => $groupFilter,
+            'joinedGroups' => $joinedGroups,
+        ]);
     }
+
 
     public function achievements(): View
     {
