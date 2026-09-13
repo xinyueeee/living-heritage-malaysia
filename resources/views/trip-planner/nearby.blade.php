@@ -233,6 +233,7 @@ function displayNearbyExperiences(experiences)
                             src="${experience.image_url}"
                             alt="${experience.experiences_name}"
                             class="trip-event-image-img"
+                            referrerpolicy="no-referrer"
                         >
                     </div>
                 ` : ''}
