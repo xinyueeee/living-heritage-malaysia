@@ -178,20 +178,6 @@ class CommunityController extends Controller
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | CULTURAL EXPERIENCES
-        |--------------------------------------------------------------------------
-        */
-
-        $experiences = Experience::query()
-            ->with([
-                'category',
-                'type',
-            ])
-            ->orderBy('experiences_name')
-            ->get();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -854,7 +840,6 @@ class CommunityController extends Controller
 
         return view('community.edit', [
             'post' => $post,
-            'experiences' => $experiences,
             'groups' => $groups,
             'from' => $request->query('from', 'community'),
         ]);
@@ -878,7 +863,6 @@ class CommunityController extends Controller
         }
 
         $validated = $request->validate([
-            'experience_id' => ['nullable','integer','exists:experiences,experiences_id',],
 
             'community_group_id' => ['nullable','integer','exists:community_group,group_id',],
 
@@ -1091,7 +1075,7 @@ class CommunityController extends Controller
         */
 
         $post->update([
-            'experience_id' => $experienceId ?: null,
+            
 
             'community_group_id' => $communityGroupId ?: null,
 
