@@ -815,22 +815,51 @@ class CommunityController extends Controller
     {
         $user = Auth::user();
 
-        // Only the post owner can edit
+    // Only the post owner can edit
         if ($post->user_id !== $user->user_id) {
             abort(403);
         }
 
+    /*
+    |--------------------------------------------------------------------------
+    | CULTURAL EXPERIENCES
+    |--------------------------------------------------------------------------
+    */
+
         $experiences = Experience::with([
             'category',
             'type',
-        ])->get();
+        ])
+            ->orderBy('experiences_name')
+            ->get();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | USER'S JOINED COMMUNITY GROUPS
+    |--------------------------------------------------------------------------
+    |
+    | Only groups that the current user has joined
+    | can be selected when editing the post.
+    |
+    */
+
+        $groups = CommunityGroup::query()
+            ->whereHas('members', function ($query) use ($user) {
+                $query->where('user_id', $user->user_id);
+            })
+            ->orderBy('name')
+            ->get();
+
 
         return view('community.edit', [
             'post' => $post,
             'experiences' => $experiences,
+            'groups' => $groups,
             'from' => $request->query('from', 'community'),
         ]);
     }
+
 
 
     /*
@@ -849,38 +878,54 @@ class CommunityController extends Controller
         }
 
         $validated = $request->validate([
-            'experience_id' => [
-                'nullable',
-                'integer',
-                'exists:experiences,experiences_id',
-            ],
+            'experience_id' => ['nullable','integer','exists:experiences,experiences_id',],
 
-            'content' => [
-                'nullable',
-                'string',
-                'max:2000',
-            ],
+            'community_group_id' => ['nullable','integer','exists:community_group,group_id',],
 
-            'images' => [
-                'nullable',
-                'array',
-                'max:10',
-            ],
+            'content' => ['nullable','string','max:2000',],
 
-            'images.*' => [
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'max:5120',
-            ],
+            'images' => ['nullable','array','max:10',],
 
-            'keep_images' => [
-                'nullable',
-                'array',
-            ],
+            'images.*' => ['image','mimes:jpg,jpeg,png,webp','max:5120',],
+
+            'keep_images' => ['nullable','array',],
         ]);
 
         $content = trim($validated['content'] ?? '');
         $experienceId = $validated['experience_id'] ?? null;
+        $communityGroupId = $validated['community_group_id'] ?? null;
+
+        if ($communityGroupId === '') {
+            $communityGroupId = null;
+        }
+
+        /*
+            |--------------------------------------------------------------------------
+            | CHECK GROUP MEMBERSHIP
+            |--------------------------------------------------------------------------
+            |
+            | A user can only move a post into a group
+            | if they are a member of that group.
+            |
+            */
+
+        if ($communityGroupId !== null) {
+
+            $isMember = DB::table('community_group_member')
+                ->where('group_id', $communityGroupId)
+                ->where('user_id', $user->user_id)
+                ->exists();
+
+            if (!$isMember) {
+
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'community_group_id' =>
+                            'You must join this group before moving the post into it.',
+                ]);
+            }
+        }
 
 
         /*
@@ -903,7 +948,6 @@ class CommunityController extends Controller
             }
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | Keep selected existing images
@@ -915,7 +959,6 @@ class CommunityController extends Controller
         if (!is_array($keepImages)) {
             $keepImages = [];
         }
-
         $remainingImages = [];
 
         foreach ($existingImages as $image) {
@@ -924,8 +967,6 @@ class CommunityController extends Controller
                 $remainingImages[] = $image;
             }
         }
-
-
         /*
         |--------------------------------------------------------------------------
         | Upload new images
@@ -941,13 +982,11 @@ class CommunityController extends Controller
         // Remove null values
         $newImages = array_filter($newImages);
 
-
         /*
         |--------------------------------------------------------------------------
         | Maximum 10 images
         |--------------------------------------------------------------------------
         */
-
         if (count($remainingImages) + count($newImages) > 10) {
 
             return back()
@@ -957,13 +996,11 @@ class CommunityController extends Controller
                 ]);
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | Upload new images to Supabase Storage
         |--------------------------------------------------------------------------
         */
-
         $baseUrl = rtrim(
             config('services.supabase.url'),
             '/'
@@ -1047,9 +1084,16 @@ class CommunityController extends Controller
         | Update Post
         |--------------------------------------------------------------------------
         */
+        /*
+        $originalGroupId = $post->community_group_id
+            ? (int) $post->community_group_id
+            : null;
+        */
 
         $post->update([
             'experience_id' => $experienceId ?: null,
+
+            'community_group_id' => $communityGroupId ?: null,
 
             'content' => $content !== ''
                 ? $content
@@ -1070,24 +1114,85 @@ class CommunityController extends Controller
         // Remember where the user came from
         $from = $request->input('from', 'community');
 
-        // Return to My Posts
+        $newGroupId = $post->community_group_id
+            ? (int) $post->community_group_id
+            : null;
+
+        /*$locationChanged = $originalGroupId !== $newGroupId;*/
+
+        /*
+        |--------------------------------------------------------------------------
+        | Return to My Posts
+        |--------------------------------------------------------------------------
+        */
+
         if ($from === 'profile') {
             return redirect()
                 ->route('profile.my-posts')
                 ->with('success', 'Post updated successfully.');
         }
 
-        // Return to Community Group
-        if ($post->community_group_id) {
+        /*
+        |--------------------------------------------------------------------------
+        | Community Feed
+        |--------------------------------------------------------------------------
+        |
+        | When the post is moved into a group, return to the
+        | Community Feed with that group filter selected.
+        |
+        */
+
+        if ($from === 'community') {
+
+            if ($newGroupId !== null) {
+                return redirect()
+                    ->route('community.index', [
+                        'group_id' => $newGroupId,
+                    ])
+                    ->with('success', 'Post updated successfully.');
+            }
+
             return redirect()
-                ->route('community.groups.show', $post->community_group_id)
+                ->route('community.index')
                 ->with('success', 'Post updated successfully.');
         }
 
-        // Return to Community
+        /*
+        |--------------------------------------------------------------------------
+        | Community Group
+        |--------------------------------------------------------------------------
+        |
+        | The post is moved back to the main Community Feed.
+        |
+        */
+
+        if ($from === 'group') {
+
+            if ($newGroupId === null) {
+                return redirect()
+                    ->route('community.index')
+                    ->with('success', 'Post updated successfully.');
+            }
+
+            return redirect()
+                ->route('community.groups.show', $newGroupId)
+                ->with('success', 'Post updated successfully.');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Default
+        |      --------------------------------------------------------------------------
+        |
+        | For Edit Post, return to the Community Feed after
+        | updating content, photos, or experience.
+        |
+        */
+
         return redirect()
             ->route('community.index')
             ->with('success', 'Post updated successfully.');
+
     }
 
 

@@ -72,7 +72,11 @@
                         <a
                             href="{{ route('community.posts.edit',[
                                 'post' => $post->post_id,
-                                'from' => isset($fromProfile) && $fromProfile ? 'profile' : 'community',
+                                'from' => isset($fromProfile) && $fromProfile 
+                                ? 'profile'
+                                : (request()->routeIs('community.groups.show')
+                                    ? 'group'
+                                    : 'community'),
                             ]) }}"
                             class="post-option-edit"
                         >
