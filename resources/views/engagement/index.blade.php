@@ -272,13 +272,6 @@
                         Complete cultural experiences to earn your
                         first achievement badge.
                     </p>
-
-                    <a
-                        href="{{ route('engagement.achievements') }}"
-                        class="outline-btn"
-                    >
-                        View Badge Progress
-                    </a>
                 </div>
             @endforelse
         </div>
