@@ -4426,3 +4426,84 @@ body.modal-open {
 .passport-stamps .passport-stamp span {
     color: #A52A1A;
 }
+
+@media (max-width: 600px) {
+    .engagement-page .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    .engagement-page .stat-card {
+        min-width: 0;
+        padding: 14px 10px;
+        gap: 8px;
+        border-radius: 12px;
+    }
+
+    .engagement-page .stat-icon {
+        flex-shrink: 0;
+        font-size: 24px;
+    }
+
+    .engagement-page .stat-card h3 {
+        font-size: 22px;
+        line-height: 1.2;
+    }
+
+    .engagement-page .stat-card p {
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+}
+
+.engagement-page .passport-stamps > .empty-state {
+    transform: translateX(clamp(8px, 2vw, 24px));
+}
+
+.engagement-page .recent-journey-empty {
+    grid-column: 1 / -1;
+    padding: 60px 24px;
+    border: 1px solid var(--heritage-border);
+    border-radius: 16px;
+    background: var(--heritage-paper);
+    text-align: center;
+    color: var(--heritage-muted);
+    box-shadow: 0 6px 18px rgba(72, 37, 22, .08);
+}
+
+.engagement-page .recent-journey-empty > span {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 2.8rem;
+}
+
+.engagement-page .recent-journey-empty h3 {
+    margin: 0 0 8px;
+    color: var(--heritage-ink);
+}
+
+@media (max-width: 600px) {
+    .engagement-page .recent-journey-empty,
+    .engagement-page .recent-badge-empty {
+        padding: 28px 16px;
+    }
+}
+
+@media (max-width: 600px) {
+    .engagement-page .passport-stamps > .empty-state {
+        grid-column: 1 / 3;
+        min-width: 0;
+        padding: 0 6px;
+        transform: none;
+        text-align: center;
+    }
+
+    .engagement-page .passport-stamps > .empty-state p {
+        margin: 8px 0 0;
+        font-size: clamp(10px, 3vw, 14px);
+        line-height: 1.5;
+        color: #A52A1A;
+    }
+}

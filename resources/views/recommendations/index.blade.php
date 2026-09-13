@@ -13,6 +13,11 @@
             @endif
         >
             <div class="recommendations-container recommendations-hero-content">
+                <a class="recommendations-back" href="{{ route('experiences.index') }}">
+                    <span aria-hidden="true">&larr;</span>
+                    <span>Back to Discovery</span>
+                </a>
+
                 <div class="recommendations-title-row">
                     <x-home-icon name="sparkles" />
                     <h1>Personalized Recommendations</h1>

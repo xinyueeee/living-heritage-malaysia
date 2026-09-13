@@ -68,11 +68,20 @@ class EloquentExperienceRepository implements ExperienceRepositoryInterface
     public function searchExperiences(array $filters, int $perPage): LengthAwarePaginator
     {
         $sort = $filters['sort'] ?? 'newest';
+        $today = CarbonImmutable::today('Asia/Kuala_Lumpur');
 
         return $this->applyDiscoveryFilters(
             Experience::query()->with(['category', 'type']),
             $filters,
         )
+            // Experiences with an upcoming (or ongoing) date always come first,
+            // soonest first, since a future-dated experience is more useful to
+            // a browsing user than the order it was added to the system.
+            ->orderByRaw(
+                'CASE WHEN start_date IS NOT NULL AND start_date >= ? THEN 0 ELSE 1 END',
+                [$today]
+            )
+            ->orderBy('start_date')
             ->when(
                 $sort === 'oldest',
                 fn ($query) => $query->oldest('created_at')->oldest('experiences_id'),
