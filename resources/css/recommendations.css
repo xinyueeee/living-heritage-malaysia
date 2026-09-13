@@ -52,6 +52,18 @@
     padding: 38px 0 30px;
 }
 
+.recommendations-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 16px;
+    color: var(--recommendations-body);
+    font-size: .9rem;
+    font-weight: 600;
+}
+.recommendations-back:hover { color: var(--recommendations-red); }
+.recommendations-back span:first-child { font-size: 1.1rem; }
+
 .recommendations-title-row,
 .recommendations-section-heading {
     display: flex;
