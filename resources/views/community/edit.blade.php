@@ -26,7 +26,9 @@
             }}"
             class="back-link"
         >
+
             ← Back
+
         </a>
 
 
@@ -41,7 +43,7 @@
             </h1>
 
             <p>
-                Update your community group, cultural experience, content, and photos.
+                Update your community group, content, and photos.
             </p>
 
         </div>
@@ -175,130 +177,6 @@
                     >
                         You can select one of the community groups you have joined.
                     </small>
-
-                </div>
-
-
-                {{-- =================================================
-                     CULTURAL EXPERIENCE
-                ================================================== --}}
-
-                <div class="form-group experience-selector">
-
-                    <div class="form-label-row">
-
-                        <label for="experienceSearch">
-                            Cultural Experience
-                        </label>
-
-                        <span class="optional">
-                            (Optional)
-                        </span>
-
-                    </div>
-
-
-                    <p class="form-help">
-                        Link your post to a cultural experience or festival.
-                    </p>
-
-
-                    {{-- SEARCH + SELECT --}}
-
-                    <div class="experience-select-row">
-
-
-                        {{-- SEARCH BOX --}}
-
-                        <div class="experience-search-box">
-
-                            <span class="search-icon">
-                                🔍
-                            </span>
-
-                            <input
-                                type="search"
-                                id="experienceSearch"
-                                placeholder="Search experiences..."
-                                autocomplete="off"
-                                value=""
-                            >
-
-                        </div>
-
-
-                        {{-- SELECT --}}
-
-                        <div class="experience-dropdown">
-
-                            <select
-                                id="experience_id"
-                                name="experience_id"
-                            >
-
-                                <option value="">
-                                    No experience selected
-                                </option>
-
-
-                                @foreach ($experiences as $experience)
-
-                                    <option
-                                        value="{{ $experience->experiences_id }}"
-
-                                        data-name="{{ $experience->experiences_name }}"
-
-                                        data-location="{{ $experience->location_name ?? '' }}"
-
-                                        data-type="{{ $experience->type?->type_name ?? '' }}"
-
-                                        data-category="{{ $experience->category?->category_name ?? '' }}"
-
-                                        data-search="{{ strtolower(
-                                            $experience->experiences_name
-                                            . ' '
-                                            . ($experience->location_name ?? '')
-                                            . ' '
-                                            . ($experience->type?->type_name ?? '')
-                                            . ' '
-                                            . ($experience->category?->category_name ?? '')
-                                        ) }}"
-
-                                        @selected(
-                                            old(
-                                                'experience_id',
-                                                $post->experience_id
-                                            ) == $experience->experiences_id
-                                        )
-                                    >
-
-                                        {{ $experience->experiences_name }}
-
-                                    </option>
-
-                                @endforeach
-
-                            </select>
-
-                        </div>
-
-                    </div>
-
-
-                    {{-- SEARCH MESSAGE --}}
-
-                    <small
-                        id="experienceSearchMessage"
-                        class="experience-search-message"
-                    ></small>
-
-
-                    {{-- SEARCH RESULTS --}}
-
-                    <div
-                        id="experienceSearchResults"
-                        class="experience-search-results"
-                    ></div>
 
                 </div>
 
@@ -563,7 +441,9 @@
                         }}"
                         class="cancel-btn"
                     >
+
                         Cancel
+
                     </a>
 
 
@@ -574,7 +454,9 @@
                         class="publish-btn"
                         id="saveChangesButton"
                     >
+
                         Save Changes
+
                     </button>
 
                 </div>
@@ -600,98 +482,161 @@
 <style>
 
     .edit-current-photos {
+
         display: flex;
+
         align-items: flex-start;
+
         gap: 8px;
+
         flex-wrap: wrap;
+
         width: 100%;
+
     }
 
 
     .edit-current-photo {
+
         position: relative;
+
         width: 82px;
+
         height: 130px;
+
         flex: 0 0 82px;
+
         overflow: hidden;
+
         border-radius: 7px;
+
         background: #f5f5f5;
+
         transition:
             opacity .2s ease,
             transform .2s ease;
+
     }
 
 
     .edit-current-photo img {
+
         display: block;
+
         width: 100%;
+
         height: 100%;
+
         object-fit: cover;
+
     }
 
 
     .edit-remove-image {
+
         position: absolute;
+
         top: 4px;
+
         right: 4px;
+
         width: 21px;
+
         height: 21px;
+
         padding: 0;
+
         border: none;
+
         border-radius: 50%;
+
         background: #fff;
+
         color: #8A3A2D;
+
         font-size: 16px;
+
         font-weight: 700;
+
         line-height: 21px;
+
         text-align: center;
+
         cursor: pointer;
+
         z-index: 20;
+
         box-shadow: 0 1px 4px rgba(0,0,0,.15);
+
     }
 
 
     .edit-remove-image:hover {
+
         background: #8A3A2D;
+
         color: #fff;
+
     }
 
 
     .edit-current-photo.is-removed {
+
         opacity: .35;
+
     }
 
 
     .edit-current-photo.is-removed img {
+
         filter: grayscale(1);
+
     }
 
 
     .edit-current-photo.is-removed::after {
+
         content: "Removed";
+
         position: absolute;
+
         left: 0;
+
         right: 0;
+
         bottom: 0;
+
         padding: 5px 2px;
+
         background: rgba(138,58,45,.9);
+
         color: #fff;
+
         font-size: 10px;
+
         text-align: center;
+
         z-index: 10;
+
     }
 
 
     @media (max-width: 600px) {
 
         .edit-current-photos {
+
             gap: 6px;
+
         }
 
         .edit-current-photo {
+
             width: 75px;
+
             height: 115px;
+
             flex-basis: 75px;
+
         }
 
     }
